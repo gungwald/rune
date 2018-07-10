@@ -2,6 +2,7 @@ package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,12 +13,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
@@ -29,7 +30,8 @@ public class Notepad extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     private AntiAliasedJTextArea textArea = new AntiAliasedJTextArea(24, 80);
-    private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    private JScrollPane textScrollPane =
+            new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
     private JMenuItem openMenuItem = new JMenuItem("Open");
@@ -37,9 +39,9 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem close = new JMenuItem("Close");
 
     public Notepad() {
-    	super("Notepad");
+        super("Notepad");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, pointToPixel(12)));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
@@ -65,12 +67,11 @@ public class Notepad extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.close) {
-            this.dispose(); 
-        }
-        else if (e.getSource() == this.openMenuItem) {
-        	JFileChooser fileDialogOpen = new JFileChooser();
-        	fileDialogOpen.setDialogTitle("Choose a file to open");
-        	fileDialogOpen.showOpenDialog(this);
+            this.dispose();
+        } else if (e.getSource() == this.openMenuItem) {
+            JFileChooser fileDialogOpen = new JFileChooser();
+            fileDialogOpen.setDialogTitle("Choose a file to open");
+            fileDialogOpen.showOpenDialog(this);
             File selectedFile = fileDialogOpen.getSelectedFile();
             if (selectedFile != null) {
                 textArea.setText("");
@@ -82,30 +83,25 @@ public class Notepad extends JFrame implements ActionListener {
                         textArea.append(line + "\n");
                     }
                     this.setTitle(selectedFile.getName());
-                }
-                catch (Exception ex) {
-                    new MessageBox(this, "Error", ex.getMessage());
-                }
-                finally {
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(new JFrame(), ex.getLocalizedMessage(), "Notepad Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
                     close(reader);
                 }
             }
-        }
-        else if (e.getSource() == this.saveFile) {
+        } else if (e.getSource() == this.saveFile) {
             JFileChooser save = new JFileChooser();
             int option = save.showSaveDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
-            	BufferedWriter out = null;
+                BufferedWriter out = null;
                 try {
                     out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
                     out.write(textArea.getText());
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     new MessageBox(this, ex.getLocalizedMessage());
                     ex.printStackTrace();
-                }
-                finally {
-                	close(out);
+                } finally {
+                    close(out);
                 }
             }
         }
@@ -115,9 +111,8 @@ public class Notepad extends JFrame implements ActionListener {
         if (reader != null) {
             try {
                 reader.close();
-            }
-            catch (Exception e) {
-                new MessageBox(this, "Error", e.getLocalizedMessage());                
+            } catch (Exception e) {
+                new MessageBox(this, "Error", e.getLocalizedMessage());
             }
         }
     }
@@ -126,16 +121,27 @@ public class Notepad extends JFrame implements ActionListener {
         if (writer != null) {
             try {
                 writer.close();
-            }
-            catch (Exception e) {
-                new MessageBox(this, "Error", e.getLocalizedMessage());                
+            } catch (Exception e) {
+                new MessageBox(this, "Error", e.getLocalizedMessage());
             }
         }
     }
 
+    public int pointToPixel(float pt) {
+        float ppi = Toolkit.getDefaultToolkit().getScreenResolution();
+        int pixelHeight = (int) Math.round(pt / (72f / ppi));
+        System.out.println("Font pixel height = " + pixelHeight);
+        return pixelHeight;
+    }
+
     public static void main(String args[]) {
-    	SystemPropertyConfigurator.autoConfigure();
-        Notepad app = new Notepad();
-        app.setVisible(true);
+        try {
+            SystemPropertyConfigurator.autoConfigure();
+            Notepad app = new Notepad();
+            app.setVisible(true);
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(new JFrame(), e, "Notepad Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
