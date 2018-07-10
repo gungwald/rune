@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -24,6 +25,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
 /**
+ * Writbred - A writing tablet
+ * Hreodwrit - A reed for writing
+ * 
  * @author Bill Chatfield
  */
 public class Notepad extends JFrame implements ActionListener {
@@ -45,10 +49,13 @@ public class Notepad extends JFrame implements ActionListener {
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
-
-        // add our menu bar into the GUI
         this.setJMenuBar(this.menuBar);
+        ImageIcon notepadIcon = new ImageIcon(getClass().getClassLoader().getResource("notepad-16x16.png"));
+        this.setIconImage(notepadIcon.getImage());
+        
         file.setMnemonic(KeyEvent.VK_F);
+        System.out.println("Menu Font = " + file.getFont());
+        file.setFont(file.getFont().deriveFont(Font.PLAIN, 16));
         menuBar.add(file);
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
@@ -133,7 +140,7 @@ public class Notepad extends JFrame implements ActionListener {
         System.out.println("Font pixel height = " + pixelHeight);
         return pixelHeight;
     }
-
+    
     public static void main(String args[]) {
         try {
             SystemPropertyConfigurator.autoConfigure();
