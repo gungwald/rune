@@ -16,6 +16,8 @@ public class SystemPropertyConfigurator {
 	}
 	
 	public static void autoConfigure() {
+        LookAndFeelManager.setSystemLookAndFeel();
+        
         // Enable anti-aliased text: http://mindprod.com/jgloss/antialiasing.html#JAVA15
         // This property is used by Java 1.5.
         System.setProperty("swing.aatext", "true");

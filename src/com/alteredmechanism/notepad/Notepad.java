@@ -1,7 +1,7 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,16 +38,21 @@ public class Notepad extends JFrame implements ActionListener {
             new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
+    private JMenu editMenu = new JMenu("Edit");
+    private JMenu lookAndFeelMenu = new JMenu("Look & Feel");
     private JMenuItem openMenuItem = new JMenuItem("Open");
     private JMenuItem saveFile = new JMenuItem("Save");
     private JMenuItem close = new JMenuItem("Close");
+    private JMenuItem cutMenuItem = new JMenuItem("Cut");
+    private JMenuItem copyMenuItem = new JMenuItem("Copy");
+    private JMenuItem pasteMenuItem = new JMenuItem("Paste");
     private FontFactory fontFactory = new FontFactory();
     private Messenger messenger = new Messenger(this);
 
     public Notepad() {
-        super("Notepad");
+        super("Writbred - It means \"writing tablet\" in Old English");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        textArea.setFont(fontFactory.create("Monospaced", Font.PLAIN, 12));
+        //textArea.setFont(fontFactory.create("Monospaced", Font.PLAIN, 10));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
@@ -59,8 +64,6 @@ public class Notepad extends JFrame implements ActionListener {
         
         file.setMnemonic(KeyEvent.VK_F);
         System.out.println("Menu Font = " + file.getFont());
-        file.setFont(fontFactory.derive(file));
-        menuBar.add(file);
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
@@ -73,6 +76,18 @@ public class Notepad extends JFrame implements ActionListener {
         close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK));
         close.addActionListener(this);
         file.add(close);
+        
+        editMenu.add(cutMenuItem);
+        editMenu.add(copyMenuItem);
+        editMenu.add(pasteMenuItem);
+        
+        LookAndFeelManager lafMgr = new LookAndFeelManager();
+        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] {this});
+        
+        menuBar.add(file);
+        menuBar.add(editMenu);
+        menuBar.add(lookAndFeelMenu);
+        
         pack();
     }
 
@@ -93,7 +108,7 @@ public class Notepad extends JFrame implements ActionListener {
                     while ((line = reader.readLine()) != null) {
                         textArea.append(line + "\n");
                     }
-                    this.setTitle(selectedFile.getName());
+                    this.setTitle(selectedFile.getName() + " - Writbred");
                 } catch (Exception ex) {
                 	messenger.showError(ex);
                 } finally {
