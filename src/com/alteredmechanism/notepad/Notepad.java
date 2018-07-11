@@ -12,9 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URL;
-
-import javax.swing.ImageIcon;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -23,8 +21,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-
 import com.alteredmechanism.java.awt.FontFactory;
+import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 /**
  * Writbred - A writing tablet
@@ -54,12 +52,10 @@ public class Notepad extends JFrame implements ActionListener {
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
         this.setJMenuBar(this.menuBar);
-        URL iconLocation = getClass().getClassLoader().getResource("metro-notepad.png");
-        if (iconLocation == null) {
-        	messenger.showError("Resource not found: metro-notepad.png");
-        }
-        ImageIcon notepadIcon = new ImageIcon(iconLocation);
-        this.setIconImage(notepadIcon.getImage());
+        
+        ImageIconLoader loader = new ImageIconLoader(messenger);
+        List icons = loader.loadAll("writbred");
+        this.setIconImages(icons);
         
         file.setMnemonic(KeyEvent.VK_F);
         System.out.println("Menu Font = " + file.getFont());
