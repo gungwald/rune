@@ -2,7 +2,6 @@ package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -13,16 +12,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+
+import com.alteredmechanism.java.awt.FontFactory;
 
 /**
  * Writbred - A writing tablet
@@ -41,21 +43,27 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem openMenuItem = new JMenuItem("Open");
     private JMenuItem saveFile = new JMenuItem("Save");
     private JMenuItem close = new JMenuItem("Close");
+    private FontFactory fontFactory = new FontFactory();
+    private Messenger messenger = new Messenger(this);
 
     public Notepad() {
         super("Notepad");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, pointToPixel(12)));
+        textArea.setFont(fontFactory.create("Monospaced", Font.PLAIN, 12));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
         this.setJMenuBar(this.menuBar);
-        ImageIcon notepadIcon = new ImageIcon(getClass().getClassLoader().getResource("notepad-16x16.png"));
+        URL iconLocation = getClass().getClassLoader().getResource("metro-notepad.png");
+        if (iconLocation == null) {
+        	messenger.showError("Resource not found: metro-notepad.png");
+        }
+        ImageIcon notepadIcon = new ImageIcon(iconLocation);
         this.setIconImage(notepadIcon.getImage());
         
         file.setMnemonic(KeyEvent.VK_F);
         System.out.println("Menu Font = " + file.getFont());
-        file.setFont(file.getFont().deriveFont(Font.PLAIN, 16));
+        file.setFont(fontFactory.derive(file));
         menuBar.add(file);
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
@@ -91,7 +99,7 @@ public class Notepad extends JFrame implements ActionListener {
                     }
                     this.setTitle(selectedFile.getName());
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(new JFrame(), ex.getLocalizedMessage(), "Notepad Error", JOptionPane.ERROR_MESSAGE);
+                	messenger.showError(ex);
                 } finally {
                     close(reader);
                 }
@@ -105,8 +113,7 @@ public class Notepad extends JFrame implements ActionListener {
                     out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
                     out.write(textArea.getText());
                 } catch (Exception ex) {
-                    new MessageBox(this, ex.getLocalizedMessage());
-                    ex.printStackTrace();
+                	messenger.showError(ex);
                 } finally {
                     close(out);
                 }
@@ -119,7 +126,7 @@ public class Notepad extends JFrame implements ActionListener {
             try {
                 reader.close();
             } catch (Exception e) {
-                new MessageBox(this, "Error", e.getLocalizedMessage());
+            	messenger.showError(e);
             }
         }
     }
@@ -129,18 +136,11 @@ public class Notepad extends JFrame implements ActionListener {
             try {
                 writer.close();
             } catch (Exception e) {
-                new MessageBox(this, "Error", e.getLocalizedMessage());
+            	messenger.showError(e);
             }
         }
     }
 
-    public int pointToPixel(float pt) {
-        float ppi = Toolkit.getDefaultToolkit().getScreenResolution();
-        int pixelHeight = (int) Math.round(pt / (72f / ppi));
-        System.out.println("Font pixel height = " + pixelHeight);
-        return pixelHeight;
-    }
-    
     public static void main(String args[]) {
         try {
             SystemPropertyConfigurator.autoConfigure();
@@ -148,7 +148,7 @@ public class Notepad extends JFrame implements ActionListener {
             app.setVisible(true);
         }
         catch (Exception e) {
-            JOptionPane.showMessageDialog(new JFrame(), e, "Notepad Error", JOptionPane.ERROR_MESSAGE);
+        	new Messenger().showError(e);
         }
     }
 }
