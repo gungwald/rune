@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -21,7 +22,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import com.alteredmechanism.java.awt.FontFactory;
+
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 /**
@@ -46,13 +47,11 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
-    private FontFactory fontFactory = new FontFactory();
     private Messenger messenger = new Messenger(this);
 
     public Notepad() {
         super("Writbred - It means \"writing tablet\" in Old English");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        //textArea.setFont(fontFactory.create("Monospaced", Font.PLAIN, 10));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
