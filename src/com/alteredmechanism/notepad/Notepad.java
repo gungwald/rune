@@ -2,6 +2,7 @@ package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,7 +22,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import com.alteredmechanism.java.awt.FontFactory;
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 /**
@@ -46,13 +46,14 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
-    private FontFactory fontFactory = new FontFactory();
+    private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
+    private JFontChooser fontChooser = new JFontChooser();
     private Messenger messenger = new Messenger(this);
 
     public Notepad() {
         super("Writbred - It means \"writing tablet\" in Old English");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        //textArea.setFont(fontFactory.create("Monospaced", Font.PLAIN, 10));
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
@@ -80,9 +81,11 @@ public class Notepad extends JFrame implements ActionListener {
         editMenu.add(cutMenuItem);
         editMenu.add(copyMenuItem);
         editMenu.add(pasteMenuItem);
+        selectFontMenuItem.addActionListener(this);
+        editMenu.add(selectFontMenuItem);
         
         LookAndFeelManager lafMgr = new LookAndFeelManager();
-        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] {this});
+        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] {this, fontChooser});
         
         menuBar.add(file);
         menuBar.add(editMenu);
@@ -128,6 +131,15 @@ public class Notepad extends JFrame implements ActionListener {
                 } finally {
                     close(out);
                 }
+            }
+        }
+        else if (e.getSource() == this.selectFontMenuItem) {
+            int result = fontChooser.showDialog(textArea);
+            if (result == JFontChooser.OK_OPTION)
+            {
+                Font font = fontChooser.getSelectedFont();
+                System.out.println("Selected Font : " + font); 
+                textArea.setFont(font); 
             }
         }
     }
