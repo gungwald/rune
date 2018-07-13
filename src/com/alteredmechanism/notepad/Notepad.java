@@ -24,8 +24,24 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
-
 import com.alteredmechanism.javax.swing.ImageIconLoader;
+
+// TODO - Link current font with selector
+// TODO - Link current file with selector
+// TODO - Limit selectable fonts to monospaced fonts
+// TODO - Register included fonts
+// TODO - Provide font selector option to limit to included fonts
+// TODO - Implement vi key bindings
+// TODO - Go to line
+// TODO - Tabs
+// TODO - Syntax highlighting
+// TODO - Tool bar
+// TODO - Status bar
+// TODO - New
+// TODO - Reload
+// TODO - Save as
+// TODO - Recent files
+// TODO - Right-click cut, copy, paste
 
 /**
  * Writbred - A writing tablet
@@ -51,6 +67,7 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private JFontChooser fontChooser = new JFontChooser();
+    private JFileChooser fileChooser = new JFileChooser();
     private Messenger messenger = new Messenger(this);
 
     public Notepad() {
@@ -88,7 +105,7 @@ public class Notepad extends JFrame implements ActionListener {
         editMenu.add(selectFontMenuItem);
         
         LookAndFeelManager lafMgr = new LookAndFeelManager();
-        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] {this, fontChooser});
+        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] {this, fileChooser, fontChooser});
         
         menuBar.add(file);
         menuBar.add(editMenu);
@@ -101,10 +118,9 @@ public class Notepad extends JFrame implements ActionListener {
         if (e.getSource() == this.close) {
             this.dispose();
         } else if (e.getSource() == this.openMenuItem) {
-            JFileChooser fileDialogOpen = new JFileChooser();
-            fileDialogOpen.setDialogTitle("Choose a file to open");
-            fileDialogOpen.showOpenDialog(this);
-            File selectedFile = fileDialogOpen.getSelectedFile();
+            fileChooser.setDialogTitle("Choose a file to open");
+            fileChooser.showOpenDialog(this);
+            File selectedFile = fileChooser.getSelectedFile();
             if (selectedFile != null) {
                 textArea.setText("");
                 BufferedReader reader = null;
@@ -122,12 +138,12 @@ public class Notepad extends JFrame implements ActionListener {
                 }
             }
         } else if (e.getSource() == this.saveFile) {
-            JFileChooser save = new JFileChooser();
-            int option = save.showSaveDialog(this);
+            fileChooser.setDialogTitle("Choose the name of the file to save");
+            int option = fileChooser.showSaveDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
                 BufferedWriter out = null;
                 try {
-                    out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
+                    out = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile().getPath()));
                     out.write(textArea.getText());
                 } catch (Exception ex) {
                 	messenger.showError(ex);
