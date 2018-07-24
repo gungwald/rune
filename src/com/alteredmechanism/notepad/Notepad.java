@@ -3,6 +3,7 @@ package com.alteredmechanism.notepad;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
@@ -67,13 +69,14 @@ public class Notepad extends JFrame implements ActionListener {
 	private JMenuItem copyMenuItem = new JMenuItem("Copy");
 	private JMenuItem pasteMenuItem = new JMenuItem("Paste");
 	private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
-	private JFontChooser fontChooser = new JFontChooser();
+	private JFontChooser fontChooser;
 	private JFileChooser fileChooser = new JFileChooser();
 	private Messenger messenger = new Messenger(this);
 
-	public Notepad() {
+	public Notepad() throws FontFormatException, IOException {
 		super("Writbred - It means \"writing tablet\" in Old English");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		fontChooser = new JFontChooser();
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 
 		this.getContentPane().setLayout(new BorderLayout());
@@ -228,14 +231,23 @@ public class Notepad extends JFrame implements ActionListener {
 		}
 	}
 
+	public void dispose() {
+		super.dispose();
+		
+	}
 	public static void main(String args[]) {
+		Notepad app = null;
 		try {
 			SystemPropertyConfigurator.autoConfigure();
-			Notepad app = new Notepad();
+			app = new Notepad();
 			app.setVisible(true);
 		}
 		catch (Exception e) {
 			new Messenger(Notepad.class).showError(e);
+			if (app != null) {
+				app.dispose();
+			}
+			System.exit(0);
 		}
 	}
 }

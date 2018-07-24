@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
@@ -18,7 +19,11 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -93,6 +98,7 @@ public class JFontChooser extends JComponent
         "22", "24", "26", "28", "36", "48", "72",
     };
 
+    public Map bundledFonts;
 
     protected int dialogResultValue = ERROR_OPTION;
 
@@ -115,8 +121,10 @@ public class JFontChooser extends JComponent
 
     /**
      * Constructs a <code>JFontChooser</code> object.
+     * @throws IOException 
+     * @throws FontFormatException 
      **/
-    public JFontChooser()
+    public JFontChooser() throws FontFormatException, IOException
     {
         this(DEFAULT_FONT_SIZE_STRINGS);
     }
@@ -124,14 +132,17 @@ public class JFontChooser extends JComponent
     /**
      * Constructs a <code>JFontChooser</code> object using the given font size array.
      * @param fontSizeStrings  the array of font size string.
+     * @throws IOException 
+     * @throws FontFormatException 
      **/
-    public JFontChooser(String[] fontSizeStrings)
+    public JFontChooser(String[] fontSizeStrings) throws FontFormatException, IOException
     {
         if (fontSizeStrings == null)
         {
             fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
         }
         this.fontSizeStrings = fontSizeStrings;
+        bundledFonts = new FontManager().getFonts();
 
         JPanel selectPanel = new JPanel();
         selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
@@ -800,7 +811,10 @@ public class JFontChooser extends JComponent
         if (fontFamilyNames == null)
         {
             GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            fontFamilyNames = env.getAvailableFontFamilyNames();
+            Set names = new HashSet();
+            names.addAll(bundledFonts.keySet());
+            names.addAll(Arrays.asList(env.getAvailableFontFamilyNames()));
+            fontFamilyNames = (String[]) names.toArray(new String[names.size()]);
         }
         return fontFamilyNames;
     }

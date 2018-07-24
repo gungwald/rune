@@ -61,12 +61,20 @@ public class Messenger {
     }
     
     public void showError(Exception e) {
-    	showErrorDialog(e.getLocalizedMessage());
+    	String message = e.getLocalizedMessage();
+    	if (message == null || message.length() == 0) {
+    		message = e.toString();
+    	}
+    	showErrorDialog(message);
         e.printStackTrace();    	
     }
     
     public void showError(String message, Exception e) {
-    	showErrorDialog(message + ": " + e.getLocalizedMessage());
+    	String exceptionMessage = e.getLocalizedMessage();
+    	if (exceptionMessage == null || exceptionMessage.length() == 0) {
+    		exceptionMessage = e.toString();
+    	}
+    	showErrorDialog(message + ": " + exceptionMessage);
         e.printStackTrace();    	
     }
     
