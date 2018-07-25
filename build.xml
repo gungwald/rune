@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This DOCTYPE tag shuts off the warning from Eclipse that there is no DTD
+     associated with this XML file. -->
+
+<!DOCTYPE project>
+
+<project name="writbred" default="jar" basedir=".">
+
+	<property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
+	<property name="version" value="1.0" />
+	<property name="lang.version" value="1.4" />
+	<property name="src.dir" value="src/" />
+	<property name="cls.dir" value="classes" />
+
+	<target name="compile" description="Compiles the source">
+		<mkdir dir="classes"/>
+		<javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" 
+			debug="on" source="${lang.version}" target="${lang.version}" includeAntRuntime="false" />
+	</target>
+
+	<target name="copy.res" description="Copy resources">
+		<copy todir="${cls.dir}">
+			<fileset dir="resources">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="jar" depends="compile,copy.res" description="Builds an executable jar file">
+		<jar destfile="${ant.project.name}.jar" basedir="${cls.dir}">
+			<manifest>
+				<attribute name="Implementation-Title" value="${ant.project.name}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Main-Class" value="${main.class}" />
+			</manifest>
+		</jar>
+	</target>
+    
+	<target name="clean">
+	       <delete dir="${cls.dir}"/>
+	</target>
+
+</project>

@@ -118,15 +118,16 @@ public class JFontChooser extends JComponent
     private JPanel fontSizePanel = null;
     private JPanel samplePanel = null;
     private JTextField sampleText = null;
+	private Messenger messenger;
 
     /**
      * Constructs a <code>JFontChooser</code> object.
      * @throws IOException 
      * @throws FontFormatException 
      **/
-    public JFontChooser() throws FontFormatException, IOException
+    public JFontChooser(Messenger messenger) throws FontFormatException, IOException
     {
-        this(DEFAULT_FONT_SIZE_STRINGS);
+        this(messenger, DEFAULT_FONT_SIZE_STRINGS);
     }
 
     /**
@@ -135,14 +136,14 @@ public class JFontChooser extends JComponent
      * @throws IOException 
      * @throws FontFormatException 
      **/
-    public JFontChooser(String[] fontSizeStrings) throws FontFormatException, IOException
+    public JFontChooser(Messenger messenger, String[] fontSizeStrings) throws FontFormatException, IOException
     {
         if (fontSizeStrings == null)
         {
             fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
         }
         this.fontSizeStrings = fontSizeStrings;
-        bundledFonts = new FontManager().getFonts();
+        bundledFonts = new FontManager(messenger).getFonts();
 
         JPanel selectPanel = new JPanel();
         selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));

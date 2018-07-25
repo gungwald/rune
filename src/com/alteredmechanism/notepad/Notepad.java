@@ -76,7 +76,7 @@ public class Notepad extends JFrame implements ActionListener {
 	public Notepad() throws FontFormatException, IOException {
 		super("Writbred - It means \"writing tablet\" in Old English");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		fontChooser = new JFontChooser();
+		fontChooser = new JFontChooser(messenger);
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 
 		this.getContentPane().setLayout(new BorderLayout());

@@ -16,8 +16,10 @@ public class FontManager {
 			"anonymous-pro/Anonymous Pro.ttf", "monofur/monof55.ttf", "monofur/monof56.ttf" };
 
 	private Map fonts = new HashMap();
+	private Messenger messenger;
 
-	public FontManager() throws FontFormatException, IOException {
+	public FontManager(Messenger messenger) {
+		this.messenger = messenger;
 		StringBuffer path = new StringBuffer();
 
 		for (int i = 0; i < fontFiles.length; i++) {
@@ -30,6 +32,9 @@ public class FontManager {
 				stream = ClassLoader.getSystemClassLoader().getResourceAsStream(path.toString());
 				Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
 				fonts.put(font.getName(), font);
+			}
+			catch (Exception e) {
+				messenger.showError("Failed to load font: " + fontFiles[i], e);
 			}
 			finally {
 				close(stream);
