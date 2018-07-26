@@ -1,8 +1,6 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +9,11 @@ public class FontManager {
 
 	public static final String BASE_DIR = "fonts";
 
-	public static final String[] fontFiles = new String[] { "anonymous-pro/Anonymous Pro B.ttf",
-			"anonymous-pro/Anonymous Pro BI.ttf", "anonymous-pro/Anonymous Pro I.ttf",
-			"anonymous-pro/Anonymous Pro.ttf", "monofur/monof55.ttf", "monofur/monof56.ttf" };
+	public static final String[] fontFiles = new String[] { "anonymous_pro/Anonymous Pro B.ttf",
+			"anonymous_pro/Anonymous Pro BI.ttf", "anonymous_pro/Anonymous Pro I.ttf",
+			"anonymous_pro/Anonymous Pro.ttf", 
+			"monofur/monof55.ttf", "monofur/monof56.ttf",
+			"proggy/ProggySquare.ttf"};
 
 	private Map fonts = new HashMap();
 	private Messenger messenger;
@@ -34,7 +34,7 @@ public class FontManager {
 				fonts.put(font.getName(), font);
 			}
 			catch (Exception e) {
-				messenger.showError("Failed to load font: " + fontFiles[i], e);
+				this.messenger.showError("Failed to load font: " + fontFiles[i], e);
 			}
 			finally {
 				close(stream);

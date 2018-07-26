@@ -143,7 +143,7 @@ public class JFontChooser extends JComponent
             fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
         }
         this.fontSizeStrings = fontSizeStrings;
-        bundledFonts = new FontManager(messenger).getFonts();
+        bundledFonts = new FontManager(this.messenger).getFonts();
 
         JPanel selectPanel = new JPanel();
         selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));

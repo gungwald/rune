@@ -78,6 +78,7 @@ public class Notepad extends JFrame implements ActionListener {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		fontChooser = new JFontChooser(messenger);
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        textArea.setTabSize(8);
 
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(textScrollPane);
@@ -183,6 +184,7 @@ public class Notepad extends JFrame implements ActionListener {
 				Font font = fontChooser.getSelectedFont();
 				System.out.println("Selected Font : " + font);
 				textArea.setFont(font);
+                textArea.setTabSize(8);
 			}
 		}
 	}
