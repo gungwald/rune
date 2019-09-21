@@ -48,208 +48,214 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 /**
  * Writbred - A writing tablet Hreodwrit - A reed for writing
- * 
+ *
  * @author Bill Chatfield
  */
 public class Notepad extends JFrame implements ActionListener {
 
-	private static final long serialVersionUID = 1L;
-	private AntiAliasedJTextArea textArea = new AntiAliasedJTextArea(24, 80);
-	private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	private JMenuBar menuBar = new JMenuBar();
-	private JMenu file = new JMenu("File");
-	private JMenu editMenu = new JMenu("Edit");
-	private JMenu lookAndFeelMenu = new JMenu("Look & Feel");
-	private JMenuItem openMenuItem = new JMenuItem("Open...");
-	private JMenuItem saveMenuItem = new JMenuItem("Save");
-	private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-	private JMenuItem close = new JMenuItem("Close");
-	private JMenuItem cutMenuItem = new JMenuItem("Cut");
-	private JMenuItem copyMenuItem = new JMenuItem("Copy");
-	private JMenuItem pasteMenuItem = new JMenuItem("Paste");
-	private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
-	private JFontChooser fontChooser;
-	private JFileChooser fileChooser = new JFileChooser();
-	private Messenger messenger = new Messenger(this);
+    private static final long serialVersionUID = 1L;
 
-	public Notepad() throws FontFormatException, IOException {
-		super("Writbred - It means \"writing tablet\" in Old English");
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		fontChooser = new JFontChooser(messenger);
-		textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+    public static final int EXIT_SUCCESS = 0;
+    public static final int EXIT_FAILURE = 1;
+
+    private AntiAliasedJTextArea textArea = new AntiAliasedJTextArea(24, 80);
+    private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    private JMenuBar menuBar = new JMenuBar();
+    private JMenu file = new JMenu("File");
+    private JMenu editMenu = new JMenu("Edit");
+    private JMenu lookAndFeelMenu = new JMenu("Look & Feel");
+    private JMenuItem openMenuItem = new JMenuItem("Open...");
+    private JMenuItem saveMenuItem = new JMenuItem("Save");
+    private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
+    private JMenuItem close = new JMenuItem("Close");
+    private JMenuItem cutMenuItem = new JMenuItem("Cut");
+    private JMenuItem copyMenuItem = new JMenuItem("Copy");
+    private JMenuItem pasteMenuItem = new JMenuItem("Paste");
+    private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
+    private JFontChooser fontChooser;
+    private JFileChooser fileChooser;
+    private Messenger messenger;
+
+    public Notepad() throws FontFormatException, IOException {
+        super("Writbred - It means \"writing tablet\" in Old English");
+        messenger = new Messenger(this);
+        fileChooser = new JFileChooser();
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        fontChooser = new JFontChooser(messenger);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
         textArea.setTabSize(8);
 
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(textScrollPane);
-		this.setJMenuBar(this.menuBar);
+        this.getContentPane().setLayout(new BorderLayout());
+        this.getContentPane().add(textScrollPane);
+        this.setJMenuBar(this.menuBar);
 
-		ImageIconLoader loader = new ImageIconLoader(messenger);
-		List icons = loader.loadAll("writbred");
-		this.setIconImage((Image) icons.get(0));
+        ImageIconLoader loader = new ImageIconLoader(messenger);
+        List icons = loader.loadAll("writbred");
+        this.setIconImage((Image) icons.get(0));
 
-		file.setMnemonic(KeyEvent.VK_F);
-		System.out.println("Menu Font = " + file.getFont());
-		openMenuItem.addActionListener(this);
-		openMenuItem.setMnemonic(KeyEvent.VK_O);
-		openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
-		file.add(openMenuItem);
-		
-		saveMenuItem.addActionListener(this);
-		saveMenuItem.setMnemonic(KeyEvent.VK_S);
-		saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
-		file.add(saveMenuItem);
-		
-		saveAsMenuItem.addActionListener(this);
-		file.add(saveAsMenuItem);
-		close.setMnemonic(KeyEvent.VK_W);
-		close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
-		close.addActionListener(this);
-		file.add(close);
+        file.setMnemonic(KeyEvent.VK_F);
+        System.out.println("Menu Font = " + file.getFont());
+        openMenuItem.addActionListener(this);
+        openMenuItem.setMnemonic(KeyEvent.VK_O);
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        file.add(openMenuItem);
 
-		// Cut menu item
-		cutMenuItem.setMnemonic(KeyEvent.VK_X);
-		cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
-		cutMenuItem.addActionListener(this);
-		editMenu.add(cutMenuItem);
-		
-		// Copy menu item
-		copyMenuItem.setMnemonic(KeyEvent.VK_C);
-		copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
-		copyMenuItem.addActionListener(this);
-		editMenu.add(copyMenuItem);
-		
-		// Paste menu item
-		pasteMenuItem.setMnemonic(KeyEvent.VK_V);
-		pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
-		pasteMenuItem.addActionListener(this);
-		editMenu.add(pasteMenuItem);
-		
-		// Select Font menu item
-		selectFontMenuItem.addActionListener(this);
-		editMenu.add(selectFontMenuItem);
+        saveMenuItem.addActionListener(this);
+        saveMenuItem.setMnemonic(KeyEvent.VK_S);
+        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        file.add(saveMenuItem);
 
-		LookAndFeelManager lafMgr = new LookAndFeelManager(messenger);
-		lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
+        saveAsMenuItem.addActionListener(this);
+        file.add(saveAsMenuItem);
+        close.setMnemonic(KeyEvent.VK_W);
+        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        close.addActionListener(this);
+        file.add(close);
 
-		menuBar.add(file);
-		menuBar.add(editMenu);
-		menuBar.add(lookAndFeelMenu);
+        // Cut menu item
+        cutMenuItem.setMnemonic(KeyEvent.VK_X);
+        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
+        cutMenuItem.addActionListener(this);
+        editMenu.add(cutMenuItem);
 
-		pack();
-	}
+        // Copy menu item
+        copyMenuItem.setMnemonic(KeyEvent.VK_C);
+        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        copyMenuItem.addActionListener(this);
+        editMenu.add(copyMenuItem);
 
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == this.close) {
-			this.dispose();
-		}
-		else if (e.getSource() == this.openMenuItem) {
-			fileChooser.setDialogTitle("Choose a file to open");
-			fileChooser.showOpenDialog(this);
-			File selectedFile = fileChooser.getSelectedFile();
-			if (selectedFile != null) {
-				textArea.setText("");
-				BufferedReader reader = null;
-				try {
-					reader = new BufferedReader(new FileReader(selectedFile));
-					String line = null;
-					while ((line = reader.readLine()) != null) {
-						textArea.append(line + "\n");
-					}
-					this.setTitle(selectedFile.getName() + " - Writbred");
-				}
-				catch (Exception ex) {
-					messenger.showError(ex);
-				}
-				finally {
-					close(reader);
-				}
-			}
-		}
-		else if (e.getSource() == this.saveMenuItem) {
-			if (fileChooser.getSelectedFile() == null) {
-				saveAs();
-			}
-			else {
-				save(fileChooser.getSelectedFile());
-			}
-		}
-		else if (e.getSource() == this.saveAsMenuItem) {
-			saveAs();
-		}
-		else if (e.getSource() == this.selectFontMenuItem) {
-			fontChooser.setSelectedFont(textArea.getFont());
-			int result = fontChooser.showDialog(this);
-			if (result == JFontChooser.OK_OPTION) {
-				Font font = fontChooser.getSelectedFont();
-				System.out.println("Selected Font : " + font);
-				textArea.setFont(font);
+        // Paste menu item
+        pasteMenuItem.setMnemonic(KeyEvent.VK_V);
+        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+        pasteMenuItem.addActionListener(this);
+        editMenu.add(pasteMenuItem);
+
+        // Select Font menu item
+        selectFontMenuItem.addActionListener(this);
+        editMenu.add(selectFontMenuItem);
+
+        LookAndFeelManager lafMgr = new LookAndFeelManager(messenger);
+        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
+
+        menuBar.add(file);
+        menuBar.add(editMenu);
+        menuBar.add(lookAndFeelMenu);
+
+        pack();
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == this.close) {
+            this.dispose();
+        }
+        else if (e.getSource() == this.openMenuItem) {
+            fileChooser.setDialogTitle("Choose a file to open");
+            fileChooser.showOpenDialog(this);
+            File selectedFile = fileChooser.getSelectedFile();
+            if (selectedFile != null) {
+                textArea.setText("");
+                BufferedReader reader = null;
+                try {
+                    reader = new BufferedReader(new FileReader(selectedFile));
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        textArea.append(line + "\n");
+                    }
+                    this.setTitle(selectedFile.getName() + " - Writbred");
+                }
+                catch (Exception ex) {
+                    messenger.showError(ex);
+                }
+                finally {
+                    close(reader);
+                }
+            }
+        }
+        else if (e.getSource() == this.saveMenuItem) {
+            if (fileChooser.getSelectedFile() == null) {
+                saveAs();
+            }
+            else {
+                save(fileChooser.getSelectedFile());
+            }
+        }
+        else if (e.getSource() == this.saveAsMenuItem) {
+            saveAs();
+        }
+        else if (e.getSource() == this.selectFontMenuItem) {
+            fontChooser.setSelectedFont(textArea.getFont());
+            int result = fontChooser.showDialog(this);
+            if (result == JFontChooser.OK_OPTION) {
+                Font font = fontChooser.getSelectedFont();
+                System.out.println("Selected Font : " + font);
+                textArea.setFont(font);
                 textArea.setTabSize(8);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	protected void saveAs() {
-		fileChooser.setDialogTitle("Choose the name of the file to save");
-		int option = fileChooser.showSaveDialog(this);
-		if (option == JFileChooser.APPROVE_OPTION) {
-			save(fileChooser.getSelectedFile());
-		}
-	}
-			
-	protected void save(File f) {
-		BufferedWriter out = null;
-		try {
-			out = new BufferedWriter(new FileWriter(f));
-			out.write(textArea.getText());
-		}
-		catch (Exception ex) {
-			messenger.showError(ex);
-		}
-		finally {
-			close(out);
-		}
-	}
-	
-	private void close(Reader reader) {
-		if (reader != null) {
-			try {
-				reader.close();
-			}
-			catch (Exception e) {
-				messenger.showError(e);
-			}
-		}
-	}
+    protected void saveAs() {
+        fileChooser.setDialogTitle("Choose the name of the file to save");
+        int option = fileChooser.showSaveDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            save(fileChooser.getSelectedFile());
+        }
+    }
 
-	private void close(Writer writer) {
-		if (writer != null) {
-			try {
-				writer.close();
-			}
-			catch (Exception e) {
-				messenger.showError(e);
-			}
-		}
-	}
+    protected void save(File f) {
+        BufferedWriter out = null;
+        try {
+            out = new BufferedWriter(new FileWriter(f));
+            out.write(textArea.getText());
+        }
+        catch (Exception ex) {
+            messenger.showError(ex);
+        }
+        finally {
+            close(out);
+        }
+    }
 
-	public void dispose() {
-		super.dispose();
-		
-	}
-	public static void main(String args[]) {
-		Notepad app = null;
-		try {
-			SystemPropertyConfigurator.autoConfigure();
-			app = new Notepad();
-			app.setVisible(true);
-		}
-		catch (Exception e) {
-			new Messenger(Notepad.class).showError(e);
-			if (app != null) {
-				app.dispose();
-			}
-			System.exit(0);
-		}
-	}
+    private void close(Reader reader) {
+        if (reader != null) {
+            try {
+                reader.close();
+            }
+            catch (Exception e) {
+                messenger.showError(e);
+            }
+        }
+    }
+
+    private void close(Writer writer) {
+        if (writer != null) {
+            try {
+                writer.close();
+            }
+            catch (Exception e) {
+                messenger.showError(e);
+            }
+        }
+    }
+
+    public void dispose() {
+        super.dispose();
+    }
+
+    public static void main(String args[]) {
+        Notepad app = null;
+        try {
+            SystemPropertyConfigurator.autoConfigure();
+            app = new Notepad();
+            app.setVisible(true);
+        }
+        catch (Exception e) {
+            new Messenger(Notepad.class).showError(e);
+            if (app != null) {
+                app.dispose();
+            }
+            System.exit(EXIT_FAILURE);
+        }
+    }
 }
