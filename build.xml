@@ -5,40 +5,50 @@
 
 <!DOCTYPE project>
 
-<project name="writbred" default="jar" basedir=".">
+<project name="notepad" default="compile" basedir=".">
 
-	<property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
-	<property name="version" value="1.0" />
-	<property name="lang.version" value="1.4" />
-	<property name="src.dir" value="src/" />
-	<property name="cls.dir" value="classes" />
+  <property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
+  <property name="version" value="1.0" />
+  <property name="lang.version" value="1.4" />
+  <property name="src.dir" value="src/" />
+  <property name="cls.dir" value="classes" />
 
-	<target name="compile" description="Compiles the source">
-		<mkdir dir="classes"/>
-		<javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" 
-			debug="on" source="${lang.version}" target="${lang.version}" includeAntRuntime="false" />
-	</target>
+  <target name="compile" description="Compiles the source">
+    <mkdir dir="classes" />
+    <javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" debug="on" source="${lang.version}" target="${lang.version}" includeAntRuntime="false" />
+  </target>
 
-	<target name="copy.res" description="Copy resources">
-		<copy todir="${cls.dir}">
-			<fileset dir="resources">
-				<include name="**/*"/>
-			</fileset>
-		</copy>
-	</target>
+  <target name="copy.res" description="Copy resources">
+    <copy todir="${cls.dir}">
+      <fileset dir="resources">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+  </target>
 
-	<target name="jar" depends="compile,copy.res" description="Builds an executable jar file">
-		<jar destfile="${ant.project.name}.jar" basedir="${cls.dir}">
-			<manifest>
-				<attribute name="Implementation-Title" value="${ant.project.name}" />
-				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Main-Class" value="${main.class}" />
-			</manifest>
-		</jar>
-	</target>
-    
-	<target name="clean">
-	       <delete dir="${cls.dir}"/>
-	</target>
+  <target name="jar" depends="compile,copy.res" description="Builds an executable jar file">
+    <jar destfile="${ant.project.name}.jar" basedir="${cls.dir}">
+      <manifest>
+        <attribute name="Implementation-Title" value="${ant.project.name}" />
+        <attribute name="Implementation-Version" value="${version}" />
+        <attribute name="Main-Class" value="${main.class}" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${cls.dir}" />
+  </target>
+
+  <!-- TODO - Create distributable zip target -->
+  <!-- TODO - Create install target -->
+  <!-- TODO - Install target should install fonts into the OS, not into a resource directory -->
+  <!-- TODO - Create rpm target -->
+  <!-- TODO - Create deb target -->
+  <!-- TODO - Create brew target -->
+  <!-- TODO - Create chocolatey target -->
+  <!-- TODO - Create Windows store target -->
+  <!-- TODO - Create Mac App store target -->
+  
 
 </project>

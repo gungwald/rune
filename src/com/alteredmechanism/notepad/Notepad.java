@@ -64,7 +64,8 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
-    private JMenu lookAndFeelMenu = new JMenu("Look & Feel");
+    private JMenu viewMenu = new JMenu("View");
+
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
@@ -73,6 +74,7 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
+    private JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
     private JFontChooser fontChooser;
     private JFileChooser fileChooser;
     private Messenger messenger;
@@ -133,14 +135,15 @@ public class Notepad extends JFrame implements ActionListener {
 
         // Select Font menu item
         selectFontMenuItem.addActionListener(this);
-        editMenu.add(selectFontMenuItem);
 
+        viewMenu.add(selectLookAndFeelMenu);
+        viewMenu.add(selectFontMenuItem);
         LookAndFeelManager lafMgr = new LookAndFeelManager(messenger);
-        lafMgr.initChooserMenuItems(lookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
+        lafMgr.initChooserMenuItems(selectLookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
 
         menuBar.add(file);
         menuBar.add(editMenu);
-        menuBar.add(lookAndFeelMenu);
+        menuBar.add(viewMenu);
 
         pack();
     }
