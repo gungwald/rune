@@ -26,6 +26,7 @@ public class SystemPropertyConfigurator {
 		// on - best for Gnome but not available on Windows
 		// gasp - Windows standard anti-aliasing
 		if (isGnomeDesktop()) {
+			System.out.println("Detected Gnome desktop");
 			System.setProperty("awt.useSystemAAFontSettings", "on");
 		}
 		else {
@@ -34,6 +35,8 @@ public class SystemPropertyConfigurator {
 
 		// Mac OS
 		if (System.getProperty("os.name").startsWith("Mac OS")) {
+			System.out.println("Detected Mac OS");
+
 			// Java 1.3
 			System.setProperty("com.apple.macos.useScreenMenuBar", "true");
 			System.setProperty("com.apple.mrj.application.growbox.intrudes", "true");
