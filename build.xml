@@ -15,7 +15,12 @@
 
   <target name="compile" description="Compiles the source">
     <mkdir dir="classes" />
-    <javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" debug="on" source="${lang.version}" target="${lang.version}" includeAntRuntime="false" />
+    <javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" 
+        debug="on" source="${lang.version}" target="${lang.version}" 
+        includeAntRuntime="false">
+      <!-- Turn off warning about Java 1.4 -->
+      <compilerarg value="-Xlint:-options"/>
+    </javac>
   </target>
 
   <target name="copy.res" description="Copy resources">

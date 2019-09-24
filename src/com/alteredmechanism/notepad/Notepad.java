@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -78,6 +79,11 @@ public class Notepad extends JFrame implements ActionListener {
     private JFontChooser fontChooser;
     private JFileChooser fileChooser;
     private Messenger messenger;
+
+    public Notepad(File f) throws FontFormatException, IOException {
+        this();
+        open(f);
+    }
 
     public Notepad() throws FontFormatException, IOException {
         super("Writbred - It means \"writing tablet\" in Old English");
@@ -146,6 +152,26 @@ public class Notepad extends JFrame implements ActionListener {
         menuBar.add(viewMenu);
 
         pack();
+        setVisible(true);
+    }
+
+    public void open(File f) {
+        textArea.setText("");
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(f));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                textArea.append(line + "\n");
+            }
+            this.setTitle(f.getName() + " - Notepad");
+        }
+        catch (Exception ex) {
+            messenger.showError(ex);
+        }
+        finally {
+            close(reader);
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -157,22 +183,7 @@ public class Notepad extends JFrame implements ActionListener {
             fileChooser.showOpenDialog(this);
             File selectedFile = fileChooser.getSelectedFile();
             if (selectedFile != null) {
-                textArea.setText("");
-                BufferedReader reader = null;
-                try {
-                    reader = new BufferedReader(new FileReader(selectedFile));
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        textArea.append(line + "\n");
-                    }
-                    this.setTitle(selectedFile.getName() + " - Writbred");
-                }
-                catch (Exception ex) {
-                    messenger.showError(ex);
-                }
-                finally {
-                    close(reader);
-                }
+                open(selectedFile);
             }
         }
         else if (e.getSource() == this.saveMenuItem) {
@@ -247,16 +258,21 @@ public class Notepad extends JFrame implements ActionListener {
     }
 
     public static void main(String args[]) {
-        Notepad app = null;
+        List instances = new ArrayList();
         try {
-            SystemPropertyConfigurator.autoConfigure();
-            app = new Notepad();
-            app.setVisible(true);
+            //SystemPropertyConfigurator.autoConfigure();
+            if (args.length == 0) {
+                instances.add(new Notepad());
+            } else {
+                for (int i = 0; i < args.length; i++) {
+                    instances.add(new Notepad(new File(args[i])));
+                }
+            }
         }
         catch (Exception e) {
             new Messenger(Notepad.class).showError(e);
-            if (app != null) {
-                app.dispose();
+            for (int i = 0; i < instances.size(); i++) {
+                ((Notepad) instances.get(i)).dispose();
             }
             System.exit(EXIT_FAILURE);
         }
