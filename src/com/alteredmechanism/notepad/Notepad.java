@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -18,7 +19,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -27,7 +27,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-
+import javax.swing.border.EmptyBorder;
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -66,7 +66,10 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
     private JMenu viewMenu = new JMenu("View");
+    private JMenu helpMenu = new JMenu("Help");
 
+    private JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
+    
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
@@ -75,7 +78,8 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
-    private JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
+    private JMenuItem aboutMenuItem = new JMenuItem("About...");
+    
     private JFontChooser fontChooser;
     private JFileChooser fileChooser;
     private Messenger messenger;
@@ -86,13 +90,14 @@ public class Notepad extends JFrame implements ActionListener {
     }
 
     public Notepad() throws FontFormatException, IOException {
-        super("Writbred - It means \"writing tablet\" in Old English");
+        super("Notepad");
         messenger = new Messenger(this);
         fileChooser = new JFileChooser();
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         fontChooser = new JFontChooser(messenger);
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
         textArea.setTabSize(8);
+        textArea.setBorder(new EmptyBorder(new Insets(3,3,3,3)));
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(textScrollPane);
@@ -103,6 +108,8 @@ public class Notepad extends JFrame implements ActionListener {
         this.setIconImage((Image) icons.get(0));
 
         file.setMnemonic(KeyEvent.VK_F);
+        editMenu.setMnemonic(KeyEvent.VK_E);
+        
         System.out.println("Menu Font = " + file.getFont());
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
@@ -147,9 +154,13 @@ public class Notepad extends JFrame implements ActionListener {
         LookAndFeelManager lafMgr = new LookAndFeelManager(messenger);
         lafMgr.initChooserMenuItems(selectLookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
 
+        aboutMenuItem.addActionListener(this);
+        helpMenu.add(aboutMenuItem);
+        
         menuBar.add(file);
         menuBar.add(editMenu);
         menuBar.add(viewMenu);
+        menuBar.add(helpMenu);
 
         pack();
         setVisible(true);
@@ -164,6 +175,7 @@ public class Notepad extends JFrame implements ActionListener {
             while ((line = reader.readLine()) != null) {
                 textArea.append(line + "\n");
             }
+            textArea.setCaretPosition(0);
             this.setTitle(f.getName() + " - Notepad");
         }
         catch (Exception ex) {

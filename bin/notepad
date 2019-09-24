@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Locate relevant directories.
+THIS_SCRIPT=$(basename "$0" .sh)
+SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
+PARENT_DIR=$(dirname "$SCRIPT_DIR")
+LIB_DIR="$PARENT_DIR"/lib
+RESOURCES_DIR="$PARENT_DIR"/resources
+CLASSES_DIR="$PARENT_DIR"/classes
+MAIN_CLASS=com.alteredmechanism.notepad.Notepad
+
+OS=$(uname -s)
+
+# Set the icon for Mac.
+if [ "$OS" = 'Darwin' ]
+then
+	MAC_ICON_SWITCH=-Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
+else
+	unset MAC_ICON_SWITCH
+fi
+
+# Build CLAZZPATH
+CLAZZPATH="$CLASSES_DIR:$RESOURCES_DIR"
+
+# Run
+exec java "$MAC_ICON_SWITCH" -classpath "$CLAZZPATH" "$MAIN_CLASS" "$@"
