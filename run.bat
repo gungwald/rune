@@ -1,1 +1,1 @@
-@call %~dp0\bin\notepad.bat
+@call %~dp0\bin\notepad.bat %*

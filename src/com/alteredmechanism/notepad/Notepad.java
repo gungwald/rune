@@ -2,10 +2,13 @@ package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -84,7 +87,7 @@ public class Notepad extends JFrame implements ActionListener {
     private JFileChooser fileChooser;
     private Messenger messenger;
     
-    private AboutDialog aboutDialog = new AboutDialog();
+    private AboutDialog aboutDialog = new AboutDialog(this);
 
     public Notepad(File f) throws FontFormatException, IOException {
         this();
@@ -165,6 +168,7 @@ public class Notepad extends JFrame implements ActionListener {
         menuBar.add(helpMenu);
 
         pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
@@ -222,6 +226,7 @@ public class Notepad extends JFrame implements ActionListener {
             }
         }
         else if (e.getSource() == this.aboutMenuItem) {
+            aboutDialog.setLocationRelativeTo(this);
         	aboutDialog.setVisible(true);
         }
     }
@@ -294,4 +299,16 @@ public class Notepad extends JFrame implements ActionListener {
             System.exit(EXIT_FAILURE);
         }
     }
+    
+    /**
+     * @deprecated - Use the built-in setLocationRelativeTo instead
+     */
+	public void center() {
+		Point center = new Point();
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		center.x = dim.width / 2 - this.getWidth() / 2;
+		center.y = dim.height / 2 - this.getHeight() / 2;
+        this.setLocation(center);
+	}
+
 }
