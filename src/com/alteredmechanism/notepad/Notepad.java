@@ -83,6 +83,8 @@ public class Notepad extends JFrame implements ActionListener {
     private JFontChooser fontChooser;
     private JFileChooser fileChooser;
     private Messenger messenger;
+    
+    private AboutDialog aboutDialog = new AboutDialog();
 
     public Notepad(File f) throws FontFormatException, IOException {
         this();
@@ -218,6 +220,9 @@ public class Notepad extends JFrame implements ActionListener {
                 textArea.setFont(font);
                 textArea.setTabSize(8);
             }
+        }
+        else if (e.getSource() == this.aboutMenuItem) {
+        	aboutDialog.setVisible(true);
         }
     }
 
