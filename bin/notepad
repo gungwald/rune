@@ -23,4 +23,27 @@ fi
 CLAZZPATH="$CLASSES_DIR:$RESOURCES_DIR"
 
 # Run
-exec java "$MAC_ICON_SWITCH" -classpath "$CLAZZPATH" "$MAIN_CLASS" "$@"
+if [ -z "$MAC_ICON_SWITCH" ]
+then
+    MSG=$(java -cp "$CLAZZPATH" "$MAIN_CLASS" "$@" 2>&1)
+else
+    MSG=$(java "$MAC_ICON_SWITCH" -cp "$CLAZZPATH" "$MAIN_CLASS" "$@" 2>&1)
+fi
+
+if [ -n "$MSG" ]
+then
+    if which zenity > /dev/null
+    then
+        zenity --error --text="$THIS_SCRIPT: $MSG"
+    elif which xmessage > /dev/null
+    then
+        xmessage -center "$THIS_SCRIPT: $MSG"
+    elif which xterm > /dev/null
+    then
+        xterm -title "$0" \
+            -e "echo $MSG; echo Press Enter to continue.; read LINE"
+    else
+        echo "$THIS_SCRIPT: $MSG" 1>&2
+    fi
+fi
+
