@@ -282,7 +282,7 @@ public class Notepad extends JFrame implements ActionListener {
     public static void main(String args[]) {
         List instances = new ArrayList();
         try {
-            //SystemPropertyConfigurator.autoConfigure();
+            SystemPropertyConfigurator.autoConfigure();
             if (args.length == 0) {
                 instances.add(new Notepad());
             } else {
