@@ -32,13 +32,14 @@ fi
 
 if [ -n "$MSG" ]
 then
-    if which zenity > /dev/null
+    # The "which" command does not return 1 on failure in OSX 10.4.11.
+    if type zenity > /dev/null
     then
         zenity --error --text="$THIS_SCRIPT: $MSG"
-    elif which xmessage > /dev/null
+    elif type xmessage > /dev/null
     then
         xmessage -center "$THIS_SCRIPT: $MSG"
-    elif which xterm > /dev/null
+    elif type xterm > /dev/null
     then
         xterm -title "$0" \
             -e "echo $MSG; echo Press Enter to continue.; read LINE"
