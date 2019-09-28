@@ -63,8 +63,7 @@ public class Notepad extends JFrame implements ActionListener {
     public static final int EXIT_FAILURE = 1;
 
     private AntiAliasedJTextArea textArea = new AntiAliasedJTextArea(24, 80);
-    private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
@@ -83,11 +82,11 @@ public class Notepad extends JFrame implements ActionListener {
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
     
-    private JFontChooser fontChooser;
-    private JFileChooser fileChooser;
-    private Messenger messenger;
-    
-    private AboutDialog aboutDialog = new AboutDialog(this);
+    private JFontChooser fontChooser = null;
+    private JFileChooser fileChooser = null;
+    private Messenger messenger = null;
+    private AboutDialog aboutDialog = null;
+	private LookAndFeelManager lafManager = null;
 
     public Notepad(File f) throws FontFormatException, IOException {
         this();
@@ -96,10 +95,7 @@ public class Notepad extends JFrame implements ActionListener {
 
     public Notepad() throws FontFormatException, IOException {
         super("Notepad");
-        messenger = new Messenger(this);
-        fileChooser = new JFileChooser();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        fontChooser = new JFontChooser(messenger);
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
         textArea.setTabSize(8);
         textArea.setBorder(new EmptyBorder(new Insets(3,3,3,3)));
@@ -108,7 +104,7 @@ public class Notepad extends JFrame implements ActionListener {
         this.getContentPane().add(textScrollPane);
         this.setJMenuBar(this.menuBar);
 
-        ImageIconLoader loader = new ImageIconLoader(messenger);
+        ImageIconLoader loader = new ImageIconLoader(getMessenger());
         List icons = loader.loadAll("writbred");
         this.setIconImage((Image) icons.get(0));
 
@@ -153,11 +149,10 @@ public class Notepad extends JFrame implements ActionListener {
 
         // Select Font menu item
         selectFontMenuItem.addActionListener(this);
+        selectLookAndFeelMenu.addActionListener(this);
 
         viewMenu.add(selectLookAndFeelMenu);
         viewMenu.add(selectFontMenuItem);
-        LookAndFeelManager lafMgr = new LookAndFeelManager(messenger);
-        lafMgr.initChooserMenuItems(selectLookAndFeelMenu, new Component[] { this, fileChooser, fontChooser });
 
         aboutMenuItem.addActionListener(this);
         helpMenu.add(aboutMenuItem);
@@ -185,7 +180,7 @@ public class Notepad extends JFrame implements ActionListener {
             this.setTitle(f.getName() + " - Notepad");
         }
         catch (Exception ex) {
-            messenger.showError(ex);
+            getMessenger().showError(ex);
         }
         finally {
             close(reader);
@@ -197,45 +192,93 @@ public class Notepad extends JFrame implements ActionListener {
             this.dispose();
         }
         else if (e.getSource() == this.openMenuItem) {
-            fileChooser.setDialogTitle("Choose a file to open");
-            fileChooser.showOpenDialog(this);
-            File selectedFile = fileChooser.getSelectedFile();
+            getFileChooser().setDialogTitle("Choose a file to open");
+            getFileChooser().showOpenDialog(this);
+            File selectedFile = getFileChooser().getSelectedFile();
             if (selectedFile != null) {
                 open(selectedFile);
             }
         }
         else if (e.getSource() == this.saveMenuItem) {
-            if (fileChooser.getSelectedFile() == null) {
+            if (getFileChooser().getSelectedFile() == null) {
                 saveAs();
             }
             else {
-                save(fileChooser.getSelectedFile());
+                save(getFileChooser().getSelectedFile());
             }
         }
         else if (e.getSource() == this.saveAsMenuItem) {
             saveAs();
         }
         else if (e.getSource() == this.selectFontMenuItem) {
-            fontChooser.setSelectedFont(textArea.getFont());
-            int result = fontChooser.showDialog(this);
+            getFontChooser().setSelectedFont(textArea.getFont());
+            int result = getFontChooser().showDialog(this);
             if (result == JFontChooser.OK_OPTION) {
-                Font font = fontChooser.getSelectedFont();
+                Font font = getFontChooser().getSelectedFont();
                 System.out.println("Selected Font : " + font);
                 textArea.setFont(font);
                 textArea.setTabSize(8);
             }
         }
         else if (e.getSource() == this.aboutMenuItem) {
-            aboutDialog.setLocationRelativeTo(this);
-        	aboutDialog.setVisible(true);
+            getAboutDialog().setLocationRelativeTo(this);
+        	getAboutDialog().setVisible(true);
+        }
+        else if (e.getSource() == this.selectLookAndFeelMenu) {
+        	if (this.selectLookAndFeelMenu.getMenuComponentCount() == 0) {
+	            getLafManager().initChooserMenuItems(selectLookAndFeelMenu, new Component[] { this });
+        	}
         }
     }
 
-    protected void saveAs() {
-        fileChooser.setDialogTitle("Choose the name of the file to save");
-        int option = fileChooser.showSaveDialog(this);
+    private JFontChooser getFontChooser() {
+    	if (fontChooser == null) {
+    		try {
+				fontChooser = new JFontChooser(getMessenger(), getLafManager());
+			} catch (Exception e) {
+				e.printStackTrace();
+				if (getMessenger() != null) {
+					getMessenger().showError("Failed to create font chooser dialog", e);
+				}
+			}
+    	}
+		return fontChooser;
+	}
+
+    private JFileChooser getFileChooser() {
+    	if (fileChooser == null) {
+			fileChooser = new JFileChooser();
+			getLafManager().getLafActionListener().addComponentToUpdate(fileChooser);
+    	}
+    	return fileChooser;
+    }
+    
+    private Messenger getMessenger() {
+    	if (messenger == null) {
+			messenger = new Messenger(this);
+    	}
+    	return messenger;
+    }
+    
+    private AboutDialog getAboutDialog() {
+    	if (aboutDialog == null) {
+			aboutDialog = new AboutDialog(this, getLafManager());
+    	}
+    	return aboutDialog;
+    }
+    
+    private LookAndFeelManager getLafManager() {
+    	if (lafManager == null) {
+    		lafManager = new LookAndFeelManager(getMessenger());
+    	}
+    	return lafManager;
+    }
+    
+	protected void saveAs() {
+        getFileChooser().setDialogTitle("Choose the name of the file to save");
+        int option = getFileChooser().showSaveDialog(this);
         if (option == JFileChooser.APPROVE_OPTION) {
-            save(fileChooser.getSelectedFile());
+            save(getFileChooser().getSelectedFile());
         }
     }
 
@@ -246,7 +289,7 @@ public class Notepad extends JFrame implements ActionListener {
             out.write(textArea.getText());
         }
         catch (Exception ex) {
-            messenger.showError(ex);
+            getMessenger().showError(ex);
         }
         finally {
             close(out);
@@ -259,7 +302,7 @@ public class Notepad extends JFrame implements ActionListener {
                 reader.close();
             }
             catch (Exception e) {
-                messenger.showError(e);
+                getMessenger().showError(e);
             }
         }
     }
@@ -270,7 +313,7 @@ public class Notepad extends JFrame implements ActionListener {
                 writer.close();
             }
             catch (Exception e) {
-                messenger.showError(e);
+                getMessenger().showError(e);
             }
         }
     }

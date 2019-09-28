@@ -8,43 +8,84 @@ LIB_DIR="$PARENT_DIR"/lib
 RESOURCES_DIR="$PARENT_DIR"/resources
 CLASSES_DIR="$PARENT_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Notepad
-
+CLASS_PATH="$CLASSES_DIR:$RESOURCES_DIR"
+STDERR_FILE=$(mktemp --tmpdir "$THIS_SCRIPT".stderr.XXXXXXXXXX)
 OS=$(uname -s)
+
+# $1 - Command basename
+commandExists()
+{
+    # The "which" command does not return 1 on failure in OSX 10.4.11.
+    # So "type" must be used instead.
+	type "$1" > /dev/null
+}
+
+displayError()
+{
+	PROGRAM_NAME=$1
+	ERROR_FILE=$2
+	TITLE="ERROR in Program: $PROGRAM_NAME"
+	WIDTH=900
+	HEIGHT=480
+    if commandExists zenity
+    then
+    	zenity --text-info --height=$HEIGHT --width=$WIDTH --title="$TITLE" \
+    		--no-wrap --window-icon=error --filename="$ERROR_FILE"
+    elif commandExists kdialog 
+    then
+    	kdialog --title "$TITLE" --textbox "$ERROR_FILE" \
+    		--geometry $WIDTHx$HEIGHT
+    elif commandExists Xdialog
+    then
+    	Xdialog --title="$TITLE" --screen-center --no-cancel \
+    		--textbox "$ERROR_FILE" $HEIGHT $WIDTH
+    elif commandExists xmessage
+    then
+    	# xmessage seems to automatically handle setting the width and height
+    	# properly. It's really the best of these programs... :-)
+    	xmessage -fg red -center -default okay -title "$TITLE" \
+    		-file "$ERROR_FILE"
+    elif commandExists xterm
+    then
+        xterm -title "$TITLE" \
+            -e "cat $ERROR_FILE ; echo Press Enter to continue. ; read LINE"
+    fi
+    cat "$ERROR_FILE" 1>&2
+}
 
 # Set the icon for Mac.
 if [ "$OS" = 'Darwin' ]
 then
-	MAC_ICON_SWITCH=-Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
+	MAC_DOCK_ICON=-Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
 else
-	unset MAC_ICON_SWITCH
+	unset MAC_ICON
 fi
-
-# Build CLAZZPATH
-CLAZZPATH="$CLASSES_DIR:$RESOURCES_DIR"
 
 # Run
-if [ -z "$MAC_ICON_SWITCH" ]
+if [ -z "$MAC_DOCK_ICON" ]
 then
-    MSG=$(java -cp "$CLAZZPATH" "$MAIN_CLASS" "$@" 2>&1)
+    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    JAVA_EXIT_CODE=$?
 else
-    MSG=$(java "$MAC_ICON_SWITCH" -cp "$CLAZZPATH" "$MAIN_CLASS" "$@" 2>&1)
+    java "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    JAVA_EXIT_CODE=$?
 fi
 
-if [ -n "$MSG" ]
+# Check for non-empty file
+if [ -s "$STDERR_FILE" ]
 then
-    # The "which" command does not return 1 on failure in OSX 10.4.11.
-    if type zenity > /dev/null
-    then
-        zenity --error --text="$THIS_SCRIPT: $MSG"
-    elif type xmessage > /dev/null
-    then
-        xmessage -center "$THIS_SCRIPT: $MSG"
-    elif type xterm > /dev/null
-    then
-        xterm -title "$0" \
-            -e "echo $MSG; echo Press Enter to continue.; read LINE"
-    else
-        echo "$THIS_SCRIPT: $MSG" 1>&2
-    fi
+	displayError "$0" "$STDERR_FILE"
+elif [ $JAVA_EXIT_CODE -ne 0 ]
+then
+	cat > "$STDERR_FILE" <<-EOF
+The program returned an exit code of $JAVA_EXIT_CODE, which is a failure code.
+But it did not produce an error message on the standard error stream.
+It is possible that it wrote an error message to the standard output stream,
+but that has not been captured. Try running the program from the command line
+to get the error message. This is the command to run:
+$0 "$@"
+EOF
+	displayError "$0" "$STDERR_FILE"
 fi
 
+rm "$STDERR_FILE"

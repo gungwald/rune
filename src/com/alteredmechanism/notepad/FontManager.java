@@ -1,47 +1,52 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FontManager {
 
-    public static final String BASE_DIR = "fonts";
+    public static final String[] bundledFontPaths = new String[] {
+    		"fonts/anonymous_pro/Anonymous Pro B.ttf",
+    		"fonts/anonymous_pro/Anonymous Pro BI.ttf",
+            "fonts/anonymous_pro/Anonymous Pro I.ttf",
+            "fonts/anonymous_pro/Anonymous Pro.ttf",
+            "fonts/monofur/monof55.ttf",
+            "fonts/monofur/monof56.ttf",
+            "fonts/proggy/ProggySquare.ttf"};
 
-    public static final String[] fontFiles = new String[] {"anonymous_pro/Anonymous Pro B.ttf", "anonymous_pro/Anonymous Pro BI.ttf",
-            "anonymous_pro/Anonymous Pro I.ttf", "anonymous_pro/Anonymous Pro.ttf", "monofur/monof55.ttf", "monofur/monof56.ttf", "proggy/ProggySquare.ttf"};
-
-    private Map bundledFonts = new HashMap();
     private Messenger messenger;
+    private String[] monospaceFamilyNames = null;
 
     public FontManager(Messenger messenger) {
         this.messenger = messenger;
-        StringBuffer path = new StringBuffer();
+    }
 
-        for (int i = 0; i < fontFiles.length; i++) {
-            path.setLength(0);
-            path.append(BASE_DIR);
-            path.append('/');
-            path.append(fontFiles[i]);
+    /**
+     * This uses registerFont which isn't available until Java 6.
+     */
+    public void registerBundledFonts() {
+    	GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        for (int i = 0; i < bundledFontPaths.length; i++) {
+        	String fontPath = bundledFontPaths[i];
             InputStream stream = null;
             try {
-                stream = ClassLoader.getSystemClassLoader().getResourceAsStream(path.toString());
+                stream = ClassLoader.getSystemClassLoader().getResourceAsStream(fontPath);
                 if (stream == null) {
-                    System.err.println("Failed to find font file: " + path.toString());
+                    System.err.println("Failed to find font file: " + fontPath);
                 } else {
                     Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
-                    bundledFonts.put(font.getName(), font);
+                    // The registerFont method isn't available until Java 6.
+                    genv.registerFont(font);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                String message = "Failed to load font: " + path.toString();
+                String message = "Failed to register font: " + fontPath;
                 System.err.println(message);
                 if (messenger != null) {
                     messenger.showError(message, e);
@@ -51,7 +56,7 @@ public class FontManager {
             }
         }
     }
-
+    
     private void close(InputStream stream) {
         if (stream != null) {
             try {
@@ -62,36 +67,24 @@ public class FontManager {
         }
     }
 
-    public Map getBundledFonts() {
-        return bundledFonts;
-    }
-
-    public Map getSystemMonospaceFonts() {
-        Font fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-        Map monoFonts = new TreeMap();
-        BufferedImage image = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics2D = image.createGraphics();
-        FontRenderContext frc = graphics2D.getFontRenderContext();
-        for (int i = 0; i < fonts.length; i++) {
-            Font font = fonts[i];
-            Font testFont = new Font(font.getName(), font.getStyle(), 12);
-            Rectangle2D iBounds = testFont.getStringBounds("i", frc);
-            Rectangle2D mBounds = testFont.getStringBounds("m", frc);
-            Rectangle2D sBounds = testFont.getStringBounds(" ", frc);
-            if (iBounds.getWidth() == mBounds.getWidth() && sBounds.getWidth() == iBounds.getWidth()) {
-                monoFonts.put(testFont.getName(), testFont);
-            }
-        }
-        return monoFonts;
-    }
-    
-    public Map getAllMonospaceFonts() {
-        Map monoFonts = getSystemMonospaceFonts();
-        monoFonts.putAll(getBundledFonts());
-        return monoFonts;
-    }
-    
-    public String[] getAllMonospaceFamilyNames() {
-        return (String[]) getAllMonospaceFonts().keySet().toArray();
+    public String[] getMonospaceFamilyNames() {
+    	if (monospaceFamilyNames == null) {
+	        String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+	        List monoFonts = new ArrayList();
+	        FontRenderContext renderer = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB).createGraphics().getFontRenderContext();
+	        for (int i = 0; i < familyNames.length; i++) {
+	        	String familyName = familyNames[i];
+	            Font testFont = new Font(familyName, Font.PLAIN, 12);
+	            Rectangle2D iBounds = testFont.getStringBounds("i", renderer);
+	            Rectangle2D mBounds = testFont.getStringBounds("M", renderer);
+	            if (iBounds.getWidth() == mBounds.getWidth()) {
+	                monoFonts.add(testFont.getName());
+	            }
+	        }
+	        monospaceFamilyNames = (String[]) monoFonts.toArray(new String[monoFonts.size()]);
+    	}
+    	return monospaceFamilyNames;
     }
 }
+
+    

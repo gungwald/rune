@@ -14,6 +14,7 @@ public class LookAndFeelManager {
     
     protected ButtonGroup buttonGroup = new ButtonGroup();
     private Messenger messenger;
+    private LookAndFeelActionListener lookListener = null;
     
     public static void setSystemLookAndFeel() {
         // Default to the operating system's native look and feel. Duh...
@@ -34,7 +35,7 @@ public class LookAndFeelManager {
         installOpenLookLookAndFeel();
         LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
         Map lookMap = new HashMap();
-        LookAndFeelActionListener lookListener = new LookAndFeelActionListener(lookMap, componentsToUpdate, messenger);
+        lookListener = new LookAndFeelActionListener(lookMap, componentsToUpdate, messenger);
         for (int i = 0; i < looks.length; i++) {
             LookAndFeelInfo look = looks[i];
             lookMap.put(look.getName(), look);
@@ -62,4 +63,7 @@ public class LookAndFeelManager {
         }
     }
 
+    public LookAndFeelActionListener getLafActionListener() {
+    	return lookListener;
+    }
 }
