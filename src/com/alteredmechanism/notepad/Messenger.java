@@ -62,7 +62,7 @@ public class Messenger {
 
     public void showError(Exception e) {
         String message = e.getLocalizedMessage();
-        if (message == null || message.length() == 0) {
+        if (message == null || message.length() <= 1) {
             message = e.toString();
         }
         showErrorDialog(message);

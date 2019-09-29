@@ -6,8 +6,8 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class FontManager {
 
@@ -21,7 +21,8 @@ public class FontManager {
             "fonts/proggy/ProggySquare.ttf"};
 
     private Messenger messenger;
-    private String[] monospaceFamilyNames = null;
+    private FontRenderContext fontRenderer = null;
+    private Map monospaceFamilies = new TreeMap(); // familyName -> Font sample
 
     public FontManager(Messenger messenger) {
         this.messenger = messenger;
@@ -30,8 +31,7 @@ public class FontManager {
     /**
      * This uses registerFont which isn't available until Java 6.
      */
-    public void registerBundledFonts() {
-    	GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    public void loadBundledFonts() {
         for (int i = 0; i < bundledFontPaths.length; i++) {
         	String fontPath = bundledFontPaths[i];
             InputStream stream = null;
@@ -41,12 +41,14 @@ public class FontManager {
                     System.err.println("Failed to find font file: " + fontPath);
                 } else {
                     Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
-                    // The registerFont method isn't available until Java 6.
-                    genv.registerFont(font);
+                    if (monospaceFamilies.containsKey(font.getFamily())) {
+                    	System.err.println("Font file " + fontPath + " overwriting existing font family " + font.getFamily());
+                    }
+                    monospaceFamilies.put(font.getFamily(), font);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                String message = "Failed to register font: " + fontPath;
+                String message = "Failed to load font: " + fontPath;
                 System.err.println(message);
                 if (messenger != null) {
                     messenger.showError(message, e);
@@ -67,23 +69,46 @@ public class FontManager {
         }
     }
 
-    public String[] getMonospaceFamilyNames() {
-    	if (monospaceFamilyNames == null) {
-	        String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-	        List monoFonts = new ArrayList();
-	        FontRenderContext renderer = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB).createGraphics().getFontRenderContext();
-	        for (int i = 0; i < familyNames.length; i++) {
-	        	String familyName = familyNames[i];
-	            Font testFont = new Font(familyName, Font.PLAIN, 12);
-	            Rectangle2D iBounds = testFont.getStringBounds("i", renderer);
-	            Rectangle2D mBounds = testFont.getStringBounds("M", renderer);
-	            if (iBounds.getWidth() == mBounds.getWidth()) {
-	                monoFonts.add(testFont.getName());
-	            }
-	        }
-	        monospaceFamilyNames = (String[]) monoFonts.toArray(new String[monoFonts.size()]);
+    public FontRenderContext getFontRenderer() {
+    	if (fontRenderer == null) {
+    		fontRenderer = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB).createGraphics().getFontRenderContext();
     	}
-    	return monospaceFamilyNames;
+    	return fontRenderer;
+    }
+    
+    public boolean isMonospace(Font f) {
+    	boolean isMonospace;
+    	FontRenderContext renderer = getFontRenderer();
+        Rectangle2D iBounds = f.getStringBounds("i", renderer);
+        Rectangle2D mBounds = f.getStringBounds("M", renderer);
+        if (iBounds.getWidth() == mBounds.getWidth()) {
+        	isMonospace = true;
+        } else {
+        	isMonospace = false;
+        }
+    	return isMonospace;
+    }
+    
+    public void loadMonospaceSystemFamilies() {
+        String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        for (int i = 0; i < familyNames.length; i++) {
+        	String familyName = familyNames[i];
+        	Font testFont = new Font(familyName, Font.PLAIN, 12);
+        	if (isMonospace(testFont)) {
+        		monospaceFamilies.put(familyName, testFont);
+        	}
+        }
+    }
+    
+    /**
+     * Provides a Map of family names to sample Fonts.
+     */
+    public Map getMonospaceFamilies() {
+    	if (monospaceFamilies.size() == 0) {
+    		loadBundledFonts();
+    		loadMonospaceSystemFamilies();
+    	}
+    	return monospaceFamilies;
     }
 }
 

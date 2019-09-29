@@ -19,6 +19,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -36,6 +37,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
@@ -90,7 +92,7 @@ public class JFontChooser extends JComponent {
 	protected int dialogResultValue = ERROR_OPTION;
 
 	private String[] fontStyleNames = null;
-	private String[] fontFamilyNames = null;
+	private Map fontFamilies = null;
 	private String[] fontSizeStrings = null;
 	private JTextField fontFamilyTextField = null;
 	private JTextField fontStyleTextField = null;
@@ -102,7 +104,8 @@ public class JFontChooser extends JComponent {
 	private JPanel fontStylePanel = null;
 	private JPanel fontSizePanel = null;
 	private JPanel samplePanel = null;
-	private JTextField sampleText = null;
+	private AntiAliasedJTextArea sampleText = null;
+	private JScrollPane sampleTextScrollPane = null;
 	private Messenger messenger;
 
 	/**
@@ -112,9 +115,8 @@ public class JFontChooser extends JComponent {
 	 * @throws IOException
 	 * @throws FontFormatException
 	 **/
-	public JFontChooser(Messenger messenger, LookAndFeelManager lookAndFeelManager) throws FontFormatException, IOException {
+	public JFontChooser(Messenger messenger) throws FontFormatException, IOException {
 		this(messenger, DEFAULT_FONT_SIZE_STRINGS);
-		lookAndFeelManager.getLafActionListener().addComponentToUpdate(this);
 	}
 
 	/**
@@ -186,7 +188,7 @@ public class JFontChooser extends JComponent {
 
 	public JList getFontFamilyList() {
 		if (fontNameList == null) {
-			fontNameList = new JList(getFontFamilies());
+			fontNameList = new JList(getMapKeys(getFontFamilies()));
 			fontNameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontNameList.addListSelectionListener(new ListSelectionHandler(getFontFamilyTextField()));
 			fontNameList.setSelectedIndex(0);
@@ -281,8 +283,8 @@ public class JFontChooser extends JComponent {
 	 * @see java.awt.Font
 	 **/
 	public Font getSelectedFont() {
-		Font font = new Font(getSelectedFontFamily(), getSelectedFontStyle(), getSelectedFontSize());
-		return font;
+		Font familySample = (Font) getFontFamilies().get(getSelectedFontFamily());
+		return familySample.deriveFont(getSelectedFontStyle(), getSelectedFontSize());
 	}
 
 	/**
@@ -293,7 +295,7 @@ public class JFontChooser extends JComponent {
 	 * @see getSelectedFontFamily
 	 **/
 	public void setSelectedFontFamily(String name) {
-		String[] names = getFontFamilies();
+		String[] names = getMapKeys(getFontFamilies());
 		for (int i = 0; i < names.length; i++) {
 			if (names[i].toLowerCase().equals(name.toLowerCase())) {
 				getFontFamilyList().setSelectedIndex(i);
@@ -567,7 +569,9 @@ public class JFontChooser extends JComponent {
 		cancelButton.setFont(DEFAULT_FONT);
 
 		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setLayout(new GridLayout(2, 1));
+		GridLayout buttonsLayout = new GridLayout(2,1);
+		buttonsLayout.setVgap(3);
+		buttonsPanel.setLayout(buttonsLayout);
 		buttonsPanel.add(okButton);
 		buttonsPanel.add(cancelButton);
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 10));
@@ -690,27 +694,32 @@ public class JFontChooser extends JComponent {
 			samplePanel.setLayout(new BorderLayout());
 			samplePanel.setBorder(border);
 
-			samplePanel.add(getSampleTextField(), BorderLayout.CENTER);
+			samplePanel.add(getSampleTextScrollPane(), BorderLayout.CENTER);
 		}
 		return samplePanel;
 	}
 
-	protected JTextField getSampleTextField() {
+	protected AntiAliasedJTextArea getSampleTextField() {
 		if (sampleText == null) {
-			Border lowered = BorderFactory.createLoweredBevelBorder();
-
-			sampleText = new JTextField(("AaBbYyZz"));
-			sampleText.setBorder(lowered);
-			sampleText.setPreferredSize(new Dimension(300, 100));
+			sampleText = new AntiAliasedJTextArea("Daenerys of the House Targaryen,\nthe First of Her Name,\nThe Unburnt,\nQueen of the Andals, the Rhoynar and the First Men,\nQueen of Meereen,\nKhaleesi of the Great Grass Sea,\nProtector of the Realm,\nLady Regent of the Seven Kingdoms,\nBreaker of Chains\nand Mother of Dragons", 7, 50);
+			sampleTextScrollPane = new JScrollPane(sampleText, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			sampleText.setBorder(BorderFactory.createLoweredBevelBorder());
 		}
 		return sampleText;
 	}
-
-	protected String[] getFontFamilies() {
-		if (fontFamilyNames == null) {
-			fontFamilyNames = new FontManager(messenger).getMonospaceFamilyNames();
+	
+	protected JScrollPane getSampleTextScrollPane() {
+		if (sampleTextScrollPane == null) {
+			getSampleTextField();
 		}
-		return fontFamilyNames;
+		return sampleTextScrollPane;
+	}
+
+	protected Map getFontFamilies() {
+		if (fontFamilies == null) {
+			fontFamilies = new FontManager(messenger).getMonospaceFamilies();
+		}
+		return fontFamilies;
 	}
 
 	protected String[] getFontStyleNames() {
@@ -723,5 +732,9 @@ public class JFontChooser extends JComponent {
 			fontStyleNames[i++] = ("BoldItalic");
 		}
 		return fontStyleNames;
+	}
+	
+	public String[] getMapKeys(Map m) {
+		return (String[]) m.keySet().toArray(new String[m.size()]);
 	}
 }

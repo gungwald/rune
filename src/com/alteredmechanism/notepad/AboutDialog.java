@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.TreeSet;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -34,7 +35,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 	public static void main(String[] args) {
 		try {
             JFrame frame = new JFrame();
-			AboutDialog dialog = new AboutDialog(frame, new LookAndFeelManager(new Messenger(frame)));
+			AboutDialog dialog = new AboutDialog(frame);
 			dialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -45,9 +46,8 @@ public class AboutDialog extends JDialog implements ActionListener {
 	/**
 	 * Create the dialog.
 	 */
-	public AboutDialog(JFrame owner, LookAndFeelManager lookAndFeelManager) {
+	public AboutDialog(JFrame owner) {
         super(owner);
-		lookAndFeelManager.getLafActionListener().addComponentToUpdate(this);
 		setTitle("About Notepad");
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
@@ -92,6 +92,7 @@ public class AboutDialog extends JDialog implements ActionListener {
                 okButton.addActionListener(this);
 			}
 		}
+		pack();
 	}
     
 	private Object[][] getSortedSystemProperties() {

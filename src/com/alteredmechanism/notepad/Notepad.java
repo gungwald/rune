@@ -1,7 +1,6 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -12,6 +11,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,6 +23,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -31,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -55,7 +58,7 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
  *
  * @author Bill Chatfield
  */
-public class Notepad extends JFrame implements ActionListener {
+public class Notepad extends JFrame implements ActionListener, MouseListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -149,7 +152,7 @@ public class Notepad extends JFrame implements ActionListener {
 
         // Select Font menu item
         selectFontMenuItem.addActionListener(this);
-        selectLookAndFeelMenu.addActionListener(this);
+        selectLookAndFeelMenu.addMouseListener(this);
 
         viewMenu.add(selectLookAndFeelMenu);
         viewMenu.add(selectFontMenuItem);
@@ -211,36 +214,36 @@ public class Notepad extends JFrame implements ActionListener {
             saveAs();
         }
         else if (e.getSource() == this.selectFontMenuItem) {
-            getFontChooser().setSelectedFont(textArea.getFont());
-            int result = getFontChooser().showDialog(this);
-            if (result == JFontChooser.OK_OPTION) {
-                Font font = getFontChooser().getSelectedFont();
-                System.out.println("Selected Font : " + font);
-                textArea.setFont(font);
-                textArea.setTabSize(8);
-            }
+            try {
+				getFontChooser().setSelectedFont(textArea.getFont());
+	            int result = getFontChooser().showDialog(this);
+	            if (result == JFontChooser.OK_OPTION) {
+	                Font font = getFontChooser().getSelectedFont();
+	                System.out.println("Selected Font : " + font);
+	                textArea.setFont(font);
+	                textArea.setTabSize(8);
+	            }
+			} catch (Exception ex) {
+				getMessenger().showError(ex);
+				ex.printStackTrace();
+			}
         }
         else if (e.getSource() == this.aboutMenuItem) {
             getAboutDialog().setLocationRelativeTo(this);
         	getAboutDialog().setVisible(true);
         }
-        else if (e.getSource() == this.selectLookAndFeelMenu) {
-        	if (this.selectLookAndFeelMenu.getMenuComponentCount() == 0) {
-	            getLafManager().initChooserMenuItems(selectLookAndFeelMenu, new Component[] { this });
-        	}
-        }
     }
 
-    private JFontChooser getFontChooser() {
+    /**
+     * Must throw exceptions. Otherwise we'll end up returning null.
+     * @return
+     * @throws IOException 
+     * @throws FontFormatException 
+     */
+    private JFontChooser getFontChooser() throws FontFormatException, IOException {
     	if (fontChooser == null) {
-    		try {
-				fontChooser = new JFontChooser(getMessenger(), getLafManager());
-			} catch (Exception e) {
-				e.printStackTrace();
-				if (getMessenger() != null) {
-					getMessenger().showError("Failed to create font chooser dialog", e);
-				}
-			}
+			fontChooser = new JFontChooser(getMessenger());
+			getLafManager().addComponentToUpdate(fontChooser);
     	}
 		return fontChooser;
 	}
@@ -248,7 +251,7 @@ public class Notepad extends JFrame implements ActionListener {
     private JFileChooser getFileChooser() {
     	if (fileChooser == null) {
 			fileChooser = new JFileChooser();
-			getLafManager().getLafActionListener().addComponentToUpdate(fileChooser);
+			getLafManager().addComponentToUpdate(fileChooser);
     	}
     	return fileChooser;
     }
@@ -262,7 +265,8 @@ public class Notepad extends JFrame implements ActionListener {
     
     private AboutDialog getAboutDialog() {
     	if (aboutDialog == null) {
-			aboutDialog = new AboutDialog(this, getLafManager());
+			aboutDialog = new AboutDialog(this);
+			getLafManager().addComponentToUpdate(aboutDialog);
     	}
     	return aboutDialog;
     }
@@ -352,6 +356,36 @@ public class Notepad extends JFrame implements ActionListener {
 		center.x = dim.width / 2 - this.getWidth() / 2;
 		center.y = dim.height / 2 - this.getHeight() / 2;
         this.setLocation(center);
+	}
+
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+        if (e.getSource() == this.selectLookAndFeelMenu) {
+        	if (this.selectLookAndFeelMenu.getMenuComponentCount() == 0) {
+	            getLafManager().initChooserMenuItems(selectLookAndFeelMenu);
+	            getLafManager().addComponentToUpdate(this);
+        	}
+        }
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
