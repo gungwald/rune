@@ -1,6 +1,7 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -23,17 +24,19 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
-
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -58,15 +61,21 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
  *
  * @author Bill Chatfield
  */
-public class Notepad extends JFrame implements ActionListener, MouseListener {
+public class Notepad extends JFrame implements ActionListener, MouseListener, ChangeListener {
 
     private static final long serialVersionUID = 1L;
 
     public static final int EXIT_SUCCESS = 0;
     public static final int EXIT_FAILURE = 1;
+    
+    public static final String UNTITLED = "Untitled";
+    public static final String USER_FACING_APP_NAME = "Hreodrit";
+    
+    private int nextEmptyTabNumber = 1;
+    private boolean newTabEventProcessingInProgress = false;
+    private boolean bufferTabsWasClicked = false;
 
-    private AntiAliasedJTextArea textArea = new AntiAliasedJTextArea(24, 80);
-    private JScrollPane textScrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    private AntiAliasedJTextArea initialTextArea = new AntiAliasedJTextArea(24, 80);
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
@@ -90,26 +99,35 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
     private Messenger messenger = null;
     private AboutDialog aboutDialog = null;
 	private LookAndFeelManager lafManager = null;
+	private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
+	private final JScrollPane tabAdder = new JScrollPane((Component) null, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
     public Notepad(File f) throws FontFormatException, IOException {
         this();
-        open(f);
+        openIntoSelectedTab(f);
     }
 
     public Notepad() throws FontFormatException, IOException {
-        super("Notepad");
+        super(USER_FACING_APP_NAME);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-        textArea.setTabSize(8);
-        textArea.setBorder(new EmptyBorder(new Insets(3,3,3,3)));
 
         this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(textScrollPane);
+        
+        getContentPane().add(bufferTabs, BorderLayout.CENTER);
+        
+        bufferTabs.addTab("+", null, tabAdder, "Add a new tab");
+        bufferTabs.addChangeListener(this);
+        
+        bufferTabsWasClicked = true;
+        appendNewTab();
+        
         this.setJMenuBar(this.menuBar);
 
         ImageIconLoader loader = new ImageIconLoader(getMessenger());
         List icons = loader.loadAll("writbred");
-        this.setIconImage((Image) icons.get(0));
+        if (icons.size() > 0) {
+            this.setIconImage((Image) icons.get(0));
+        }
 
         file.setMnemonic(KeyEvent.VK_F);
         editMenu.setMnemonic(KeyEvent.VK_E);
@@ -169,18 +187,27 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
         setLocationRelativeTo(null);
         setVisible(true);
     }
-
+    
     public void open(File f) {
-        textArea.setText("");
+        if (bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) && getSelectedBuffer().getText().length() == 0) {
+            appendNewTab();
+        }
+        openIntoSelectedTab(f);
+    }
+
+    public void openIntoSelectedTab(File f) {
+        getSelectedBuffer().setText("");
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(f));
             String line = null;
             while ((line = reader.readLine()) != null) {
-                textArea.append(line + "\n");
+                getSelectedBuffer().append(line + "\n");
             }
-            textArea.setCaretPosition(0);
+            getSelectedBuffer().setCaretPosition(0);
             this.setTitle(f.getName() + " - Notepad");
+            setSelectedTabTitle(f.getName());
+            setSelectedTabToolTip(f.getName());
         }
         catch (Exception ex) {
             getMessenger().showError(ex);
@@ -188,6 +215,14 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
         finally {
             close(reader);
         }
+    }
+
+    private void setSelectedTabToolTip(String text) {
+        bufferTabs.setToolTipTextAt(bufferTabs.getSelectedIndex(), text);
+    }
+
+    private void setSelectedTabTitle(String name) {
+        bufferTabs.setTitleAt(bufferTabs.getSelectedIndex(), name);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -199,15 +234,16 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
             getFileChooser().showOpenDialog(this);
             File selectedFile = getFileChooser().getSelectedFile();
             if (selectedFile != null) {
-                open(selectedFile);
+                openIntoSelectedTab(selectedFile);
             }
         }
         else if (e.getSource() == this.saveMenuItem) {
-            if (getFileChooser().getSelectedFile() == null) {
+            String absFileName = getSelectedTabToolTip();
+            if (absFileName == null || absFileName.trim().length() == 0) {
                 saveAs();
             }
             else {
-                save(getFileChooser().getSelectedFile());
+                save(new File(absFileName));
             }
         }
         else if (e.getSource() == this.saveAsMenuItem) {
@@ -215,13 +251,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
         }
         else if (e.getSource() == this.selectFontMenuItem) {
             try {
-				getFontChooser().setSelectedFont(textArea.getFont());
+				getFontChooser().setSelectedFont(initialTextArea.getFont());
 	            int result = getFontChooser().showDialog(this);
 	            if (result == JFontChooser.OK_OPTION) {
 	                Font font = getFontChooser().getSelectedFont();
 	                System.out.println("Selected Font : " + font);
-	                textArea.setFont(font);
-	                textArea.setTabSize(8);
+	                initialTextArea.setFont(font);
+	                initialTextArea.setTabSize(8);
 	            }
 			} catch (Exception ex) {
 				getMessenger().showError(ex);
@@ -282,7 +318,11 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
         getFileChooser().setDialogTitle("Choose the name of the file to save");
         int option = getFileChooser().showSaveDialog(this);
         if (option == JFileChooser.APPROVE_OPTION) {
-            save(getFileChooser().getSelectedFile());
+            File fileToSave = getFileChooser().getSelectedFile();
+            save(fileToSave);
+            this.setTitle(fileToSave.getName());
+            setSelectedTabTitle(fileToSave.getName());
+            setSelectedTabToolTip(fileToSave.getAbsolutePath());
         }
     }
 
@@ -290,7 +330,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
         BufferedWriter out = null;
         try {
             out = new BufferedWriter(new FileWriter(f));
-            out.write(textArea.getText());
+            out.write(getSelectedBuffer().getText());
         }
         catch (Exception ex) {
             getMessenger().showError(ex);
@@ -359,8 +399,12 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+        if (e.getComponent() == bufferTabs) {
+            bufferTabsWasClicked = true;
+        }
+        else {
+            bufferTabsWasClicked = false;
+        }
 	}
 
 	public void mousePressed(MouseEvent e) {
@@ -388,4 +432,52 @@ public class Notepad extends JFrame implements ActionListener, MouseListener {
 		
 	}
 
+    public void stateChanged(ChangeEvent e) {
+        System.out.println("stateChanged: " + e.getClass().getName() + ": " + e.toString());
+        if (e.getSource() == bufferTabs && bufferTabs.getComponentAt(bufferTabs.getSelectedIndex()) == tabAdder) {
+            appendNewTab();
+        }
+    }
+
+    private void appendNewTab() {
+        System.out.println("appendNewTab called");
+        // Avoids recursive stateChanged event calls
+        if (bufferTabsWasClicked) {
+            bufferTabsWasClicked = false;
+   
+        AntiAliasedJTextArea text = new AntiAliasedJTextArea(24, 80);
+        text.setFont(getSelectedFont());
+        text.setTabSize(8);
+        text.setBorder(new EmptyBorder(new Insets(3,3,3,3)));
+        JScrollPane scroller = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        int tabCount = bufferTabs.getTabCount();
+        int newTabIndex = tabCount - 1;
+        String tabTitle = getNextEmptyTabName();
+        bufferTabs.insertTab(tabTitle, null, scroller, tabTitle, newTabIndex);
+        bufferTabs.setSelectedIndex(newTabIndex);
+            
+        }
+    }
+
+    private String getNextEmptyTabName() {
+        return UNTITLED + " " + nextEmptyTabNumber++;
+    }
+    
+    private JTextArea getSelectedBuffer() {
+        return (JTextArea) ((JScrollPane) bufferTabs.getSelectedComponent()).getComponent(0);
+    }
+    
+    private String getSelectedTabToolTip() {
+        return bufferTabs.getToolTipTextAt(bufferTabs.getSelectedIndex());
+    }
+
+    private Font getSelectedFont() {
+        // Don't build the fontChooser just for this
+        if (fontChooser == null) {
+            return new Font("Monospace", Font.PLAIN, 12);
+        }
+        else {
+            return fontChooser.getSelectedFont();
+        }
+    }
 }

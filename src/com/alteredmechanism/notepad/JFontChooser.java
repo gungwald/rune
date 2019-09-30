@@ -225,13 +225,16 @@ public class JFontChooser extends JComponent {
 	/**
 	 * Get the family name of the selected font.
 	 * 
-	 * @return the font family of the selected font.
+	 * @return the font family of the selected font or Monospace if none is selected :-)
 	 *
 	 * @see #setSelectedFontFamily
 	 **/
 	public String getSelectedFontFamily() {
-		String fontName = (String) getFontFamilyList().getSelectedValue();
-		return fontName;
+		String familyName = (String) getFontFamilyList().getSelectedValue();
+        if (familyName == null) {
+            familyName = "Monospace";
+        }
+		return familyName;
 	}
 
 	/**
