@@ -64,10 +64,10 @@ fi
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
 then
-    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    java -Xshare:on -Xms32m -Xmx32m -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
     JAVA_EXIT_CODE=$?
 else
-    java "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    java -Xshare:on "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
     JAVA_EXIT_CODE=$?
 fi
 
