@@ -25,13 +25,13 @@ public class SystemPropertyConfigurator {
 		// false - no anti-aliasing
 		// on - best for Gnome but not available on Windows
 		// gasp - Windows standard anti-aliasing
-		if (isGnomeDesktop()) {
-			System.out.println("Detected Gnome desktop");
-			System.setProperty("awt.useSystemAAFontSettings", "on");
-		}
-		else {
-			System.setProperty("awt.useSystemAAFontSettings", "lcd");
-		}
+//		if (isGnomeDesktop()) {
+//			System.out.println("Detected Gnome desktop");
+//			System.setProperty("awt.useSystemAAFontSettings", "on");
+//		}
+//		else {
+//			System.setProperty("awt.useSystemAAFontSettings", "lcd");
+//		}
 
 		// Mac OS
 		if (System.getProperty("os.name").startsWith("Mac OS")) {
@@ -56,7 +56,7 @@ public class SystemPropertyConfigurator {
 		}
 
 		// The above system properties should be set first.
-		LookAndFeelManager.setSystemLookAndFeel();
+		LookAndFeelManager.setOptimalLookAndFeel();
 	}
 
 }
