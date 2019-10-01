@@ -1,7 +1,6 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -24,6 +23,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -32,11 +32,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -72,10 +74,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public static final String USER_FACING_APP_NAME = "Hreodrit";
     
     private int nextEmptyTabNumber = 1;
-    private boolean newTabEventProcessingInProgress = false;
-    private boolean bufferTabsWasClicked = false;
 
-    private AntiAliasedJTextArea initialTextArea = new AntiAliasedJTextArea(24, 80);
     private JMenuBar menuBar = new JMenuBar();
     private JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
@@ -84,6 +83,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     private JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
     
+    private JMenuItem newTabItem = new JMenuItem("New Tab");
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
@@ -100,7 +100,6 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private AboutDialog aboutDialog = null;
 	private LookAndFeelManager lafManager = null;
 	private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
-	private final JScrollPane tabAdder = new JScrollPane((Component) null, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
     public Notepad(File f) throws FontFormatException, IOException {
         this();
@@ -115,10 +114,6 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
         
-        bufferTabs.addTab("+", null, tabAdder, "Add a new tab");
-        bufferTabs.addChangeListener(this);
-        
-        bufferTabsWasClicked = true;
         appendNewTab();
         
         this.setJMenuBar(this.menuBar);
@@ -132,7 +127,11 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         file.setMnemonic(KeyEvent.VK_F);
         editMenu.setMnemonic(KeyEvent.VK_E);
         
-        System.out.println("Menu Font = " + file.getFont());
+        newTabItem.addActionListener(this);
+        newTabItem.setMnemonic(KeyEvent.VK_T);
+        newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
+        file.add(newTabItem);
+        
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
@@ -229,6 +228,9 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         if (e.getSource() == this.close) {
             this.dispose();
         }
+        else if (e.getSource() == this.newTabItem) {
+        	appendNewTab();
+        }
         else if (e.getSource() == this.openMenuItem) {
             getFileChooser().setDialogTitle("Choose a file to open");
             getFileChooser().showOpenDialog(this);
@@ -251,13 +253,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         }
         else if (e.getSource() == this.selectFontMenuItem) {
             try {
-				getFontChooser().setSelectedFont(initialTextArea.getFont());
+				getFontChooser().setSelectedFont(getSelectedBuffer().getFont());
 	            int result = getFontChooser().showDialog(this);
 	            if (result == JFontChooser.OK_OPTION) {
 	                Font font = getFontChooser().getSelectedFont();
 	                System.out.println("Selected Font : " + font);
-	                initialTextArea.setFont(font);
-	                initialTextArea.setTabSize(8);
+	                getSelectedBuffer().setFont(font);
+	                getSelectedBuffer().setTabSize(8);
 	            }
 			} catch (Exception ex) {
 				getMessenger().showError(ex);
@@ -399,12 +401,6 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 	}
 
 	public void mouseClicked(MouseEvent e) {
-        if (e.getComponent() == bufferTabs) {
-            bufferTabsWasClicked = true;
-        }
-        else {
-            bufferTabsWasClicked = false;
-        }
 	}
 
 	public void mousePressed(MouseEvent e) {
@@ -433,30 +429,19 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 	}
 
     public void stateChanged(ChangeEvent e) {
-        System.out.println("stateChanged: " + e.getClass().getName() + ": " + e.toString());
-        if (e.getSource() == bufferTabs && bufferTabs.getComponentAt(bufferTabs.getSelectedIndex()) == tabAdder) {
-            appendNewTab();
-        }
     }
 
     private void appendNewTab() {
         System.out.println("appendNewTab called");
-        // Avoids recursive stateChanged event calls
-        if (bufferTabsWasClicked) {
-            bufferTabsWasClicked = false;
-   
-        AntiAliasedJTextArea text = new AntiAliasedJTextArea(24, 80);
-        text.setFont(getSelectedFont());
+        AntiAliasedJTextArea text = new AntiAliasedJTextArea();
+        text.setColumns(70);
+        text.setRows(24);
+        text.setFont(new Font("Monospaced", Font.PLAIN, 12));
         text.setTabSize(8);
         text.setBorder(new EmptyBorder(new Insets(3,3,3,3)));
         JScrollPane scroller = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        int tabCount = bufferTabs.getTabCount();
-        int newTabIndex = tabCount - 1;
         String tabTitle = getNextEmptyTabName();
-        bufferTabs.insertTab(tabTitle, null, scroller, tabTitle, newTabIndex);
-        bufferTabs.setSelectedIndex(newTabIndex);
-            
-        }
+        bufferTabs.addTab(tabTitle, null, scroller, tabTitle);
     }
 
     private String getNextEmptyTabName() {
@@ -464,7 +449,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
     
     private JTextArea getSelectedBuffer() {
-        return (JTextArea) ((JScrollPane) bufferTabs.getSelectedComponent()).getComponent(0);
+    	JScrollPane scroll = (JScrollPane) bufferTabs.getSelectedComponent();
+    	JViewport view = (JViewport) scroll.getComponent(0);
+    	JTextArea text = (JTextArea) view.getComponent(0);
+        return text;
     }
     
     private String getSelectedTabToolTip() {
