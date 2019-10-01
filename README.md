@@ -17,3 +17,5 @@
 - Ability to save state
 - Project files
 - Vim emulation
+
+Download read-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/hreodwrit.jar.
