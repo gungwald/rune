@@ -2,11 +2,12 @@
 (hreodwrit - a reed-pen, meaning, a writing utensil)
 
 ## Features
+- The default theme is consistent with your operating system
 - Themeable
 - Tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
-- Works on all operating systems
-- Works on old systems
+- Works on all modern desktop operating systems
+- Works on many old systems
 - Anti-aliased (smooth) text
 - Nice bundled free fonts for programming
 
