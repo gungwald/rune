@@ -284,13 +284,14 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 		return fontChooser;
 	}
 
-    private JFileChooser getFileChooser() {
-    	if (fileChooser == null) {
+	private JFileChooser getFileChooser() {
+		if (fileChooser == null) {
 			fileChooser = new JFileChooser();
+			fileChooser.setMultiSelectionEnabled(true);
 			getLafManager().addComponentToUpdate(fileChooser);
-    	}
-    	return fileChooser;
-    }
+		}
+		return fileChooser;
+	}
     
     private Messenger getMessenger() {
     	if (messenger == null) {
@@ -367,22 +368,15 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     public static void main(String args[]) {
-        List instances = new ArrayList();
         try {
             SystemPropertyConfigurator.autoConfigure();
-            if (args.length == 0) {
-                instances.add(new Notepad());
-            } else {
-                for (int i = 0; i < args.length; i++) {
-                    instances.add(new Notepad(new File(args[i])));
-                }
+            Notepad n = new Notepad();
+            for (int i = 0; i < args.length; i++) {
+                n.open(new File(args[i]);
             }
         }
         catch (Exception e) {
             new Messenger(Notepad.class).showError(e);
-            for (int i = 0; i < instances.size(); i++) {
-                ((Notepad) instances.get(i)).dispose();
-            }
             System.exit(EXIT_FAILURE);
         }
     }
