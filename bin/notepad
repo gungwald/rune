@@ -67,7 +67,7 @@ fi
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
 then
-    java -Xms16m -Xmx16m -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
     #java -Xshare:on -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
     JAVA_EXIT_CODE=$?
 else

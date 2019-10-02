@@ -1,13 +1,11 @@
 package com.alteredmechanism.notepad;
 import java.awt.Component;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -30,6 +28,12 @@ public class LookAndFeelManager implements ActionListener {
         }
         catch (Exception e) {
         	new Messenger(LookAndFeelManager.class.getName()).showError(e);
+        }
+    }
+    
+    public static void setOptimalLookAndFeel() {
+        if (System.getProperty("java.specification.version").compareToIgnoreCase("1.4") > 0) {
+            setSystemLookAndFeel();
         }
     }
 
@@ -79,9 +83,9 @@ public class LookAndFeelManager implements ActionListener {
             for (int i = 0; i < componentsToUpdate.size(); i++) {
                 Component c = (Component) componentsToUpdate.get(i);
                 SwingUtilities.updateComponentTreeUI(c);
-                if (c instanceof Window) {
-                    ((Window) c).pack();
-                }
+//                if (c instanceof Window) {
+//                    ((Window) c).pack();
+//                }
             }
         }
         catch (Exception e) {

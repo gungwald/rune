@@ -21,6 +21,8 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 public class AboutDialog extends JDialog implements ActionListener {
 
@@ -52,33 +54,47 @@ public class AboutDialog extends JDialog implements ActionListener {
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		getContentPane().add(contentPanel, BorderLayout.SOUTH);
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		{
-			JLabel lblNotepadVersion = new JLabel("Notepad - Version 1.0");
-			lblNotepadVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
-			lblNotepadVersion.setHorizontalAlignment(SwingConstants.CENTER);
-			contentPanel.add(lblNotepadVersion);
-		}
-		{
-			JLabel lblByBillChatfield = new JLabel("Created by Bill Chatfield");
-			lblByBillChatfield.setAlignmentX(Component.CENTER_ALIGNMENT);
-			contentPanel.add(lblByBillChatfield);
-		}
-		{
-			JScrollPane scrollPane = new JScrollPane();
-			contentPanel.add(scrollPane);
-			{
-				table = new JTable();
-				table.setModel(new DefaultTableModel(
+		    JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		    getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		    {
+		        JPanel infoPanel = new JPanel();
+		        tabbedPane.addTab("Info", null, infoPanel, null);
+		        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+		        {
+		        	JLabel lblNotepadVersion = new JLabel("Notepad - Version 1.0");
+		        	infoPanel.add(lblNotepadVersion);
+		        	lblNotepadVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
+		        	lblNotepadVersion.setHorizontalAlignment(SwingConstants.CENTER);
+		        }
+		        {
+		        	JLabel lblByBillChatfield = new JLabel("Created by Bill Chatfield");
+		        	infoPanel.add(lblByBillChatfield);
+		        	lblByBillChatfield.setAlignmentX(Component.CENTER_ALIGNMENT);
+		        }
+		    }
+		    {
+		        JTextArea licenseTextArea = new JTextArea();
+		        JScrollPane licenseScroller = new JScrollPane(licenseTextArea);
+		        tabbedPane.addTab("License", null, licenseScroller, null);
+		    }
+		    {
+		    	JScrollPane propertiesPane = new JScrollPane();
+		    	tabbedPane.addTab("System Properties", null, propertiesPane, null);
+		    	{
+		    		table = new JTable();
+		    		table.setModel(new DefaultTableModel(
                         getSortedSystemProperties(),
-				    new String[] {
-				        "Property Name", "Property Value"
-				    }
-				));
-				table.getColumnModel().getColumn(0).setPreferredWidth(80);
-				scrollPane.setViewportView(table);
-			}
+		    		    new String[] {
+		    		        "Property Name", "Property Value"
+		    		    }
+		    		));
+		    		table.getColumnModel().getColumn(0).setPreferredWidth(80);
+		    		propertiesPane.setViewportView(table);
+		    	}
+		    }
 		}
 		{
 			JPanel buttonPane = new JPanel();

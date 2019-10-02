@@ -5,7 +5,7 @@
 
 <!DOCTYPE project>
 
-<project name="notepad" default="compile" basedir=".">
+<project name="hreodwrit" default="jar" basedir=".">
 
   <property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
   <property name="version" value="1.0" />
