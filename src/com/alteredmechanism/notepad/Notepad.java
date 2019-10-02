@@ -23,8 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -42,6 +42,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -424,7 +425,8 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
             SystemPropertyConfigurator.autoConfigure();
             Notepad n = new Notepad();
             for (int i = 0; i < args.length; i++) {
-                n.open(new File(args[i]);
+                n.open(new File(args[i])) 
+                ;
             }
         }
         catch (Exception e) {
@@ -519,7 +521,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
             f = newFont("Monaco", Font.PLAIN, 12);
         }
         if (f == null) {
-            f = new Font("Monospace", Font.PLAIN, 12);
+            f = new Font("Monospaced", Font.PLAIN, 12);
         }
         return f;
     }

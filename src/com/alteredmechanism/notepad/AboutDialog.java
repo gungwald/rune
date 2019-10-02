@@ -1,12 +1,19 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -17,19 +24,23 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
+import java.awt.Cursor;
+import java.awt.Desktop;
 
 public class AboutDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	private static final String SOURCE_URL = "http://github.com/gungwald/notepad";
 	private final JPanel contentPanel = new JPanel();
 	private JTable table;
     private JButton okButton;
+    private JButton sourceLinkButton;
 
 	/**
 	 * Launch the application.
@@ -51,7 +62,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 	public AboutDialog(JFrame owner) {
         super(owner);
 		setTitle("About Notepad");
-		setBounds(100, 100, 450, 300);
+		setSize(550, 500);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.SOUTH);
@@ -74,9 +85,23 @@ public class AboutDialog extends JDialog implements ActionListener {
 		        	infoPanel.add(lblByBillChatfield);
 		        	lblByBillChatfield.setAlignmentX(Component.CENTER_ALIGNMENT);
 		        }
+		        {
+		        	sourceLinkButton = new JButton("<html><font color=\"#000099\"><u>" + SOURCE_URL + "</u></font></html>");
+		        	sourceLinkButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		        	sourceLinkButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		        	sourceLinkButton.setBorderPainted(false);
+		        	sourceLinkButton.setOpaque(false);
+		        	sourceLinkButton.setBackground(Color.WHITE);
+		        	sourceLinkButton.addActionListener(this);
+		        	infoPanel.add(sourceLinkButton);
+		        }
 		    }
 		    {
-		        JTextArea licenseTextArea = new JTextArea();
+		        AntiAliasedJTextArea licenseTextArea = new AntiAliasedJTextArea(80, 30);
+		        licenseTextArea.setMargin(new Insets(5,5,5,5));
+		        licenseTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		        licenseTextArea.setText(readLicenseFile(licenseTextArea));
+		        licenseTextArea.setCaretPosition(0);
 		        JScrollPane licenseScroller = new JScrollPane(licenseTextArea);
 		        tabbedPane.addTab("License", null, licenseScroller, null);
 		    }
@@ -91,7 +116,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 		    		        "Property Name", "Property Value"
 		    		    }
 		    		));
-		    		table.getColumnModel().getColumn(0).setPreferredWidth(80);
+		    		table.getColumnModel().getColumn(0).setWidth(60);
 		    		propertiesPane.setViewportView(table);
 		    	}
 		    }
@@ -108,9 +133,41 @@ public class AboutDialog extends JDialog implements ActionListener {
                 okButton.addActionListener(this);
 			}
 		}
-		pack();
 	}
     
+	private String readLicenseFile(JTextArea text) {
+        BufferedReader reader = null;
+        InputStream stream = null;
+        StringBuilder s = new StringBuilder();
+        try {
+            stream = ClassLoader.getSystemClassLoader().getResourceAsStream("LICENSE");
+            reader = new BufferedReader(new InputStreamReader(stream));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                s.append(line + "\n");
+            }
+            text.setCaretPosition(0);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            close(reader);
+        }
+        return s.toString();
+	}
+
+	private void close(BufferedReader reader) {
+		if (reader != null) {
+			try {
+				reader.close();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private Object[][] getSortedSystemProperties() {
 		int propIndex = 0;
 		TreeSet keys = new TreeSet(System.getProperties().keySet());
@@ -128,7 +185,15 @@ public class AboutDialog extends JDialog implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == okButton) {
-            this.hide();
+            this.setVisible(false);
+        } else if (e.getSource() == sourceLinkButton) {
+        	if (Desktop.isDesktopSupported()) {
+        		try {
+        			Desktop.getDesktop().browse(new URI(SOURCE_URL));
+        		} catch (Exception ex) {
+        			ex.printStackTrace();
+        		}
+        	}
         }
     }
 
