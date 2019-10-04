@@ -243,7 +243,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
     
     public String readFileContents(File f) throws IOException {
-    	StringBuilder s = new StringBuilder();
+    	StringBuffer s = new StringBuffer();
         BufferedReader reader = null;
         final int END_OF_STREAM = -1;
         try {

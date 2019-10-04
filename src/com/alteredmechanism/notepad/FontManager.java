@@ -93,6 +93,7 @@ public class FontManager {
         String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
         for (int i = 0; i < familyNames.length; i++) {
         	String familyName = familyNames[i];
+            System.out.println(familyNames[i]);
         	Font testFont = new Font(familyName, Font.PLAIN, 12);
         	if (isMonospace(testFont)) {
         		monospaceFamilies.put(familyName, testFont);

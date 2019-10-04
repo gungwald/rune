@@ -1,14 +1,20 @@
 package com.alteredmechanism.notepad.awt;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Notepad implements WindowListener, ActionListener{
 
@@ -17,6 +23,7 @@ public class Notepad implements WindowListener, ActionListener{
     private MenuBar menubar;
     private Menu fileMenu;
     private MenuItem openItem;
+    private TextArea editor = new TextArea();
 
     /**
      * Launch the application.
@@ -59,6 +66,16 @@ public class Notepad implements WindowListener, ActionListener{
         fileMenu.add(openItem);
         
         openItem.addActionListener(this);
+        
+        Map fontAttributes = new HashMap();
+        fontAttributes.put(TextAttribute.FAMILY, "Monospaced");
+        fontAttributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
+        fontAttributes.put(TextAttribute.SIZE, new Float(16));
+        Font editorFont = new Font(fontAttributes);
+        System.out.println("editorFont:" + editorFont);
+        editor.setFont(editorFont);
+        System.out.println("editorFont:" + editor.getFont().getFamily());
+        frame.add(editor, BorderLayout.CENTER);
     }
 
     public void windowOpened(WindowEvent e) {
