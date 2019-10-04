@@ -235,33 +235,37 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         setVisible(true);
     }
 
-    public void open(File f) {
+    public void open(File f) throws IOException {
         if (!bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
         openIntoSelectedTab(f);
     }
-
-    public void openIntoSelectedTab(File f) {
-        getSelectedBuffer().setText("");
+    
+    public String readFileContents(File f) throws IOException {
+    	StringBuilder s = new StringBuilder();
         BufferedReader reader = null;
+        final int END_OF_STREAM = -1;
         try {
             reader = new BufferedReader(new FileReader(f));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                getSelectedBuffer().append(line + "\n");
+            char[] chunk = new char[8192];
+            int count;
+            while ((count = reader.read(chunk)) != END_OF_STREAM) {
+            	s.append(chunk, 0, count);
             }
-            getSelectedBuffer().setCaretPosition(0);
-            this.setTitle(f.getName() + " - Notepad");
-            setSelectedTabTitle(f.getName());
-            setSelectedTabToolTip(f.getAbsolutePath());
-        }
-        catch (Exception ex) {
-            getMessenger().showError(ex);
         }
         finally {
-            close(reader);
+        	close(reader);
         }
+    	return s.toString();
+    }
+
+    public void openIntoSelectedTab(File f) throws IOException {
+        getSelectedBuffer().setText(readFileContents(f));
+        getSelectedBuffer().setCaretPosition(0);
+        this.setTitle(f.getName() + " - Notepad");
+        setSelectedTabTitle(f.getName());
+        setSelectedTabToolTip(f.getAbsolutePath());
     }
 
     private void setSelectedTabToolTip(String text) {
@@ -280,13 +284,18 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
             appendNewTab();
         }
         else if (e.getSource() == this.openMenuItem) {
-            getFileChooser().setDialogTitle("Choose a file to open");
-            if (getFileChooser().showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = getFileChooser().getSelectedFile();
-                if (selectedFile != null) {
-                    open(selectedFile);
-                }
-            }
+        	try {
+	            getFileChooser().setDialogTitle("Choose a file to open");
+	            if (getFileChooser().showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+	                File[] selectedFiles = getFileChooser().getSelectedFiles();
+	                for (int i = 0; i < selectedFiles.length; ++i) {
+	                	open(selectedFiles[i]);
+	                }
+	            }
+        	} catch (Exception ex) {
+        		ex.printStackTrace();
+        		getMessenger().showError(ex);
+        	}
         }
         else if (e.getSource() == this.saveMenuItem) {
             String absFileName = getSelectedTabToolTip();
