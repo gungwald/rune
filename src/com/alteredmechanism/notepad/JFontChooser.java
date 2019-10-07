@@ -720,7 +720,7 @@ public class JFontChooser extends JComponent {
 
 	protected Map getFontFamilies() {
 		if (fontFamilies == null) {
-			fontFamilies = new FontManager(messenger).getMonospaceFamilies();
+			fontFamilies = new FontManager(messenger).getMonospacedFamilies();
 		}
 		return fontFamilies;
 	}

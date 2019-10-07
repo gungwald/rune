@@ -12,7 +12,6 @@ RESOURCES_DIR="$PARENT_DIR"/resources
 CLASSES_DIR="$PARENT_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Notepad
 CLASS_PATH="$CLASSES_DIR:$RESOURCES_DIR"
-STDERR_FILE=$(mktemp -p /tmp "$THIS_SCRIPT".stderr.XXXXXXXXXX)
 OS=$(uname -s)
 
 # $1 - Command basename
@@ -64,14 +63,28 @@ else
 	unset MAC_ICON
 fi
 
+# Setup fifo so that we can use 'tee' to send stderr to both the console
+# and a file. The file will be used to display a window on the desktop
+# with the errors it contains after the program exits. This will allow
+# a user without visibility to the stderr output in a terminal to see
+# any errors.
+TEMP_DIR=${TMPDIR:-/tmp}
+# The mktemp command is the way it is for compatibility with BSD systems
+# like Mac OS X 10.4.11. Don't change without testing.
+STDERR_FILE=$(mktemp "$TEMP_DIR"/"$THIS_SCRIPT".stderr.XXXXXXXXXX)
+STDERR_FIFO=$(mktemp -u "$TEMP_DIR"/"$THIS_SCRIPT".fifo.XXXXXXXXXX)
+mkfifo "$STDERR_FIFO"
+trap 'rm "$STDERR_FIFO" "$STDERR_FILE"' EXIT
+tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
+
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
 then
-    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
-    #java -Xshare:on -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    #java -Xshare:on -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 else
-    java -Xshare:on "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FILE"
+    java -Xshare:on "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 fi
 
@@ -91,5 +104,3 @@ $0 "$@"
 EOF
 	displayError "$0" "$STDERR_FILE"
 fi
-
-rm "$STDERR_FILE"
