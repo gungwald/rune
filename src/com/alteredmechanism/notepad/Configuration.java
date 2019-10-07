@@ -15,10 +15,10 @@ public class Configuration {
 
 	private Properties props = new Properties();
 
-	private boolean replaceTabsWithSpaces;
-	private int replacedTabWidth = 4;
-	private int displayedTabWidth = 8;
-	private List openFiles;
+	private Boolean replaceTabsWithSpaces = null;
+	private Integer replacedTabWidth = null;
+	private Integer displayedTabWidth = null;
+	private List openFiles = null;
 
 	private static Configuration singleton = null;
 
@@ -71,7 +71,21 @@ public class Configuration {
 		}
 	}
     
+	public Boolean getBoolean(String name) {
+		String value = props.getProperty(name);
+		if (value == null) {
+			System.err.println("Missing property: " + name);
+		}
+		else {
+			System.out.println("Loaded property: " + name + "=" + value);
+		}
+        return Boolean.valueOf(value);
+	}
+    
 	public boolean isReplaceTabsWithSpacesEnabled() {
-		return false;
+        if (replaceTabsWithSpaces == null) {
+        	replaceTabsWithSpaces = getBoolean("replace.tabs.with.spaces");
+        }
+		return replaceTabsWithSpaces.booleanValue();
 	}
 }
