@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -33,6 +32,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
@@ -42,7 +42,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -75,6 +74,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public static final int EXIT_FAILURE = 1;
 
     public static final String UNTITLED = "Untitled";
+    public static final String MODIFIED = " [Modified]";
     public static final String USER_FACING_APP_NAME = "Hreodrit";
 
     private int nextEmptyTabNumber = 1;
@@ -276,6 +276,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         bufferTabs.setTitleAt(bufferTabs.getSelectedIndex(), name);
     }
 
+    private String getSelectedTabTitle() {
+        return bufferTabs.getTitleAt(bufferTabs.getSelectedIndex());
+    }
+
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.close) {
             this.dispose();
@@ -285,7 +289,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         }
         else if (e.getSource() == this.openMenuItem) {
         	try {
-	            getFileChooser().setDialogTitle("Choose a file to open");
+	            getFileChooser().setDialogTitle("Open File");
 	            if (getFileChooser().showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 	                File[] selectedFiles = getFileChooser().getSelectedFiles();
 	                for (int i = 0; i < selectedFiles.length; ++i) {
@@ -299,7 +303,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         }
         else if (e.getSource() == this.saveMenuItem) {
             String absFileName = getSelectedTabToolTip();
-            if (absFileName == null || absFileName.trim().length() == 0) {
+            if (absFileName == null || absFileName.trim().length() == 0 || absFileName.startsWith(UNTITLED)) {
                 saveAs();
             }
             else {
@@ -378,10 +382,30 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     protected void saveAs() {
-        getFileChooser().setDialogTitle("Choose the name of the file to save");
-        int option = getFileChooser().showSaveDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = getFileChooser().getSelectedFile();
+        boolean fileConfirmed = false;
+        boolean operationCancelled = false;
+        File fileToSave = null;
+        while (! fileConfirmed && !operationCancelled) {
+            getFileChooser().setDialogTitle("Choose the name of the file to save");
+            int option = getFileChooser().showSaveDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                fileToSave = getFileChooser().getSelectedFile();
+                if (fileToSave.exists()) {
+                    int response = JOptionPane.showConfirmDialog(Notepad.this, "This file already exists. Are you sure you want to overwrite it?", "Confirm Overwrite of Existing File", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    switch (response) {
+                        case JOptionPane.YES_OPTION:
+                            fileConfirmed = true;
+                            break;
+                        case JOptionPane.NO_OPTION:
+                            break;
+                        case JOptionPane.CANCEL_OPTION:
+                            operationCancelled = true;
+                            break;
+                    }
+                }
+            }
+        }
+        if (fileConfirmed && fileToSave != null) {
             save(fileToSave);
             this.setTitle(fileToSave.getName());
             setSelectedTabTitle(fileToSave.getName());
@@ -394,6 +418,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         try {
             out = new BufferedWriter(new FileWriter(f));
             out.write(getSelectedBuffer().getText());
+            int selectedIndex = bufferTabs.getSelectedIndex();
+            String tabTitle = bufferTabs.getTitleAt(selectedIndex);
+            if (tabTitle.endsWith("[Modified]")) {
+                tabTitle = tabTitle.replaceAll(" \\[Modified\\]", "");
+                bufferTabs.setTitleAt(selectedIndex, tabTitle);
+            }
+            saveMenuItem.setEnabled(false);
         }
         catch (Exception ex) {
             getMessenger().showError(ex);
@@ -475,16 +506,17 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public void stateChanged(ChangeEvent e) {}
 
     private void appendNewTab() {
-        System.out.println("appendNewTab called");
         AntiAliasedJTextArea text = new AntiAliasedJTextArea();
         text.setFont(getSelectedFont());
         text.setTabSize(8);
         text.setBorder(new EmptyBorder(new Insets(3, 3, 3, 3)));
-        text.addKeyListener(this);
         JScrollPane scroller = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         String tabTitle = getNextEmptyTabName();
         bufferTabs.addTab(tabTitle, null, scroller, tabTitle);
-        bufferTabs.setSelectedIndex(bufferTabs.getTabCount()-1);
+        int tabIndex = bufferTabs.getTabCount() - 1;
+        bufferTabs.setSelectedIndex(tabIndex);
+        
+        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, tabIndex, MODIFIED, saveMenuItem));
     }
 
     private String getNextEmptyTabName() {

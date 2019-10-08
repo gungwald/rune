@@ -55,6 +55,23 @@ displayError()
     cat "$ERROR_FILE" 1>&2
 }
 
+# Setup fifo so that we can use 'tee' to send stderr to both the console
+# and a file. The file will be used to display a window on the desktop
+# with the errors it contains after the program exits. This will allow
+# a user without visibility to the stderr output in a terminal to see
+# any errors.
+duplicateStdErr()
+{
+    TEMP_DIR=${TMPDIR:-/tmp}
+    # The mktemp command is the way it is for compatibility with BSD systems
+    # like Mac OS X 10.4.11. Don't change without testing.
+    STDERR_FILE=$(mktemp "$TEMP_DIR"/"$THIS_SCRIPT".stderr.XXXXXXXXXX)
+    STDERR_FIFO=$(mktemp -u "$TEMP_DIR"/"$THIS_SCRIPT".fifo.XXXXXXXXXX)
+    mkfifo "$STDERR_FIFO"
+    trap 'rm "$STDERR_FIFO" "$STDERR_FILE"' EXIT
+    tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
+}
+
 # Set the icon for Mac.
 if [ "$OS" = 'Darwin' ]
 then
@@ -63,19 +80,7 @@ else
 	unset MAC_ICON
 fi
 
-# Setup fifo so that we can use 'tee' to send stderr to both the console
-# and a file. The file will be used to display a window on the desktop
-# with the errors it contains after the program exits. This will allow
-# a user without visibility to the stderr output in a terminal to see
-# any errors.
-TEMP_DIR=${TMPDIR:-/tmp}
-# The mktemp command is the way it is for compatibility with BSD systems
-# like Mac OS X 10.4.11. Don't change without testing.
-STDERR_FILE=$(mktemp "$TEMP_DIR"/"$THIS_SCRIPT".stderr.XXXXXXXXXX)
-STDERR_FIFO=$(mktemp -u "$TEMP_DIR"/"$THIS_SCRIPT".fifo.XXXXXXXXXX)
-mkfifo "$STDERR_FIFO"
-trap 'rm "$STDERR_FIFO" "$STDERR_FILE"' EXIT
-tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
+duplicateStdErr
 
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
