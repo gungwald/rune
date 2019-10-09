@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -96,6 +97,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
+    private JMenuItem copyFileNameMenuItem = new JMenuItem("Copy Full Name of File in Editor");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
 
@@ -218,6 +220,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
         pasteMenuItem.addActionListener(this);
         editMenu.add(pasteMenuItem);
+        
+        editMenu.addSeparator();
+        copyFileNameMenuItem.addActionListener(this);
+        editMenu.add(copyFileNameMenuItem);
 
         // Select Font menu item
         selectFontMenuItem.addActionListener(this);
@@ -361,6 +367,15 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
             getAboutDialog().setLocationRelativeTo(this);
             getAboutDialog().setVisible(true);
         }
+        else if (e.getSource() == this.copyFileNameMenuItem) {
+            File f = getSelectedBufferFile();
+            if (f == null) {
+                JOptionPane.showMessageDialog(this, "The editor does not contain a file.", "Unknown File", JOptionPane.WARNING_MESSAGE);
+            } else {
+                StringSelection content = new StringSelection(f.getAbsolutePath());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(content, content);
+            }
+        }
     }
     
     protected void save() {
@@ -441,6 +456,8 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
                             operationCancelled = true;
                             break;
                     }
+                } else {
+                    fileConfirmed = true;
                 }
             }
             else {
@@ -449,9 +466,9 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         }
         if (fileConfirmed && fileToSave != null) {
             save(fileToSave);
-            this.setTitle(fileToSave.getName());
             setSelectedTabTitle(fileToSave.getName());
             setSelectedTabToolTip(fileToSave.getAbsolutePath());
+            updateTitle();
         }
     }
 
@@ -555,7 +572,12 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     protected void updateTitle() {
-        setTitle(getSelectedBufferFile().getName() + " ↔ " + USER_FACING_APP_NAME);
+        File f = getSelectedBufferFile();
+        if (f == null) {
+            setTitle(USER_FACING_APP_NAME);
+        } else {
+            setTitle(f.getName() + " ↔ " + USER_FACING_APP_NAME);
+        }
     }
     
     private void appendNewTab() {
@@ -589,7 +611,14 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
     
     protected File getSelectedBufferFile() {
-        return new File(getSelectedTabToolTip());
+        String toolTip = getSelectedTabToolTip();
+        File f;
+        if (toolTip != null && !toolTip.startsWith(UNTITLED)) {
+            f = new File(toolTip);
+        } else {
+            f = null;
+        }
+        return f;
     }
 
     private Font getSelectedFont() {
