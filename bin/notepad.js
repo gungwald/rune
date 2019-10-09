@@ -34,7 +34,7 @@ if (javaHome) {
 } else {
     java = "javaw.exe";
 }
-var cmd = java + " -classpath " + classpath + spc + mainClass + spc 
+var cmd = java + " -XX:OnOutOfMemoryError=^"handleOutOfMemoryError^" -classpath " + classpath + spc + mainClass + spc 
     + argumentString;
 
 shell.Run(cmd);

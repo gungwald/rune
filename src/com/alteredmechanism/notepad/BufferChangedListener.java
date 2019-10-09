@@ -8,13 +8,11 @@ import javax.swing.event.DocumentListener;
 public class BufferChangedListener implements DocumentListener {
     
     private JTabbedPane tabPane;
-    private int tabIndex;
     private String textToAppendOnModify;
     private JMenuItem saveItem;
 
-    public BufferChangedListener(JTabbedPane tabPane, int tabIndex, String textToAppendOnModify, JMenuItem saveItem) {
+    public BufferChangedListener(JTabbedPane tabPane, String textToAppendOnModify, JMenuItem saveItem) {
         this.tabPane = tabPane;
-        this.tabIndex = tabIndex;
         this.textToAppendOnModify = textToAppendOnModify;
         this.saveItem = saveItem;
     }
@@ -32,6 +30,7 @@ public class BufferChangedListener implements DocumentListener {
     }
 
     protected void showModified() {
+        int tabIndex = tabPane.getSelectedIndex();
         String tabTitle = tabPane.getTitleAt(tabIndex);
         if (!tabTitle.endsWith(textToAppendOnModify)) {
             tabPane.setTitleAt(tabIndex, tabTitle + textToAppendOnModify);

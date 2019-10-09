@@ -6,6 +6,7 @@
 # Locate relevant directories.
 THIS_SCRIPT=$(basename "$0" .sh)
 SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
+SCRIPT_FULL_NAME="$THIS_SCRIPT/$SCRIPT_DIR"
 PARENT_DIR=$(dirname "$SCRIPT_DIR")
 LIB_DIR="$PARENT_DIR"/lib
 RESOURCES_DIR="$PARENT_DIR"/resources
@@ -24,11 +25,44 @@ commandExists()
 
 displayError()
 {
-	PROGRAM_NAME=$1
-	ERROR_FILE=$2
-	TITLE="ERROR in Program: $PROGRAM_NAME"
-	WIDTH=900
-	HEIGHT=480
+    TITLE="ERROR in Program: $SCRIPT_FULL_NAME"
+    if commandExists zenity
+    then
+    	zenity --text-info --title="$TITLE" --window-icon=error --text="$*"
+    elif commandExists kdialog 
+    then
+    	kdialog --title "$TITLE" --text "$*"
+    elif commandExists Xdialog
+    then
+    	Xdialog --title="$TITLE" --screen-center --no-cancel --text "$*"
+    elif commandExists xmessage
+    then
+    	# xmessage seems to automatically handle setting the width and height
+    	# properly. It's really the best of these programs... :-)
+    	xmessage -fg red -center -default okay -title "$TITLE" $*
+    elif commandExists xterm
+    then
+        xterm -title "$TITLE" -e "echo $* ; echo Press Enter to continue. ; read LINE"
+    elif [ "$(uname -s)" = "Darwin" ]
+    then
+    	# Tell the background process SystemUIServer to display the dialog.
+	osascript -e 'tell application "SystemUIServer"
+		display dialog "$*"
+	end
+	activate application (path to frontmost application as text)'
+    else
+        echo $TITLE
+        cat "$*"
+    fi
+}
+
+displayErrorFile()
+{
+    PROGRAM_NAME=$1
+    ERROR_FILE=$2
+    TITLE="ERROR in Program: $PROGRAM_NAME"
+    WIDTH=900
+    HEIGHT=480
     if commandExists zenity
     then
     	zenity --text-info --height=$HEIGHT --width=$WIDTH --title="$TITLE" \
@@ -51,8 +85,18 @@ displayError()
     then
         xterm -title "$TITLE" \
             -e "cat $ERROR_FILE ; echo Press Enter to continue. ; read LINE"
+    elif [ "$(uname -s)" = "Darwin" ]
+    then
+        MESSAGE=$(cat "$ERROR_FILE")
+    	# Tell the background process SystemUIServer to display the dialog.
+	osascript -e 'tell application "SystemUIServer"
+		display dialog "$MESSAGE"
+	end
+	activate application (path to frontmost application as text)'
+    else
+        echo $TITLE
+        cat "$ERROR_FILE"
     fi
-    cat "$ERROR_FILE" 1>&2
 }
 
 # Setup fifo so that we can use 'tee' to send stderr to both the console
@@ -72,6 +116,12 @@ duplicateStdErr()
     tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
 }
 
+handleOutOfMemoryError()
+{
+    displayError An OutOfMemoryError has occurred. The application will be closed.
+    exit 1
+}
+
 # Set the icon for Mac.
 if [ "$OS" = 'Darwin' ]
 then
@@ -85,18 +135,18 @@ duplicateStdErr
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
 then
-    java -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
-    #java -Xshare:on -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    # -Xshare:on is critical but usually done by default...
+    java -XX:OnOutOfMemoryError="handleOutOfMemoryError" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 else
-    java -Xshare:on "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    java -XX:OnOutOfMemoryError="handleOutOfMemoryError" "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 fi
 
 # Check for non-empty file
 if [ -s "$STDERR_FILE" ]
 then
-	displayError "$0" "$STDERR_FILE"
+	displayErrorFile "$0" "$STDERR_FILE"
 elif [ $JAVA_EXIT_CODE -ne 0 ]
 then
 	cat > "$STDERR_FILE" <<-EOF
@@ -107,5 +157,5 @@ but that has not been captured. Try running the program from the command line
 to get the error message. This is the command to run:
 $0 "$@"
 EOF
-	displayError "$0" "$STDERR_FILE"
+	displayErrorFile "$0" "$STDERR_FILE"
 fi

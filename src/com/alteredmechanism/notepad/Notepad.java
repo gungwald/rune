@@ -120,6 +120,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         this.getContentPane().setLayout(new BorderLayout());
 
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
+        bufferTabs.addChangeListener(this);
 
         // Zoom in
         Action zoomIn = new AbstractAction() {
@@ -237,6 +238,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         // pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        getSelectedBuffer().requestFocusInWindow();
     }
 
     public void open(File f) throws IOException {
@@ -267,9 +269,9 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public void openIntoSelectedTab(File f) throws IOException {
         getSelectedBuffer().setText(readFileContents(f));
         getSelectedBuffer().setCaretPosition(0);
-        this.setTitle(f.getName() + " - Notepad");
         setSelectedTabTitle(f.getName());
         setSelectedTabToolTip(f.getAbsolutePath());
+        updateTitle();
     }
 
     private void setSelectedTabToolTip(String text) {
@@ -302,7 +304,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
                 	return;
                 }
             }
-            bufferTabs.removeTabAt(bufferTabs.getSelectedIndex());
+            int tabIndex = bufferTabs.getSelectedIndex();
+            bufferTabs.removeTabAt(tabIndex);
+            tabIndex = bufferTabs.getSelectedIndex(); // Might be different after removal
+            getSelectedBuffer().requestFocusInWindow();
         }
         else if (e.getSource() == this.newTabItem) {
             appendNewTab();
@@ -540,8 +545,19 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     public void mouseExited(MouseEvent e) {}
 
-    public void stateChanged(ChangeEvent e) {}
+    public void stateChanged(ChangeEvent event) {
+        // If a tab was clicked
+        if (event.getSource() == bufferTabs) {
+            // Focus on the text itself.
+            getSelectedBuffer().requestFocusInWindow();
+            updateTitle();
+        }
+    }
 
+    protected void updateTitle() {
+        setTitle(getSelectedBufferFile().getName() + " ↔ " + USER_FACING_APP_NAME);
+    }
+    
     private void appendNewTab() {
         AntiAliasedJTextArea text = new AntiAliasedJTextArea();
         text.setFont(getSelectedFont());
@@ -553,7 +569,8 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         int tabIndex = bufferTabs.getTabCount() - 1;
         bufferTabs.setSelectedIndex(tabIndex);
         
-        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, tabIndex, MODIFIED, saveMenuItem));
+        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, MODIFIED, saveMenuItem));
+        text.requestFocus();
     }
 
     private String getNextEmptyTabName() {
@@ -569,6 +586,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     private String getSelectedTabToolTip() {
         return bufferTabs.getToolTipTextAt(bufferTabs.getSelectedIndex());
+    }
+    
+    protected File getSelectedBufferFile() {
+        return new File(getSelectedTabToolTip());
     }
 
     private Font getSelectedFont() {
