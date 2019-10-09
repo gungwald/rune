@@ -419,7 +419,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         boolean operationCancelled = false;
         File fileToSave = null;
         while (! fileConfirmed && !operationCancelled) {
-            getFileChooser().setDialogTitle("Choose the name of the file to save");
+            getFileChooser().setDialogTitle("Save File");
             int option = getFileChooser().showSaveDialog(this);
             if (option == JFileChooser.APPROVE_OPTION) {
                 fileToSave = getFileChooser().getSelectedFile();
@@ -430,12 +430,16 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
                             fileConfirmed = true;
                             break;
                         case JOptionPane.NO_OPTION:
+                            operationCancelled = true;
                             break;
                         case JOptionPane.CANCEL_OPTION:
                             operationCancelled = true;
                             break;
                     }
                 }
+            }
+            else {
+            	operationCancelled = true;
             }
         }
         if (fileConfirmed && fileToSave != null) {
