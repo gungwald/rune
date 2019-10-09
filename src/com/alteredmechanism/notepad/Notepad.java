@@ -91,7 +91,8 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-    private JMenuItem close = new JMenuItem("Close");
+    private JMenuItem closeMenuItem = new JMenuItem("Close");
+    private JMenuItem exitMenuItem = new JMenuItem("Exit");
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
@@ -191,10 +192,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveAsMenuItem);
 
-        close.addActionListener(this);
-        close.setMnemonic(KeyEvent.VK_W);
-        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
-        file.add(close);
+        closeMenuItem.addActionListener(this);
+        closeMenuItem.setMnemonic(KeyEvent.VK_W);
+        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        file.add(closeMenuItem);
+
+        exitMenuItem.addActionListener(this);
+        file.add(exitMenuItem);
 
         // Cut menu item
         cutMenuItem.setMnemonic(KeyEvent.VK_T);
@@ -236,7 +240,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     public void open(File f) throws IOException {
-        if (!bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) || getSelectedBuffer().getText().length() > 0) {
+        if (bufferTabs.getTabCount() == 0 || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
         openIntoSelectedTab(f);
@@ -281,8 +285,24 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == this.close) {
+        if (e.getSource() == this.exitMenuItem) {
             this.dispose();
+        }
+        else if (e.getSource() == this.closeMenuItem) {
+            if (getSelectedTabTitle().endsWith(MODIFIED)) {
+                File selectedFile = new File(getSelectedTabToolTip());
+            	int response = JOptionPane.showConfirmDialog(this, "Save " + selectedFile.getName() + "?", "Save Before Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                switch(response) {
+                case JOptionPane.YES_OPTION:
+                	save();
+                	break;
+                case JOptionPane.NO_OPTION:
+                    break;
+                case JOptionPane.CANCEL_OPTION:
+                	return;
+                }
+            }
+            bufferTabs.removeTabAt(bufferTabs.getSelectedIndex());
         }
         else if (e.getSource() == this.newTabItem) {
             appendNewTab();
@@ -302,16 +322,19 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         	}
         }
         else if (e.getSource() == this.saveMenuItem) {
-            String absFileName = getSelectedTabToolTip();
-            if (absFileName == null || absFileName.trim().length() == 0 || absFileName.startsWith(UNTITLED)) {
-                saveAs();
-            }
-            else {
-                save(new File(absFileName));
-            }
+            save();
         }
         else if (e.getSource() == this.saveAsMenuItem) {
             saveAs();
+        }
+        else if (e.getSource() == this.cutMenuItem) {
+        	getSelectedBuffer().cut();
+        }
+        else if (e.getSource() == this.copyMenuItem) {
+        	getSelectedBuffer().copy();
+        }
+        else if (e.getSource() == this.pasteMenuItem) {
+        	getSelectedBuffer().paste();
         }
         else if (e.getSource() == this.selectFontMenuItem) {
             try {
@@ -332,6 +355,16 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         else if (e.getSource() == this.aboutMenuItem) {
             getAboutDialog().setLocationRelativeTo(this);
             getAboutDialog().setVisible(true);
+        }
+    }
+    
+    protected void save() {
+        String absFileName = getSelectedTabToolTip();
+        if (absFileName == null || absFileName.trim().length() == 0 || absFileName.startsWith(UNTITLED)) {
+            saveAs();
+        }
+        else {
+            save(new File(absFileName));
         }
     }
 
