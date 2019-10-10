@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
@@ -42,7 +43,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
 // TODO - Link current font with selector
@@ -75,6 +75,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public static final int EXIT_FAILURE = 1;
 
     public static final String UNTITLED = "Untitled";
+    public static final String MODIFIED = " [Modified]";
     public static final String USER_FACING_APP_NAME = "Hreodrit";
 
     private int nextEmptyTabNumber = 1;
@@ -91,10 +92,12 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-    private JMenuItem close = new JMenuItem("Close");
+    private JMenuItem closeMenuItem = new JMenuItem("Close");
+    private JMenuItem exitMenuItem = new JMenuItem("Exit");
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
     private JMenuItem pasteMenuItem = new JMenuItem("Paste");
+    private JMenuItem copyFileNameMenuItem = new JMenuItem("Copy Full Name of File in Editor");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
 
@@ -119,6 +122,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         this.getContentPane().setLayout(new BorderLayout());
 
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
+        bufferTabs.addChangeListener(this);
 
         // Zoom in
         Action zoomIn = new AbstractAction() {
@@ -191,10 +195,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveAsMenuItem);
 
-        close.addActionListener(this);
-        close.setMnemonic(KeyEvent.VK_W);
-        close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
-        file.add(close);
+        closeMenuItem.addActionListener(this);
+        closeMenuItem.setMnemonic(KeyEvent.VK_W);
+        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+        file.add(closeMenuItem);
+
+        exitMenuItem.addActionListener(this);
+        file.add(exitMenuItem);
 
         // Cut menu item
         cutMenuItem.setMnemonic(KeyEvent.VK_T);
@@ -213,6 +220,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
         pasteMenuItem.addActionListener(this);
         editMenu.add(pasteMenuItem);
+        
+        editMenu.addSeparator();
+        copyFileNameMenuItem.addActionListener(this);
+        editMenu.add(copyFileNameMenuItem);
 
         // Select Font menu item
         selectFontMenuItem.addActionListener(this);
@@ -233,10 +244,11 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         // pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        getSelectedBuffer().requestFocusInWindow();
     }
 
     public void open(File f) throws IOException {
-        if (!bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) || getSelectedBuffer().getText().length() > 0) {
+        if (bufferTabs.getTabCount() == 0 || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED) || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
         openIntoSelectedTab(f);
@@ -263,9 +275,9 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public void openIntoSelectedTab(File f) throws IOException {
         getSelectedBuffer().setText(readFileContents(f));
         getSelectedBuffer().setCaretPosition(0);
-        this.setTitle(f.getName() + " - Notepad");
         setSelectedTabTitle(f.getName());
         setSelectedTabToolTip(f.getAbsolutePath());
+        updateTitle();
     }
 
     private void setSelectedTabToolTip(String text) {
@@ -276,16 +288,39 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         bufferTabs.setTitleAt(bufferTabs.getSelectedIndex(), name);
     }
 
+    private String getSelectedTabTitle() {
+        return bufferTabs.getTitleAt(bufferTabs.getSelectedIndex());
+    }
+
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == this.close) {
+        if (e.getSource() == this.exitMenuItem) {
             this.dispose();
+        }
+        else if (e.getSource() == this.closeMenuItem) {
+            if (getSelectedTabTitle().endsWith(MODIFIED)) {
+                File selectedFile = new File(getSelectedTabToolTip());
+            	int response = JOptionPane.showConfirmDialog(this, "Save " + selectedFile.getName() + "?", "Save Before Close", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                switch(response) {
+                case JOptionPane.YES_OPTION:
+                	save();
+                	break;
+                case JOptionPane.NO_OPTION:
+                    break;
+                case JOptionPane.CANCEL_OPTION:
+                	return;
+                }
+            }
+            int tabIndex = bufferTabs.getSelectedIndex();
+            bufferTabs.removeTabAt(tabIndex);
+            tabIndex = bufferTabs.getSelectedIndex(); // Might be different after removal
+            getSelectedBuffer().requestFocusInWindow();
         }
         else if (e.getSource() == this.newTabItem) {
             appendNewTab();
         }
         else if (e.getSource() == this.openMenuItem) {
         	try {
-	            getFileChooser().setDialogTitle("Choose a file to open");
+	            getFileChooser().setDialogTitle("Open File");
 	            if (getFileChooser().showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 	                File[] selectedFiles = getFileChooser().getSelectedFiles();
 	                for (int i = 0; i < selectedFiles.length; ++i) {
@@ -298,16 +333,19 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         	}
         }
         else if (e.getSource() == this.saveMenuItem) {
-            String absFileName = getSelectedTabToolTip();
-            if (absFileName == null || absFileName.trim().length() == 0) {
-                saveAs();
-            }
-            else {
-                save(new File(absFileName));
-            }
+            save();
         }
         else if (e.getSource() == this.saveAsMenuItem) {
             saveAs();
+        }
+        else if (e.getSource() == this.cutMenuItem) {
+        	getSelectedBuffer().cut();
+        }
+        else if (e.getSource() == this.copyMenuItem) {
+        	getSelectedBuffer().copy();
+        }
+        else if (e.getSource() == this.pasteMenuItem) {
+        	getSelectedBuffer().paste();
         }
         else if (e.getSource() == this.selectFontMenuItem) {
             try {
@@ -328,6 +366,25 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         else if (e.getSource() == this.aboutMenuItem) {
             getAboutDialog().setLocationRelativeTo(this);
             getAboutDialog().setVisible(true);
+        }
+        else if (e.getSource() == this.copyFileNameMenuItem) {
+            File f = getSelectedBufferFile();
+            if (f == null) {
+                JOptionPane.showMessageDialog(this, "The editor does not contain a file.", "Unknown File", JOptionPane.WARNING_MESSAGE);
+            } else {
+                StringSelection content = new StringSelection(f.getAbsolutePath());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(content, content);
+            }
+        }
+    }
+    
+    protected void save() {
+        String absFileName = getSelectedTabToolTip();
+        if (absFileName == null || absFileName.trim().length() == 0 || absFileName.startsWith(UNTITLED)) {
+            saveAs();
+        }
+        else {
+            save(new File(absFileName));
         }
     }
 
@@ -378,14 +435,40 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     }
 
     protected void saveAs() {
-        getFileChooser().setDialogTitle("Choose the name of the file to save");
-        int option = getFileChooser().showSaveDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = getFileChooser().getSelectedFile();
+        boolean fileConfirmed = false;
+        boolean operationCancelled = false;
+        File fileToSave = null;
+        while (! fileConfirmed && !operationCancelled) {
+            getFileChooser().setDialogTitle("Save File");
+            int option = getFileChooser().showSaveDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                fileToSave = getFileChooser().getSelectedFile();
+                if (fileToSave.exists()) {
+                    int response = JOptionPane.showConfirmDialog(Notepad.this, "This file already exists. Are you sure you want to overwrite it?", "Confirm Overwrite of Existing File", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    switch (response) {
+                        case JOptionPane.YES_OPTION:
+                            fileConfirmed = true;
+                            break;
+                        case JOptionPane.NO_OPTION:
+                            operationCancelled = true;
+                            break;
+                        case JOptionPane.CANCEL_OPTION:
+                            operationCancelled = true;
+                            break;
+                    }
+                } else {
+                    fileConfirmed = true;
+                }
+            }
+            else {
+            	operationCancelled = true;
+            }
+        }
+        if (fileConfirmed && fileToSave != null) {
             save(fileToSave);
-            this.setTitle(fileToSave.getName());
             setSelectedTabTitle(fileToSave.getName());
             setSelectedTabToolTip(fileToSave.getAbsolutePath());
+            updateTitle();
         }
     }
 
@@ -394,6 +477,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         try {
             out = new BufferedWriter(new FileWriter(f));
             out.write(getSelectedBuffer().getText());
+            int selectedIndex = bufferTabs.getSelectedIndex();
+            String tabTitle = bufferTabs.getTitleAt(selectedIndex);
+            if (tabTitle.endsWith("[Modified]")) {
+                tabTitle = tabTitle.replaceAll(" \\[Modified\\]", "");
+                bufferTabs.setTitleAt(selectedIndex, tabTitle);
+            }
+            saveMenuItem.setEnabled(false);
         }
         catch (Exception ex) {
             getMessenger().showError(ex);
@@ -472,19 +562,37 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     public void mouseExited(MouseEvent e) {}
 
-    public void stateChanged(ChangeEvent e) {}
+    public void stateChanged(ChangeEvent event) {
+        // If a tab was clicked
+        if (event.getSource() == bufferTabs) {
+            // Focus on the text itself.
+            getSelectedBuffer().requestFocusInWindow();
+            updateTitle();
+        }
+    }
 
+    protected void updateTitle() {
+        File f = getSelectedBufferFile();
+        if (f == null) {
+            setTitle(USER_FACING_APP_NAME);
+        } else {
+            setTitle(f.getName() + " ↔ " + USER_FACING_APP_NAME);
+        }
+    }
+    
     private void appendNewTab() {
-        System.out.println("appendNewTab called");
         AntiAliasedJTextArea text = new AntiAliasedJTextArea();
         text.setFont(getSelectedFont());
         text.setTabSize(8);
         text.setBorder(new EmptyBorder(new Insets(3, 3, 3, 3)));
-        text.addKeyListener(this);
         JScrollPane scroller = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         String tabTitle = getNextEmptyTabName();
         bufferTabs.addTab(tabTitle, null, scroller, tabTitle);
-        bufferTabs.setSelectedIndex(bufferTabs.getTabCount()-1);
+        int tabIndex = bufferTabs.getTabCount() - 1;
+        bufferTabs.setSelectedIndex(tabIndex);
+        
+        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, MODIFIED, saveMenuItem));
+        text.requestFocus();
     }
 
     private String getNextEmptyTabName() {
@@ -500,6 +608,17 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     private String getSelectedTabToolTip() {
         return bufferTabs.getToolTipTextAt(bufferTabs.getSelectedIndex());
+    }
+    
+    protected File getSelectedBufferFile() {
+        String toolTip = getSelectedTabToolTip();
+        File f;
+        if (toolTip != null && !toolTip.startsWith(UNTITLED)) {
+            f = new File(toolTip);
+        } else {
+            f = null;
+        }
+        return f;
     }
 
     private Font getSelectedFont() {
