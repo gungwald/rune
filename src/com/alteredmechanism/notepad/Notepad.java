@@ -354,8 +354,10 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
                 if (result == JFontChooser.OK_OPTION) {
                     Font font = getFontChooser().getSelectedFont();
                     System.out.println("Selected Font : " + font);
-                    getSelectedBuffer().setFont(font);
-                    getSelectedBuffer().setTabSize(8);
+                    int tabCount = bufferTabs.getTabCount();
+                    for (int i = 0; i < tabCount; i++) {
+                        getBufferAt(i).setFont(font);
+                    }
                 }
             }
             catch (Exception ex) {
@@ -599,8 +601,15 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         return UNTITLED + " " + nextEmptyTabNumber++;
     }
 
-    private JTextArea getSelectedBuffer() {
+    protected JTextArea getSelectedBuffer() {
         JScrollPane scroll = (JScrollPane) bufferTabs.getSelectedComponent();
+        JViewport view = (JViewport) scroll.getComponent(0);
+        JTextArea text = (JTextArea) view.getComponent(0);
+        return text;
+    }
+
+    protected JTextArea getBufferAt(int index) {
+        JScrollPane scroll = (JScrollPane) bufferTabs.getComponentAt(index);
         JViewport view = (JViewport) scroll.getComponent(0);
         JTextArea text = (JTextArea) view.getComponent(0);
         return text;

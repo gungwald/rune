@@ -12,9 +12,16 @@
   <property name="lang.version" value="1.4" />
   <property name="src.dir" value="src/" />
   <property name="cls.dir" value="classes" />
+  <property name="jar" value="lib/${ant.project.name}.jar"/>
+  <property name="start.script" value="bin/${ant.project.name}"/>
+  <property name="install.dir" value="/usr/local"/>
 
-  <target name="compile" description="Compiles the source">
+  <target name="setup" description="Setup for build">
     <mkdir dir="classes" />
+    <mkdir dir="lib" />
+  </target>
+
+  <target name="compile" depends="setup" description="Compiles the source">
     <javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" 
         debug="on" source="${lang.version}" target="${lang.version}" 
         includeAntRuntime="false">
@@ -23,16 +30,12 @@
     </javac>
   </target>
 
-  <target name="copy.res" description="Copy resources">
-    <copy todir="${cls.dir}">
-      <fileset dir="resources">
-        <include name="**/*" />
+  <target name="jar" depends="compile" description="Builds an executable jar file">
+    <jar destfile="${jar}">
+      <fileset dir="${cls.dir}">
+        <include name="**/*"/>
       </fileset>
-    </copy>
-  </target>
-
-  <target name="jar" depends="compile,copy.res" description="Builds an executable jar file">
-    <jar destfile="${ant.project.name}.jar" basedir="${cls.dir}">
+      <fileset dir="resources"/>
       <manifest>
         <attribute name="Implementation-Title" value="${ant.project.name}" />
         <attribute name="Implementation-Version" value="${version}" />
@@ -41,8 +44,20 @@
     </jar>
   </target>
 
+  <target name="install" depends="jar" description="Install into system location so that all users can run it">
+    <!-- TODO - Retain or set execute permissions -->
+    <copy todir="${install.dir}/bin" file="${start.script}"/>
+    <copy todir="${install.dir}/lib" file="${jar}"/>
+  </target>
+
+  <target name="uninstall">
+    <delete file="${install.dir}/bin/${ant.project.name}" />
+    <delete file="${install.dir}/lib/${ant.project.name}.jar" />
+  </target>
+
   <target name="clean">
     <delete dir="${cls.dir}" />
+    <delete file="${jar}" />
   </target>
 
   <!-- TODO - Create distributable zip target -->
@@ -55,5 +70,4 @@
   <!-- TODO - Create Windows store target -->
   <!-- TODO - Create Mac App store target -->
   
-
 </project>
