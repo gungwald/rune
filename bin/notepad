@@ -20,13 +20,22 @@ commandExists()
 {
     # The "which" command does not return 1 on failure in OSX 10.4.11.
     # So "type" must be used instead.
-	type "$1" > /dev/null
+    type "$1" > /dev/null
 }
 
 displayError()
 {
     TITLE="ERROR in Program: $SCRIPT_FULL_NAME"
-    if commandExists zenity
+    if [ "$(uname -s)" = "Darwin" ]
+    then
+        # This needs to be tried first because OS X could have xterm but it 
+        # won't get displayed if the X Windows System isn't running...
+    	# Tell the background process SystemUIServer to display the dialog.
+	osascript -e 'tell application "SystemUIServer"
+		display dialog "$*"
+	end
+	activate application (path to frontmost application as text)'
+    elif commandExists zenity
     then
     	zenity --text-info --title="$TITLE" --window-icon=error --text="$*"
     elif commandExists kdialog 
@@ -43,13 +52,6 @@ displayError()
     elif commandExists xterm
     then
         xterm -title "$TITLE" -e "echo $* ; echo Press Enter to continue. ; read LINE"
-    elif [ "$(uname -s)" = "Darwin" ]
-    then
-    	# Tell the background process SystemUIServer to display the dialog.
-	osascript -e 'tell application "SystemUIServer"
-		display dialog "$*"
-	end
-	activate application (path to frontmost application as text)'
     else
         echo $TITLE
         cat "$*"
@@ -63,7 +65,17 @@ displayErrorFile()
     TITLE="ERROR in Program: $PROGRAM_NAME"
     WIDTH=900
     HEIGHT=480
-    if commandExists zenity
+    if [ "$(uname -s)" = "Darwin" ]
+    then
+        # This needs to be tried first because OS X could have xterm but it 
+        # won't get displayed if the X Windows System isn't running...
+        MESSAGE=$(cat "$ERROR_FILE")
+    	# Tell the background process SystemUIServer to display the dialog.
+	osascript -e 'tell application "SystemUIServer"
+		display dialog "$MESSAGE"
+	end
+	activate application (path to frontmost application as text)'
+    elif commandExists zenity
     then
     	zenity --text-info --height=$HEIGHT --width=$WIDTH --title="$TITLE" \
     		--no-wrap --window-icon=error --filename="$ERROR_FILE"
@@ -85,14 +97,6 @@ displayErrorFile()
     then
         xterm -title "$TITLE" \
             -e "cat $ERROR_FILE ; echo Press Enter to continue. ; read LINE"
-    elif [ "$(uname -s)" = "Darwin" ]
-    then
-        MESSAGE=$(cat "$ERROR_FILE")
-    	# Tell the background process SystemUIServer to display the dialog.
-	osascript -e 'tell application "SystemUIServer"
-		display dialog "$MESSAGE"
-	end
-	activate application (path to frontmost application as text)'
     else
         echo $TITLE
         cat "$ERROR_FILE"
@@ -116,6 +120,41 @@ duplicateStdErr()
     tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
 }
 
+findJava()
+{
+    # L is for local variable
+    unset L_JAVA_TEST
+    unset L_JAVA
+    
+    if [ -n "$JAVA_HOME" ]
+    then
+    	L_JAVA_TEST="$JAVA_HOME"/bin/java
+    	if [ -e "$L_JAVA_TEXT" ]
+    	then
+            if [ -x "$L_JAVA_TEST" ]
+            then
+                L_JAVA="$L_JAVA_TEST"
+            else
+                displayError Java specified by JAVA_HOME is not executable: $L_JAVA_TEST
+            fi
+        else
+            displayError Java specified by JAVA_HOME does not exist: $L_JAVA_TEST
+        fi
+    else
+        if commandExists java
+        then
+            L_JAVA=java
+        else
+            displayError The java program cannot be found in PATH: $PATH
+        fi
+    fi
+    echo $L_JAVA
+    
+    unset L_JAVA_TEST
+    unset L_JAVA
+    
+}
+
 handleOutOfMemoryError()
 {
     displayError An OutOfMemoryError has occurred. The application will be closed.
@@ -132,14 +171,16 @@ fi
 
 duplicateStdErr
 
+JAVA=$(findJava)
+
 # Run
 if [ -z "$MAC_DOCK_ICON" ]
 then
-    # -Xshare:on is critical but usually done by default...
-    java -XX:OnOutOfMemoryError="handleOutOfMemoryError" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    # -Xshare:on is critical but usually on by default...
+    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 else
-    java -XX:OnOutOfMemoryError="handleOutOfMemoryError" "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 fi
 
