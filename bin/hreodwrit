@@ -9,6 +9,7 @@ SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
 SCRIPT_FULL_NAME="$THIS_SCRIPT/$SCRIPT_DIR"
 PARENT_DIR=$(dirname "$SCRIPT_DIR")
 LIB_DIR="$PARENT_DIR"/lib
+APP_JAR="$LIB_DIR/$THIS_SCRIPT".jar
 RESOURCES_DIR="$PARENT_DIR"/resources
 CLASSES_DIR="$PARENT_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Notepad
@@ -23,6 +24,18 @@ commandExists()
     type "$1" > /dev/null
 }
 
+displayErrorOnMac()
+{
+	# Tell the background process SystemUIServer to display the dialog.
+    osascript <<-EOF
+		tell application "SystemUIServer"
+			activate
+			display dialog "$*" buttons {"OK"} with title "$TITLE"
+		end tell
+		activate application (path to frontmost application as text)
+EOF
+}
+
 displayError()
 {
     TITLE="ERROR in Program: $SCRIPT_FULL_NAME"
@@ -31,10 +44,7 @@ displayError()
         # This needs to be tried first because OS X could have xterm but it 
         # won't get displayed if the X Windows System isn't running...
     	# Tell the background process SystemUIServer to display the dialog.
-	osascript -e 'tell application "SystemUIServer"
-		display dialog "$*"
-	end
-	activate application (path to frontmost application as text)'
+    	displayErrorOnMac $*
     elif commandExists zenity
     then
     	zenity --text-info --title="$TITLE" --window-icon=error --text="$*"
@@ -69,12 +79,7 @@ displayErrorFile()
     then
         # This needs to be tried first because OS X could have xterm but it 
         # won't get displayed if the X Windows System isn't running...
-        MESSAGE=$(cat "$ERROR_FILE")
-    	# Tell the background process SystemUIServer to display the dialog.
-	osascript -e 'tell application "SystemUIServer"
-		display dialog "$MESSAGE"
-	end
-	activate application (path to frontmost application as text)'
+        displayErrorOnMac $(cat "$ERROR_FILE")
     elif commandExists zenity
     then
     	zenity --text-info --height=$HEIGHT --width=$WIDTH --title="$TITLE" \
@@ -177,10 +182,10 @@ JAVA=$(findJava)
 if [ -z "$MAC_DOCK_ICON" ]
 then
     # -Xshare:on is critical but usually on by default...
-    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 else
-    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" "$MAC_DOCK_ICON" -classpath "$CLASS_PATH" "$MAIN_CLASS" "$@" 2> "$STDERR_FIFO"
+    "$JAVA" "$MAC_DOCK_ICON" -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
     JAVA_EXIT_CODE=$?
 fi
 
