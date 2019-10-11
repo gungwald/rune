@@ -43,7 +43,6 @@ displayError()
     then
         # This needs to be tried first because OS X could have xterm but it 
         # won't get displayed if the X Windows System isn't running...
-    	# Tell the background process SystemUIServer to display the dialog.
     	displayErrorOnMac $*
     elif commandExists zenity
     then
@@ -145,12 +144,15 @@ findJava()
         else
             displayError Java specified by JAVA_HOME does not exist: $L_JAVA_TEST
         fi
-    else
+    fi
+    if [ -z "$L_JAVA" ]
+    then
         if commandExists java
         then
             L_JAVA=java
         else
-            displayError The java program cannot be found in PATH: $PATH
+            displayError Java cannot be found in PATH: $PATH
+            exit 1
         fi
     fi
     echo $L_JAVA
@@ -160,11 +162,22 @@ findJava()
     
 }
 
+getJavaSpecVersion()
+{
+    # L is for local variable
+    L_JAVA="$1"
+    L_VERSION=$("$L_JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2)
+    echo $L_VERSION
+}
+
 handleOutOfMemoryError()
 {
     displayError An OutOfMemoryError has occurred. The application will be closed.
     exit 1
 }
+
+JAVA=$(findJava)
+JAVA_SPEC_VERSION=$(getJavaSpecVersion "$JAVA")
 
 # Set the icon for Mac.
 if [ "$OS" = 'Darwin' ]
@@ -174,11 +187,8 @@ else
 	unset MAC_ICON
 fi
 
-duplicateStdErr
-
-JAVA=$(findJava)
-
 # Run
+duplicateStdErr
 if [ -z "$MAC_DOCK_ICON" ]
 then
     # -Xshare:on is critical but usually on by default...

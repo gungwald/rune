@@ -76,7 +76,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
 
     public static final String UNTITLED = "Untitled";
     public static final String MODIFIED = " [Modified]";
-    public static final String USER_FACING_APP_NAME = "Hreodrit";
+    public static final String USER_FACING_APP_NAME = "Hreodwrit";
 
     private int nextEmptyTabNumber = 1;
 
