@@ -2,12 +2,14 @@
 (hreodwrit - a reed-pen, meaning, a writing utensil)
 
 ## Features
-- The default theme is consistent with your operating system
-- Themeable
-- Tabs
+- Many operating systems are supported. Any OS supporting Java 1.4 or newer can run it:
+    - Windows 95, 98, ME, XP, Vista, 7, 8 and 10
+    - Mac OS 10.3.9 and newer
+    - Linux
+    - BSD
+- Themeable, but the default theme is consistent with your operating system
+- Multiple files can be open at the same time in different tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
-- Works on all modern desktop operating systems
-- Works on many old systems
 - Anti-aliased (smooth) text
 - Nice bundled free fonts for programming
 
@@ -18,5 +20,5 @@
 - Project files
 - Vim emulation
 
-Download read-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/hreodwrit.jar
+Download ready-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/hreodwrit.jar
 Instructions: https://github.com/gungwald/notepad/releases
