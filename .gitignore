@@ -27,3 +27,4 @@ hs_err_pid*
 /classes/
 /vim.exe.stackdump
 /Untitled 1
+/target/
