@@ -45,20 +45,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
-// TODO - Link current font with selector
-// TODO - Link current file with selector
-// TODO - Limit selectable fonts to monospaced fonts
-// TODO - Register included fonts
-// TODO - Provide font selector option to limit to included fonts
 // TODO - Implement vi key bindings
 // TODO - Go to line
-// TODO - Tabs
 // TODO - Syntax highlighting
 // TODO - Tool bar
 // TODO - Status bar
-// TODO - New
 // TODO - Reload
-// TODO - Save as
 // TODO - Recent files
 // TODO - Right-click cut, copy, paste
 
@@ -92,7 +84,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private JMenuItem openMenuItem = new JMenuItem("Open...");
     private JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-    private JMenuItem closeMenuItem = new JMenuItem("Close");
+    private JMenuItem closeMenuItem = new JMenuItem("Close Tab");
     private JMenuItem exitMenuItem = new JMenuItem("Exit");
     private JMenuItem cutMenuItem = new JMenuItem("Cut");
     private JMenuItem copyMenuItem = new JMenuItem("Copy");
@@ -175,21 +167,25 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         viewMenu.setMnemonic(KeyEvent.VK_V);
         helpMenu.setMnemonic(KeyEvent.VK_H);
 
+        newTabItem.setIcon(loader.getNewIcon());
         newTabItem.addActionListener(this);
         newTabItem.setMnemonic(KeyEvent.VK_T);
         newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
         file.add(newTabItem);
 
+        openMenuItem.setIcon(loader.getOpenIcon());
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         file.add(openMenuItem);
 
+        saveMenuItem.setIcon(loader.getSaveIcon());
         saveMenuItem.addActionListener(this);
         saveMenuItem.setMnemonic(KeyEvent.VK_S);
         saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveMenuItem);
 
+        saveAsMenuItem.setIcon(loader.getSaveAsIcon());
         saveAsMenuItem.addActionListener(this);
         saveAsMenuItem.setMnemonic(KeyEvent.VK_A);
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
@@ -204,29 +200,35 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
         file.add(exitMenuItem);
 
         // Cut menu item
+        cutMenuItem.setIcon(loader.getCutIcon());
         cutMenuItem.setMnemonic(KeyEvent.VK_T);
         cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
         cutMenuItem.addActionListener(this);
         editMenu.add(cutMenuItem);
 
         // Copy menu item
+        copyMenuItem.setIcon(loader.getCopyIcon());
         copyMenuItem.setMnemonic(KeyEvent.VK_C);
         copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
         copyMenuItem.addActionListener(this);
         editMenu.add(copyMenuItem);
 
         // Paste menu item
+        pasteMenuItem.setIcon(loader.getPasteIcon());
         pasteMenuItem.setMnemonic(KeyEvent.VK_P);
         pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
         pasteMenuItem.addActionListener(this);
         editMenu.add(pasteMenuItem);
         
         editMenu.addSeparator();
+        copyFileNameMenuItem.setIcon(loader.getCopyIcon());
         copyFileNameMenuItem.addActionListener(this);
         editMenu.add(copyFileNameMenuItem);
 
         // Select Font menu item
+        selectFontMenuItem.setIcon(loader.getPreferencesIcon());
         selectFontMenuItem.addActionListener(this);
+        selectLookAndFeelMenu.setIcon(loader.getPreferencesIcon());
         selectLookAndFeelMenu.addMouseListener(this);
 
         viewMenu.add(selectLookAndFeelMenu);
