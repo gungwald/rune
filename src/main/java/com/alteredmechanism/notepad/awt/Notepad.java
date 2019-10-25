@@ -7,6 +7,7 @@ import java.awt.Frame;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.Panel;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +16,7 @@ import java.awt.event.WindowListener;
 import java.awt.font.TextAttribute;
 import java.util.HashMap;
 import java.util.Map;
+import com.alteredmechanism.java.awt.TabPanel;
 
 public class Notepad implements WindowListener, ActionListener{
 
@@ -24,6 +26,7 @@ public class Notepad implements WindowListener, ActionListener{
     private Menu fileMenu;
     private MenuItem openItem;
     private TextArea editor = new TextArea();
+    private TabPanel tabPanel = new TabPanel();
 
     /**
      * Launch the application.
@@ -75,12 +78,27 @@ public class Notepad implements WindowListener, ActionListener{
         System.out.println("editorFont:" + editorFont);
         editor.setFont(editorFont);
         System.out.println("editorFont:" + editor.getFont().getFamily());
-        frame.add(editor, BorderLayout.CENTER);
+        
+        frame.add(tabPanel, BorderLayout.CENTER);
+        
+        editor.setText("Blah");
+        
+        Panel editorPanel = new Panel();
+        editorPanel.add("Editor1", editor);
+        
+        TextArea editor2 = new TextArea();
+        Panel editorPanel2 = new Panel();
+        editorPanel2.add("Editor2", editor2);
+        
+        editor2.setText("Fred");
+        
+        tabPanel.addPanel(editorPanel, "Unknown1");
+        tabPanel.addPanel(editorPanel2, "Unknown2");
+       
     }
 
     public void windowOpened(WindowEvent e) {
         // TODO Auto-generated method stub
-        
     }
 
     /**
