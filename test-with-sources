@@ -1,3 +1,3 @@
 #!/bin/sh
-./test build.xml test test.bat bin/notepad bin/notepad.bat bin/notepad.js \
-    src/com/alteredmechanism/notepad/*.java
+./test build.xml test test.bat bin/hreodwrit bin/hreodwrit.bat bin/hreodwrit.js \
+    src/main/java/com/alteredmechanism/notepad/*.java
