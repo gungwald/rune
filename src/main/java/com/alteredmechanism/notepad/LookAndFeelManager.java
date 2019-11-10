@@ -124,6 +124,7 @@ public class LookAndFeelManager implements ActionListener {
         		System.out.println("Setting Motif Blue");
         		Color motifBlue = new ColorUIResource(124, 155, 255);
         		UIManager.put("window", motifBlue);
+        		UIManager.put("MenuBar.background", motifBlue);
         	}
             for (int i = 0; i < componentsToUpdate.size(); i++) {
                 Component c = (Component) componentsToUpdate.get(i);
