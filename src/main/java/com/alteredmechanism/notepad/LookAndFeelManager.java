@@ -12,6 +12,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.ColorUIResource;
@@ -121,10 +122,7 @@ public class LookAndFeelManager implements ActionListener {
             UIManager.setLookAndFeel(((LookAndFeelInfo)lookMap.get(event.getActionCommand())).getClassName());
         	// Must be done after setting LAF.
             if (MOTIF_THEME_ID.equals(event.getActionCommand())) {
-        		System.out.println("Setting Motif Blue");
-        		Color motifBlue = new ColorUIResource(124, 155, 255);
-        		UIManager.put("window", motifBlue);
-        		UIManager.put("MenuBar.background", motifBlue);
+		setAllBackgrounds();
         	}
             for (int i = 0; i < componentsToUpdate.size(); i++) {
                 Component c = (Component) componentsToUpdate.get(i);
@@ -135,4 +133,17 @@ public class LookAndFeelManager implements ActionListener {
         	messenger.showError(e);
         }
     }
+
+	public void setAllBackgrounds() {
+       		System.out.println("Setting Motif Blue");
+       		Color motifBlue = new ColorUIResource(124, 155, 255);
+		UIDefaults defaults = UIManager.getDefaults();
+		Enumerations keys = defaults.keys();
+		while (keys.hasNext()) {
+			String key = keys.nextElement();
+			if (key.endsWith("background")) {
+				UIManager.put(key, motifBlue);
+			}
+		}
+	}
 }
