@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -122,7 +123,7 @@ public class LookAndFeelManager implements ActionListener {
             UIManager.setLookAndFeel(((LookAndFeelInfo)lookMap.get(event.getActionCommand())).getClassName());
         	// Must be done after setting LAF.
             if (MOTIF_THEME_ID.equals(event.getActionCommand())) {
-		setAllBackgrounds();
+            	setAllBackgrounds();
         	}
             for (int i = 0; i < componentsToUpdate.size(); i++) {
                 Component c = (Component) componentsToUpdate.get(i);
@@ -135,15 +136,19 @@ public class LookAndFeelManager implements ActionListener {
     }
 
 	public void setAllBackgrounds() {
-       		System.out.println("Setting Motif Blue");
-       		Color motifBlue = new ColorUIResource(124, 155, 255);
+       	System.out.println("Setting Motif Blue");
+       	Color motifBlue = new ColorUIResource(124, 155, 255);
 		UIDefaults defaults = UIManager.getDefaults();
-		Enumerations keys = defaults.keys();
-		while (keys.hasNext()) {
-			String key = keys.nextElement();
-			if (key.endsWith("background")) {
-				UIManager.put(key, motifBlue);
+		Enumeration keys = defaults.keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			if (key instanceof String) {
+				String keyString = (String) key;
+				if (keyString.endsWith("background")) {
+					UIManager.put(key, motifBlue);
+				}
 			}
+			System.out.println(key + "(" + key.getClass().getName() + ")=" + defaults.get(key));
 		}
 	}
 }
