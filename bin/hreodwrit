@@ -10,6 +10,7 @@ SCRIPT_FULL_NAME="$THIS_SCRIPT/$SCRIPT_DIR"
 PARENT_DIR=$(dirname "$SCRIPT_DIR")
 LIB_DIR="$PARENT_DIR"/lib
 APP_JAR="$LIB_DIR/$THIS_SCRIPT".jar
+DEV_APP_JAR="$PARENT_DIR"/target/"$THIS_SCRIPT"-1.0-SNAPSHOT-shaded.jar
 RESOURCES_DIR="$PARENT_DIR"/resources
 CLASSES_DIR="$PARENT_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Notepad
@@ -198,6 +199,11 @@ then
 	fi
 else
 	unset MAC_DOCK_ICON
+fi
+
+if [ -e "$DEV_APP_JAR" ]
+then
+    APP_JAR="$DEV_APP_JAR"
 fi
 
 # Run
