@@ -88,4 +88,28 @@ public class Configuration {
         }
 		return replaceTabsWithSpaces.booleanValue();
 	}
+
+	public Integer getDisplayedTabWidth() {
+		return displayedTabWidth;
+	}
+
+	public void setDisplayedTabWidth(Integer displayedTabWidth) {
+		this.displayedTabWidth = displayedTabWidth;
+	}
+
+	public List getOpenFiles() {
+		return openFiles;
+	}
+
+	public void setOpenFiles(List openFiles) {
+		this.openFiles = openFiles;
+	}
+
+	public Integer getReplacedTabWidth() {
+		return replacedTabWidth;
+	}
+
+	public void setReplacedTabWidth(Integer replacedTabWidth) {
+		this.replacedTabWidth = replacedTabWidth;
+	}
 }

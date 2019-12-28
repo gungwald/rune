@@ -132,8 +132,9 @@ findJava()
     
     if [ -n "$JAVA_HOME" ]
     then
+        # JAVA_HOME is defined.
     	L_JAVA_TEST="$JAVA_HOME"/bin/java
-    	if [ -e "$L_JAVA_TEXT" ]
+    	if [ -e "$L_JAVA_TEST" ]
     	then
             if [ -x "$L_JAVA_TEST" ]
             then
@@ -176,28 +177,34 @@ handleOutOfMemoryError()
     exit 1
 }
 
+quoteOrNothing()
+{
+	if [ -n "$1" ]
+	then
+		echo "\"$1\""
+	fi
+}
+
 JAVA=$(findJava)
 JAVA_SPEC_VERSION=$(getJavaSpecVersion "$JAVA")
+OOME_HANDLER=-XX:OnOutOfMemoryError=handleOutOfMemoryError
 
-# Set the icon for Mac.
 if [ "$OS" = 'Darwin' ]
 then
 	MAC_DOCK_ICON=-Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
+	if [ $JAVA_SPEC_VERSION '<' 1.6 ]
+	then
+		unset OOME_HANDLER
+	fi
 else
-	unset MAC_ICON
+	unset MAC_DOCK_ICON
 fi
 
 # Run
 duplicateStdErr
-if [ -z "$MAC_DOCK_ICON" ]
-then
-    # -Xshare:on is critical but usually on by default...
-    "$JAVA" -XX:OnOutOfMemoryError="handleOutOfMemoryError" -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
-    JAVA_EXIT_CODE=$?
-else
-    "$JAVA" "$MAC_DOCK_ICON" -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
-    JAVA_EXIT_CODE=$?
-fi
+# -Xshare:on is critical but usually on by default...
+"$JAVA" $MAC_DOCK_ICON $OOME_HANDLER -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
+JAVA_EXIT_CODE=$?
 
 # Check for non-empty file
 if [ -s "$STDERR_FILE" ]
