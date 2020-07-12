@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: net.java.linoleum:jlfgr:1_0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/linoleum/jlfgr/1_0/jlfgr-1_0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/linoleum/jlfgr/1_0/jlfgr-1_0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/net/java/linoleum/jlfgr/1_0/jlfgr-1_0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
