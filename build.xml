@@ -35,7 +35,7 @@
       <fileset dir="${cls.dir}">
         <include name="**/*"/>
       </fileset>
-      <fileset dir="resources"/>
+      <fileset dir="src/main/resources"/>
       <manifest>
         <attribute name="Implementation-Title" value="${ant.project.name}" />
         <attribute name="Implementation-Version" value="${version}" />
