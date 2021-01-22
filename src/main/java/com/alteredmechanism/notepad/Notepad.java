@@ -55,7 +55,8 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
 // TODO - Right-click cut, copy, paste
 
 /**
- * Writbred - A writing tablet Hreodwrit - A reed for writing
+ * Writbred - A writing tablet 
+ * Hreodwrit - A reed for writing
  *
  * @author Bill Chatfield
  */

@@ -32,4 +32,68 @@ public class Palette {
         // TODO Auto-generated constructor stub
     }
 
+	public String getActiveWindowBorder() {
+		return activeWindowBorder;
+	}
+
+	public void setActiveWindowBorder(String activeWindowBorder) {
+		this.activeWindowBorder = activeWindowBorder;
+	}
+
+	public String getInactiveWindowBorder() {
+		return inactiveWindowBorder;
+	}
+
+	public void setInactiveWindowBorder(String inactiveWindowBorder) {
+		this.inactiveWindowBorder = inactiveWindowBorder;
+	}
+
+	public String getBackdrop() {
+		return backdrop;
+	}
+
+	public void setBackdrop(String backdrop) {
+		this.backdrop = backdrop;
+	}
+
+	public String getTextEntryBackground() {
+		return textEntryBackground;
+	}
+
+	public void setTextEntryBackground(String textEntryBackground) {
+		this.textEntryBackground = textEntryBackground;
+	}
+
+	public String getApplicationBackground() {
+		return applicationBackground;
+	}
+
+	public void setApplicationBackground(String applicationBackground) {
+		this.applicationBackground = applicationBackground;
+	}
+
+	public String getMenuAndPaneBackground() {
+		return menuAndPaneBackground;
+	}
+
+	public void setMenuAndPaneBackground(String menuAndPaneBackground) {
+		this.menuAndPaneBackground = menuAndPaneBackground;
+	}
+
+	public String getWorkspaceFourBackground() {
+		return workspaceFourBackground;
+	}
+
+	public void setWorkspaceFourBackground(String workspaceFourBackground) {
+		this.workspaceFourBackground = workspaceFourBackground;
+	}
+
+	public String getFrontPanelBackground() {
+		return frontPanelBackground;
+	}
+
+	public void setFrontPanelBackground(String frontPanelBackground) {
+		this.frontPanelBackground = frontPanelBackground;
+	}
+
 }
