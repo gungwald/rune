@@ -5,7 +5,7 @@
 
 <!DOCTYPE project>
 
-<project name="hreodwrit" default="jar" basedir=".">
+<project name="rune" default="jar" basedir=".">
 
   <property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
   <property name="version" value="1.0" />
@@ -24,7 +24,10 @@
   <target name="compile" depends="setup" description="Compiles the source">
     <javac srcdir="${src.dir}" destdir="${cls.dir}" classpath="${cls.dir}" 
         debug="on" source="${lang.version}" target="${lang.version}" 
-        includeAntRuntime="false">
+        includeAntRuntime="false"
+        fork="yes"
+        executable="${user.home}/Dropbox/opt/jdk1.5.0_22/bin/javac"
+        >
       <!-- Turn off warning about Java 1.4 -->
       <compilerarg value="-Xlint:-options"/>
     </javac>

@@ -1,2 +1,2 @@
 #!/bin/sh
-exec $(dirname "$0")/bin/hreodwrit "$@"
+exec $(dirname "$0")/bin/rune "$@"

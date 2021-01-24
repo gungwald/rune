@@ -1,3 +1,3 @@
-@call test.bat build.xml test test.bat bin\hreodwrit bin\hreodwrit.bat ^
-    bin\hreodwrit.js ^
+@call test.bat build.xml test test.bat bin\rune bin\rune.bat ^
+    bin\rune.js ^
     src\com\alteredmechanism\notepad\*.java

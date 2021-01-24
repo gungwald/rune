@@ -1,7 +1,7 @@
 @echo off
 setlocal
 set JAVA_VERSION=1.4
-set APPLICATION_JAR=hreodwrit.jar
+set APPLICATION_JAR=rune.jar
 javac -d classes -sourcepath src ^
     -source %JAVA_VERSION% -target %JAVA_VERSION% ^
     src\com\alteredmechanism\notepad\*.java ^

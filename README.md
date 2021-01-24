@@ -20,5 +20,5 @@
 - Project files
 - Vim emulation
 
-Download ready-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/hreodwrit.jar
+Download ready-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/rune.jar
 Instructions: https://github.com/gungwald/notepad/releases

@@ -1,1 +1,1 @@
-WScript.Echo("Hreodwrit: An OutOfMemoryError has occurred. The application must be closed.");
+WScript.Echo("Rune: An OutOfMemoryError has occurred. The application must be closed.");

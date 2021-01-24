@@ -10,7 +10,7 @@ import java.util.Properties;
 public class Configuration {
 
 	public static final File HOME = new File(System.getProperty("user.home"));
-	public static final File CONFIG_DIR = new File(HOME, ".hreodwrit");
+	public static final File CONFIG_DIR = new File(HOME, ".rune");
 	public static final File CONFIG_FILE = new File(CONFIG_DIR, "config.properties");
 
 	private Properties props = new Properties();

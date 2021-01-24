@@ -1,6 +1,6 @@
 #!/bin/sh
 JAVA_VERSION=1.4
-APPLICATION_JAR=hreodwrit.jar
+APPLICATION_JAR=rune.jar
 javac -d target/classes -sourcepath src/main/java \
     -source $JAVA_VERSION -target $JAVA_VERSION \
     src/main/java/com/alteredmechanism/notepad/*.java \

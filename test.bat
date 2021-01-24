@@ -1,1 +1,1 @@
-@call %~dp0bin\hreodwrit.bat %*
+@call %~dp0bin\rune.bat %*
