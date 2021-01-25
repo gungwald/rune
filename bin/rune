@@ -4,6 +4,7 @@
 # on UNIX and BSD.
 
 # Locate relevant directories.
+APP_NAME=Rune
 THIS_SCRIPT=$(basename "$0" .sh)
 SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
 SCRIPT_FULL_NAME="$THIS_SCRIPT/$SCRIPT_DIR"
@@ -192,13 +193,13 @@ OOME_HANDLER=-XX:OnOutOfMemoryError=handleOutOfMemoryError
 
 if [ "$OS" = 'Darwin' ]
 then
-	MAC_DOCK_ICON=-Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
+	MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$RESOURCES_DIR/icons/notepad-64x64.png"
 	if [ $JAVA_SPEC_VERSION '<' 1.6 ]
 	then
 		unset OOME_HANDLER
 	fi
 else
-	unset MAC_DOCK_ICON
+	unset MAC_OPTS
 fi
 
 if [ -f "$DEV_APP_JAR" ]
@@ -209,7 +210,7 @@ fi
 # Run
 duplicateStdErr
 # -Xshare:on is critical but usually on by default...
-"$JAVA" $MAC_DOCK_ICON $OOME_HANDLER -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
+"$JAVA" $MAC_OPTS $OOME_HANDLER -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
 JAVA_EXIT_CODE=$?
 
 # Check for non-empty file

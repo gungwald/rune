@@ -60,7 +60,7 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
  *
  * @author Bill Chatfield
  */
-public class Notepad extends JFrame implements ActionListener, MouseListener, ChangeListener, KeyListener {
+public class Rune extends JFrame implements ActionListener, MouseListener, ChangeListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -101,12 +101,12 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     private LookAndFeelManager lafManager = null;
     private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
 
-    public Notepad(File f) throws FontFormatException, IOException {
+    public Rune(File f) throws FontFormatException, IOException {
         this();
         open(f);
     }
 
-    public Notepad() throws FontFormatException, IOException {
+    public Rune() throws FontFormatException, IOException {
         super(USER_FACING_APP_NAME);
         this.setSize(600, 400);
 
@@ -449,7 +449,7 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
             if (option == JFileChooser.APPROVE_OPTION) {
                 fileToSave = getFileChooser().getSelectedFile();
                 if (fileToSave.exists()) {
-                    int response = JOptionPane.showConfirmDialog(Notepad.this, "This file already exists. Are you sure you want to overwrite it?", "Confirm Overwrite of Existing File", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    int response = JOptionPane.showConfirmDialog(Rune.this, "This file already exists. Are you sure you want to overwrite it?", "Confirm Overwrite of Existing File", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                     switch (response) {
                         case JOptionPane.YES_OPTION:
                             fileConfirmed = true;
@@ -527,14 +527,13 @@ public class Notepad extends JFrame implements ActionListener, MouseListener, Ch
     public static void main(String args[]) {
         try {
             SystemPropertyConfigurator.autoConfigure();
-            Notepad n = new Notepad();
+            Rune n = new Rune();
             for (int i = 0; i < args.length; i++) {
-                n.open(new File(args[i])) 
-                ;
+                n.open(new File(args[i]));
             }
         }
         catch (Exception e) {
-            new Messenger(Notepad.class).showError(e);
+            new Messenger(Rune.class).showError(e);
             System.exit(EXIT_FAILURE);
         }
     }
