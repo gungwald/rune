@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# The application jar file should work without this file. But this file adds
+# some features:
+# 1. Icon on Mac
+# 2. Out-of-memory handler
+# TODO - Add the rest here...
+
 # Avoid long options, like --tmpdir for mktemp because they are not supported
 # on UNIX and BSD.
 
@@ -14,7 +20,7 @@ APP_JAR="$LIB_DIR/$THIS_SCRIPT".jar
 DEV_APP_JAR="$PARENT_DIR"/target/"$THIS_SCRIPT"-1.0-SNAPSHOT-jar-with-dependencies.jar
 RESOURCES_DIR="$PARENT_DIR"/resources
 CLASSES_DIR="$PARENT_DIR"/classes
-MAIN_CLASS=com.alteredmechanism.notepad.Notepad
+MAIN_CLASS=com.alteredmechanism.notepad.Rune
 CLASS_PATH="$CLASSES_DIR:$RESOURCES_DIR"
 OS=$(uname -s)
 
