@@ -30,7 +30,7 @@
               <archive>
                 <manifest>
                   <mainClass>
-                    com.alteredmechanism.notepad.Notepad
+                    com.alteredmechanism.notepad.Rune
                   </mainClass>
                 </manifest>
               </archive>
