@@ -40,25 +40,25 @@ function expandGlob(globulet)
 
 function buildArgumentString(args)
 {
-	var argumentString = "";
-	var i, j;
-	for (i = 0; i < args.length; i++) {
+    var argumentString = "";
+    var i, j;
+    for (i = 0; i < args.length; i++) {
         var arg = args.Item(i);
         if (arg.indexOf("*") >= 0) {
-        	var files = expandGlob(arg);
+            var files = expandGlob(arg);
             for (j = 0; j < files.length; j++) {
             	argumentString += '"' + files[j] + '" ';
             }
         } else {
-        	argumentString += '"' + arg + '" ';
+            argumentString += '"' + arg + '" ';
         }
-	}
-	return argumentString;
+    }
+    return argumentString;
 }
 
 function isRunningWithCScript()
 {
-	return WScript.FullName.search(/CScript/i) >= 0;
+    return WScript.FullName.search(/CScript/i) >= 0;
 }
 
 /**
@@ -85,7 +85,7 @@ function findJava(fs, env)
         var javaBinDir = fs.BuildPath(javaHome, "bin");
         var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
         if (fs.FileExists(testJava)) {
-        	java = testJava;
+       	    java = testJava;
         }
     }
     if (java == null) {
@@ -132,21 +132,24 @@ var env = shell.Environment("Process");
 
 var argumentString = buildArgumentString(WScript.Arguments);	// returns a String object
 var binDir = fs.GetParentFolderName(WScript.ScriptFullName);	// returns a String object
-var topDir = fs.GetParentFolderName(binDir);					// returns a String object
-var libDir = fs.BuildPath(topDir, "lib");						// returns a String object
-var scriptFile = fs.GetFile(WScript.ScriptFullName);			// returns a File object
+var distDir = fs.GetParentFolderName(binDir);			// returns a String object
+var mainDir = fs.GetParentFolderName(distDir);			// returns a String object
+var srcDir = fs.GetParentFolderName(mainDir);			// returns a String object
+var topDir = fs.GetParentFolderName(srcDir);			// returns a String object
+var libDir = fs.BuildPath(distDir, "lib");			// returns a String object
+var scriptFile = fs.GetFile(WScript.ScriptFullName);		// returns a File object
 var scriptNameWithoutExtension = scriptFile.Name.replace("." + fs.GetExtensionName(scriptFile.Name), "");
 var jar = fs.BuildPath(libDir, scriptNameWithoutExtension + ".jar");
 
 // Find javer
 var java = findJava(fs, env);
-var outOfMemoryErrorHandler = fs.BuildPath(binDir, "handle-OutOfMemoryError.js");
+var outOfMemoryErrorHandler = fs.BuildPath(binDir, "handle-out-of-memory.js");
 var javerCommand = '"' + java + '" -XX:OnOutOfMemoryError=' + outOfMemoryErrorHandler + ' -jar ' + jar + ' ' + argumentString;
 
 //WScript.Echo("Running: " + javerCommand);
 var exitCode;
 if (isRunningWithCScript()) {
-	var javaProcess = shell.Exec(javerCommand);	// Returns a WshScriptExec object
+    var javaProcess = shell.Exec(javerCommand);	// Returns a WshScriptExec object
     passThroughOutput(javaProcess);
     while (javaProcess.Status == 0) {
     	// It's still running, so wait for it.
@@ -154,7 +157,7 @@ if (isRunningWithCScript()) {
     }
     exitCode = javaProcess.ExitCode;
 } else {
-	exitCode = shell.Run(javerCommand, 1, true);
+    exitCode = shell.Run(javerCommand, 1, true);
 }
 
 WScript.Quit(exitCode);

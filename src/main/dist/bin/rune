@@ -13,13 +13,14 @@
 APP_NAME=Rune
 THIS_SCRIPT=$(basename "$0" .sh)
 SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
-SCRIPT_FULL_NAME="$THIS_SCRIPT/$SCRIPT_DIR"
+SCRIPT_FULL_NAME="$SCRIPT_DIR/$THIS_SCRIPT"
 PARENT_DIR=$(dirname "$SCRIPT_DIR")
+TARGET_DIR="$PARENT_DIR"/../../../target
 LIB_DIR="$PARENT_DIR"/lib
 APP_JAR="$LIB_DIR/$THIS_SCRIPT".jar
-DEV_APP_JAR="$PARENT_DIR"/target/"$THIS_SCRIPT"-1.0-SNAPSHOT-jar-with-dependencies.jar
-RESOURCES_DIR="$PARENT_DIR"/resources
-CLASSES_DIR="$PARENT_DIR"/classes
+DEV_APP_JAR="$TARGET_DIR"/"$THIS_SCRIPT"-1.0-SNAPSHOT-jar-with-dependencies.jar
+RESOURCES_DIR="$TARGET_DIR"/resources
+CLASSES_DIR="$TARGET_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Rune
 CLASS_PATH="$CLASSES_DIR:$RESOURCES_DIR"
 OS=$(uname -s)

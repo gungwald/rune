@@ -3,7 +3,7 @@
 TOP_DIR="$(dirname "$0")"
 BIN_DIR="$TOP_DIR"/src/main/dist/bin
 
-exec "$BIN_DIR"/rune "$@" \
+gvim \
 	"$TOP_DIR"/pom.xml "$TOP_DIR"/edit-sources* \
 	"$TOP_DIR"/test "$TOP_DIR"/test.bat \
 	"$BIN_DIR"/* \
