@@ -13,9 +13,31 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.6</maven.compiler.target>
-    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>7</maven.compiler.target>
+    <maven.compiler.source>7</maven.compiler.source>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>Central with HTTPS</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+  </repositories>
+
+<pluginRepositories>
+<pluginRepository>
+  <id>central</id>
+  <name>Central Repository</name>
+  <url>https://repo.maven.apache.org/maven2</url>
+  <layout>default</layout>
+  <snapshots>
+    <enabled>false</enabled>
+  </snapshots>
+  <releases>
+    <updatePolicy>never</updatePolicy>
+  </releases>
+</pluginRepository>
+</pluginRepositories>
 
   <build>
     <plugins>
@@ -42,17 +64,21 @@
             <descriptor>src/main/assembly/assembly.xml</descriptor>
           </descriptors>
         </configuration>
+        <executions>
+          <execution>
+            <id>create-archive</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+
 
     <dependency>
       <groupId>org.kordamp.ikonli</groupId>
