@@ -198,13 +198,16 @@ JAVA=$(findJava)
 JAVA_SPEC_VERSION=$(getJavaSpecVersion "$JAVA")
 OOME_HANDLER=-XX:OnOutOfMemoryError=handleOutOfMemoryError
 
+
+# Java versions less than 1.6 don't have the OOME switch.
+if [ "$(echo "$JAVA_SPEC_VERSION" '<' 1.6 | bc)" -eq 1 ]
+then
+  unset OOME_HANDLER
+fi
+
 if [ "$OS" = 'Darwin' ]
 then
 	MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$RESOURCES_DIR/icons/notepad-64x64.png"
-	if [ $JAVA_SPEC_VERSION '<' 1.6 ]
-	then
-		unset OOME_HANDLER
-	fi
 else
 	unset MAC_OPTS
 fi

@@ -89,22 +89,27 @@ public class FontManager {
 		String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 		for (int i = 0; i < familyNames.length; i++) {
 			String familyName = familyNames[i];
+			System.out.printf("Evaluating font family %s...", familyName);
 			if (familyName.startsWith("Noto") && familyName.indexOf("Mono") < 0) {
 				// These fonts are very slow when trying to determine if they're
-				// monospaced so we can eliminate them quickly this way instead.
-				System.out.println("Eliminating slow non-mono font: " + familyName);
+				// monospaced, so we can eliminate them quickly this way instead.
+				System.out.println("skipping due to slow monospace test");
+				continue;
+			}
+			if (familyName.startsWith("Noto Sans Mono CJK")) {
+				System.out.println("avoiding failed assertion crash in t2kstrm.c");
 				continue;
 			}
 			Font testFont = new Font(familyName, Font.PLAIN, 12);
 			if (testFont.canDisplay('A')) {
 				if (isMonospaced(testFont)) {
-					System.out.println(familyName + " is monospaced and has printable characters");
+					System.out.println("good monospaced font");
 					monospacedFamilies.put(familyName, testFont);
 				} else {
-					System.out.println("BAD FONT: " + familyName + " is not monospaced");
+					System.out.println("not monospaced - ignoring");
 				}
 			} else {
-				System.out.println("BAD FONT: " + familyName + " can't display normal characters");
+				System.out.println("can't display normal characters - ignoring");
 			}
 		}
 	}
