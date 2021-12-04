@@ -1,9 +1,9 @@
 #!/bin/sh
 
 TOP_DIR="$(dirname "$0")"
-BIN_DIR="$TOP_DIR"/src/main/dist/bin
-
-exec "$BIN_DIR"/rune "$@" \
+BIN_DIR="$TOP_DIR"/src/main/scripts
+unzip -o "$TOP_DIR"/target/rune-1.0-bin.zip -d "$HOME"/opt
+exec "$HOME"/opt/rune-1.0/bin/rune "$@" \
 	"$TOP_DIR"/pom.xml "$TOP_DIR"/edit-sources* \
 	"$TOP_DIR"/test "$TOP_DIR"/test.bat \
 	"$BIN_DIR"/* \

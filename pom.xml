@@ -112,7 +112,6 @@
 
     <dependencies>
 
-
         <dependency>
             <groupId>net.java.linoleum</groupId>
             <artifactId>jlfgr</artifactId>

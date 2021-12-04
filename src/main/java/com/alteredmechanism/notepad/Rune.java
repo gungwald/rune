@@ -580,7 +580,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         if (f == null) {
             setTitle(USER_FACING_APP_NAME);
         } else {
-            setTitle(f.getName() + " ↔ " + USER_FACING_APP_NAME);
+            setTitle(USER_FACING_APP_NAME + " - " + f.getName());
         }
     }
     
