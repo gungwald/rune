@@ -28,3 +28,6 @@ classes/
 vim.exe.stackdump
 /Untitled 1
 target/
+
+# Silly Mac stuff - this will remove them from all directories.
+.DS_Store

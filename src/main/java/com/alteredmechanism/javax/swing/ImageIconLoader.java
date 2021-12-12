@@ -1,13 +1,16 @@
 package com.alteredmechanism.javax.swing;
 
+import java.awt.Image;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
 import com.alteredmechanism.notepad.Messenger;
 
 public class ImageIconLoader {
@@ -15,17 +18,17 @@ public class ImageIconLoader {
     protected int[] sizes = {16,20,24,32,48,64,128,256,512};
     protected Messenger messenger = null;
     
-    private Map toolbarIcons = new HashMap();
+    private Map<String,Image> toolbarIcons = new HashMap<String,Image>();
     
     public ImageIconLoader(Messenger messenger) {
         this.messenger = messenger;
     }
     
-    public List loadAll(String baseName) {
-        List icons = new ArrayList();
+    public List<Image> loadAll(String baseName) {
+        List<Image> icons = new ArrayList<Image>();
         StringBuffer name = new StringBuffer();
         boolean foundOneIcon = false;
-        List missingIcons = new ArrayList();
+        List<String> missingIcons = new ArrayList<String>();
         for (int i=0; i < sizes.length; i++) {
             int size = sizes[i];
             name.setLength(0);
@@ -108,4 +111,11 @@ public class ImageIconLoader {
         return getToolbarIcon("Preferences");
     }
     
+    public Icon getUndoIcon() throws FileNotFoundException {
+        return getToolbarIcon("Undo");
+    }
+
+    public Icon getRedoIcon() throws FileNotFoundException {
+        return getToolbarIcon("Redo");
+    }
 }
