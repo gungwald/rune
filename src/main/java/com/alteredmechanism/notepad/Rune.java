@@ -118,6 +118,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
 
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
         bufferTabs.addChangeListener(this);
+        System.out.printf("Tabs layout: %s%n", bufferTabs.getLayout().getClass().getName());
 
         // Zoom in
         Action zoomIn = new AbstractAction() {
