@@ -14,30 +14,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JViewport;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -104,6 +84,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
 
     private Font bufferFont = null;
+    private ImageIconLoader loader = null;
 
     public Rune(File f) throws FontFormatException, IOException {
         this();
@@ -121,6 +102,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
         bufferTabs.addChangeListener(this);
         System.out.printf("Tabs layout: %s%n", bufferTabs.getLayout().getClass().getName());
+
+        loader = new ImageIconLoader(getMessenger());
+        List<Image> icons = loader.loadAll("writbred");
+        if (icons.size() > 0) {
+            this.setIconImage((Image) icons.get(0));
+        }
 
         // Zoom in
         Action zoomIn = new AbstractAction() {
@@ -151,12 +138,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         appendNewTab();
 
         this.setJMenuBar(this.menuBar);
-
-        ImageIconLoader loader = new ImageIconLoader(getMessenger());
-        List<Image> icons = loader.loadAll("writbred");
-        if (icons.size() > 0) {
-            this.setIconImage((Image) icons.get(0));
-        }
 
         file.setMnemonic(KeyEvent.VK_F);
         editMenu.setMnemonic(KeyEvent.VK_E);
@@ -192,6 +173,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
         file.add(closeMenuItem);
 
+        exitMenuItem.setIcon(loader.getExitIcon());
         exitMenuItem.addActionListener(this);
         exitMenuItem.setMnemonic(KeyEvent.VK_X);
         file.add(exitMenuItem);
@@ -260,6 +242,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         viewMenu.add(selectLookAndFeelMenu);
         viewMenu.add(selectFontMenuItem);
 
+        aboutMenuItem.setIcon(loader.getAboutIcon());
         aboutMenuItem.addActionListener(this);
         aboutMenuItem.setMnemonic(KeyEvent.VK_A);
         helpMenu.add(aboutMenuItem);
@@ -315,6 +298,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     }
 
     public void openIntoSelectedTab(File f) throws IOException {
+        // Tell the change listener not to mark the tab as unsaved
+        // because this is the initial setting of the contents
+        // of a file that hasn't yet been changed.
+        setSelectedTabTitle(null);
+
         getSelectedBuffer().setText(readFileContents(f));
         getSelectedBuffer().setCaretPosition(0);
         setSelectedTabTitle(f.getName());
@@ -533,11 +521,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
             out = new BufferedWriter(new FileWriter(f));
             out.write(getSelectedBuffer().getText());
             int selectedIndex = bufferTabs.getSelectedIndex();
-            String tabTitle = bufferTabs.getTitleAt(selectedIndex);
-            if (tabTitle.endsWith("[Modified]")) {
-                tabTitle = tabTitle.replaceAll(" \\[Modified\\]", "");
-                bufferTabs.setTitleAt(selectedIndex, tabTitle);
-            }
+            bufferTabs.setIconAt(selectedIndex, null);
             saveMenuItem.setEnabled(false);
         }
         catch (Exception ex) {
@@ -640,7 +624,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         bufferTabs.addTab(tabTitle, null, text.getScrollPane(), tabTitle);
         int tabIndex = bufferTabs.getTabCount() - 1;
         bufferTabs.setSelectedIndex(tabIndex);
-        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, MODIFIED, saveMenuItem));
+        Icon saveIcon = null;
+        try {
+            saveIcon = loader.getSaveIcon();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        text.getDocument().addDocumentListener(new BufferChangedListener(bufferTabs, MODIFIED, saveMenuItem, saveIcon));
         text.requestFocus();
     }
 

@@ -91,10 +91,6 @@ public class ImageIconLoader {
         return getToolbarIcon("Stop");
     }
     
-    public Icon getExitIcon() throws FileNotFoundException {
-        return getToolbarIcon("Exit");
-    }
-    
     public Icon getCutIcon() throws FileNotFoundException {
         return getToolbarIcon("Cut");
     }
@@ -125,5 +121,13 @@ public class ImageIconLoader {
 
     public Icon getZoomOutIcon() throws FileNotFoundException {
         return getToolbarIcon("ZoomOut");
+    }
+
+    public Icon getAboutIcon() throws FileNotFoundException {
+        return getToolbarIcon("About");
+    }
+
+    public Icon getExitIcon() throws FileNotFoundException {
+        return getToolbarIcon("Stop");
     }
 }
