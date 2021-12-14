@@ -9,9 +9,8 @@
         <module name="rune" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="5">
-      <module name="rune" target="1.5" />
-      <module name="wrapper" target="1.5" />
+    <bytecodeTargetLevel>
+      <module name="rune" target="7" />
     </bytecodeTargetLevel>
   </component>
 </project>
