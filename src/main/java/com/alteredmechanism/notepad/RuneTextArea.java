@@ -1,12 +1,10 @@
 package com.alteredmechanism.notepad;
 
-import java.awt.Insets;
-
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.Document;
 import javax.swing.undo.UndoManager;
+import java.awt.*;
 
 public class RuneTextArea extends AntiAliasedJTextArea {
 
@@ -50,6 +48,8 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         setFont(this.creator.getBufferFont());
         setTabSize(8);
         setBorder(new EmptyBorder(new Insets(3, 3, 3, 3)));
+        Color notepadPlusPlusBackground = new Color(242, 244, 255);
+        this.setBackground(notepadPlusPlusBackground);
         scroller = new JScrollPane(this, 
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, 
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);

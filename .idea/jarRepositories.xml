@@ -21,5 +21,10 @@
       <option name="name" value="Central with HTTPS" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="central-insecure" />
+      <option name="name" value="Central Repository with no SSL so Java 1.5 will work" />
+      <option name="url" value="http://insecure.repo1.maven.org/maven2/" />
+    </remote-repository>
   </component>
 </project>
