@@ -20,7 +20,7 @@
 
     <repositories>
         <repository>
-            <id>central</id>
+            <id>central-insecure</id>
             <name>Central Repository with no SSL so Java 1.5 will work</name>
             <url>http://insecure.repo1.maven.org/maven2/</url>
         </repository>
@@ -28,7 +28,7 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>central</id>
+            <id>central-insecure</id>
             <name>Central Repository with no SSL so Java 1.5 will work</name>
             <url>http://insecure.repo1.maven.org/maven2/</url>
             <layout>default</layout>

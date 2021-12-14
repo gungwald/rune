@@ -93,6 +93,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     private JMenuItem copyFileNameMenuItem = new JMenuItem("Copy Full Name of File in Editor");
     private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
+    private JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
+    private JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
 
     private JFontChooser fontChooser = null;
     private JFileChooser fileChooser = null;
@@ -186,16 +188,17 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         file.add(saveAsMenuItem);
 
         closeMenuItem.addActionListener(this);
-        closeMenuItem.setMnemonic(KeyEvent.VK_W);
+        closeMenuItem.setMnemonic(KeyEvent.VK_C);
         closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
         file.add(closeMenuItem);
 
         exitMenuItem.addActionListener(this);
+        exitMenuItem.setMnemonic(KeyEvent.VK_X);
         file.add(exitMenuItem);
 
         // Undo menu item
         undoMenuItem.setIcon(loader.getUndoIcon());
-        undoMenuItem.setMnemonic(KeyEvent.VK_Z);
+        undoMenuItem.setMnemonic(KeyEvent.VK_U);
         undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
         undoMenuItem.addActionListener(this);
         editMenu.add(undoMenuItem);
@@ -235,12 +238,25 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         copyFileNameMenuItem.addActionListener(this);
         editMenu.add(copyFileNameMenuItem);
 
+        zoomInMenuItem.setIcon(loader.getZoomInIcon());
+        zoomInMenuItem.setMnemonic(KeyEvent.VK_I);
+        zoomInMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK));
+        zoomInMenuItem.addActionListener(this);
+        viewMenu.add(zoomInMenuItem);
+        
+        zoomOutMenuItem.setIcon(loader.getZoomOutIcon());
+        zoomOutMenuItem.setMnemonic(KeyEvent.VK_O);
+        zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK));
+        zoomOutMenuItem.addActionListener(this);
+        viewMenu.add(zoomOutMenuItem);
+        
         // Select Font menu item
         selectFontMenuItem.setIcon(loader.getPreferencesIcon());
         selectFontMenuItem.addActionListener(this);
         selectLookAndFeelMenu.setIcon(loader.getPreferencesIcon());
         selectLookAndFeelMenu.addMouseListener(this);
 
+        viewMenu.addSeparator();
         viewMenu.add(selectLookAndFeelMenu);
         viewMenu.add(selectFontMenuItem);
 

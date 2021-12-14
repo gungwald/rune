@@ -118,4 +118,12 @@ public class ImageIconLoader {
     public Icon getRedoIcon() throws FileNotFoundException {
         return getToolbarIcon("Redo");
     }
+    
+    public Icon getZoomInIcon() throws FileNotFoundException {
+        return getToolbarIcon("ZoomIn");
+    }
+
+    public Icon getZoomOutIcon() throws FileNotFoundException {
+        return getToolbarIcon("ZoomOut");
+    }
 }
