@@ -1,0 +1,11 @@
+Installer Requirements
+
+1. Need to have it installed with jar and start script
+2. Extracted from an installer jar
+3. Copy it into place
+4. Set path, system or user as appropriate
+5. Let the user decide whether to install in a system directory or user directory
+6. Command line UI
+7. GUI installer later
+8. Installer class that runs as main class of installer jar
+9. Install assembler - Can maven do it? Custom class?
