@@ -11,10 +11,10 @@
 
 # Locate relevant directories.
 APP_NAME=Rune
-THIS_SCRIPT=$(basename "$0" .sh)
-SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
+THIS_SCRIPT=`basename "$0" .sh`
+SCRIPT_DIR=`dirname "$0"` && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=`pwd`
 SCRIPT_FULL_NAME="$SCRIPT_DIR/$THIS_SCRIPT"
-PARENT_DIR=$(dirname "$SCRIPT_DIR")
+PARENT_DIR=`dirname "$SCRIPT_DIR"`
 TARGET_DIR="$PARENT_DIR"/../../../target
 LIB_DIR="$PARENT_DIR"/lib
 APP_JAR="$LIB_DIR/$THIS_SCRIPT"-1.0.jar
@@ -23,7 +23,8 @@ RESOURCES_DIR="$TARGET_DIR"/resources
 CLASSES_DIR="$TARGET_DIR"/classes
 MAIN_CLASS=com.alteredmechanism.notepad.Rune
 CLASS_PATH="$CLASSES_DIR:$RESOURCES_DIR"
-OS=$(uname -s)
+OS=`uname -s`
+DTKSH_XDIALOG="$SCRIPT_DIR/dtksh-xdialog"
 
 # $1 - Command basename
 commandExists()
@@ -48,17 +49,20 @@ EOF
 displayError()
 {
     TITLE="ERROR in Program: $SCRIPT_FULL_NAME"
-    if [ "$(uname -s)" = "Darwin" ]
+    if [ "`uname -s`" = "Darwin" ]
     then
         # This needs to be tried first because OS X could have xterm but it 
         # won't get displayed if the X Windows System isn't running...
     	displayErrorOnMac $*
-    elif commandExists zenity
+    elif commandExists zenity then
     then
     	zenity --text-info --title="$TITLE" --window-icon=error --text="$*"
     elif commandExists kdialog 
     then
     	kdialog --title "$TITLE" --text "$*"
+    elif commandExists dtksh && [ -x "$DTKSH_XDIALOG" ]
+    then
+	"$DTKSH_XDIALOG" -t "$TITLE" -m "$*"
     elif commandExists Xdialog
     then
     	Xdialog --title="$TITLE" --screen-center --no-cancel --text "$*"
@@ -83,11 +87,11 @@ displayErrorFile()
     TITLE="ERROR in Program: $PROGRAM_NAME"
     WIDTH=900
     HEIGHT=480
-    if [ "$(uname -s)" = "Darwin" ]
+    if [ "`uname -s`" = "Darwin" ]
     then
         # This needs to be tried first because OS X could have xterm but it 
         # won't get displayed if the X Windows System isn't running...
-        displayErrorOnMac $(cat "$ERROR_FILE")
+        displayErrorOnMac `cat "$ERROR_FILE"`
     elif commandExists zenity
     then
     	zenity --text-info --height=$HEIGHT --width=$WIDTH --title="$TITLE" \
@@ -96,6 +100,9 @@ displayErrorFile()
     then
     	kdialog --title "$TITLE" --textbox "$ERROR_FILE" \
     		--geometry $WIDTHx$HEIGHT
+    elif commandExists dtksh && [ -x "$DTKSH_XDIALOG" ]
+    then
+	"$DTKSH_XDIALOG" -t "$TITLE" -f "$ERROR_FILE"
     elif commandExists Xdialog
     then
     	Xdialog --title="$TITLE" --screen-center --no-cancel \
@@ -116,6 +123,54 @@ displayErrorFile()
     fi
 }
 
+removeFiles()
+{
+    for f in "$@"
+    do
+        # These conditions were added for troubleshooting failure
+	# scenarios that actually occurred. They are not frivolous.
+        if [ -n "$f" ]
+        then
+            if [ -f "$f" -o -p "$f" ]
+            then
+                rm -f "$f"
+            else
+                echo $0: $f does not exist, can\'t remove
+            fi
+        else
+            echo $0: received empty file name parameter
+        fi
+    done
+}
+
+makeTempFile()
+(
+	if [ "$1" = "-u" ]
+	then
+		switch="-u"
+		desc="$2"
+	else
+		switch=""
+		desc="$1"
+	fi
+	tempDir=${TMPDIR:-/tmp}
+	# Solaris 8 actually does not have mktemp...
+	if commandExists mktemp
+	then
+		# The mktemp command is the way it is for compatibility with 
+		# BSD systems like Mac OS X 10.4.11. Don't change without 
+		# testing.
+		mktemp $switch "$tempDir"/"$THIS_SCRIPT"."$desc".XXXXXXXXXX
+	else
+		tempName="$tempDir"/"$THIS_SCRIPT"."$desc".$$.`date +%Y%m%d%H%M%S`
+		if [ "$switch" != "-u" ]
+		then
+			touch "$tempName" || exit
+		fi
+		echo $tempName
+	fi
+)
+
 # Setup fifo so that we can use 'tee' to send stderr to both the console
 # and a file. The file will be used to display a window on the desktop
 # with the errors it contains after the program exits. This will allow
@@ -123,13 +178,10 @@ displayErrorFile()
 # any errors.
 duplicateStdErr()
 {
-    TEMP_DIR=${TMPDIR:-/tmp}
-    # The mktemp command is the way it is for compatibility with BSD systems
-    # like Mac OS X 10.4.11. Don't change without testing.
-    STDERR_FILE=$(mktemp "$TEMP_DIR"/"$THIS_SCRIPT".stderr.XXXXXXXXXX)
-    STDERR_FIFO=$(mktemp -u "$TEMP_DIR"/"$THIS_SCRIPT".fifo.XXXXXXXXXX)
+    STDERR_FILE=`makeTempFile stderr`
+    STDERR_FIFO=`makeTempFile -u fifo`
     mkfifo "$STDERR_FIFO"
-    trap 'rm "$STDERR_FIFO" "$STDERR_FILE"' EXIT
+    trap 'removeFiles "$STDERR_FIFO" "$STDERR_FILE"' EXIT
     tee -a "$STDERR_FILE" < "$STDERR_FIFO" >&2 &
 }
 
@@ -176,7 +228,7 @@ getJavaSpecVersion()
 {
     # L is for local variable
     L_JAVA="$1"
-    L_VERSION=$("$L_JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2)
+    L_VERSION=`"$L_JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2`
     echo $L_VERSION
 }
 
@@ -194,22 +246,41 @@ quoteOrNothing()
 	fi
 }
 
-JAVA=$(findJava)
-JAVA_SPEC_VERSION=$(getJavaSpecVersion "$JAVA")
+# Determines if $1 is less than $2, where $1 and $2 are floating point numbers
+# inside strings.
+#
+# Retuns: 0, if $1 <  $2
+#         1, if $1 >= $2
+lessThan()
+{
+    if [ $# -ne 2 ]
+    then
+        echo $0: wrong number of arguments: $# 1>&2
+        exit 1
+    fi
+    # Old versions of 'bc', like in Solaris 8, need the less-than condition
+    # to be inside an 'if' statement.
+    condition="if ($1 < $2) \"true\""
+    result=`echo "$condition" | bc`
+    [ "$result" = "true" ]
+}
+
+JAVA=`findJava`
+JAVA_SPEC_VERSION=`getJavaSpecVersion "$JAVA"`
 OOME_HANDLER=-XX:OnOutOfMemoryError=handleOutOfMemoryError
 
 
 # Java versions less than 1.6 don't have the OOME switch.
-if [ "$(echo "$JAVA_SPEC_VERSION" '<' 1.6 | bc)" -eq 1 ]
+if lessThan "$JAVA_SPEC_VERSION" "1.6"
 then
-  unset OOME_HANDLER
+    unset OOME_HANDLER
 fi
 
 if [ "$OS" = 'Darwin' ]
 then
-	MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$RESOURCES_DIR/icons/notepad-64x64.png"
+    MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$RESOURCES_DIR/icons/notepad-64x64.png"
 else
-	unset MAC_OPTS
+    unset MAC_OPTS
 fi
 
 if [ -f "$DEV_APP_JAR" ]
@@ -223,13 +294,15 @@ duplicateStdErr
 "$JAVA" $MAC_OPTS $OOME_HANDLER -jar "$APP_JAR" "$@" 2> "$STDERR_FIFO"
 JAVA_EXIT_CODE=$?
 
-# Check for non-empty file
-if [ -s "$STDERR_FILE" ]
+if [ -z "$STDERR_FILE" ]
 then
-	displayErrorFile "$0" "$STDERR_FILE"
+    echo STDERR_FILE variable is empty
+elif [ -s "$STDERR_FILE" ]
+then
+    displayErrorFile "$0" "$STDERR_FILE"
 elif [ $JAVA_EXIT_CODE -ne 0 ]
 then
-	cat > "$STDERR_FILE" <<-EOF
+    cat > "$STDERR_FILE" <<-EOF
 The program returned an exit code of $JAVA_EXIT_CODE, which is a failure code.
 But it did not produce an error message on the standard error stream.
 It is possible that it wrote an error message to the standard output stream,
@@ -237,5 +310,5 @@ but that has not been captured. Try running the program from the command line
 to get the error message. This is the command to run:
 $0 "$@"
 EOF
-	displayErrorFile "$0" "$STDERR_FILE"
+    displayErrorFile "$0" "$STDERR_FILE"
 fi

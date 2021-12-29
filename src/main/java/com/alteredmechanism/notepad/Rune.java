@@ -1,6 +1,7 @@
 package com.alteredmechanism.notepad;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -265,8 +266,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         int adjustedSize = currentFont.getSize() + magnitude;
         Font adjustedFont = currentFont.deriveFont((float) adjustedSize);
         setBufferFont(adjustedFont);
-        int width = (int) (this.getWidth() * Math.abs(0.1 + magnitude));
-        int height = (int) (this.getHeight() * Math.abs(0.1 + magnitude));
+        int width = (int) (this.getWidth() * Math.abs(0.05 + magnitude));
+        int height = (int) (this.getHeight() * Math.abs(0.05 + magnitude));
         System.out.printf("%d,%d%n", width, height);
         this.setSize(width, height);
         this.repaint();
@@ -378,7 +379,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         	getSelectedBuffer().paste();
         }
         else if (e.getSource() == this.selectFontMenuItem) {
+            Cursor frameCursor = getCursor();
+            Cursor bufferCursor = getSelectedBuffer().getCursor();
+	    Cursor waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
             try {
+                setCursor(waitCursor);
+		getSelectedBuffer().setCursor(waitCursor);
                 getFontChooser().setSelectedFont(getSelectedBuffer().getFont());
                 int result = getFontChooser().showDialog(this);
                 if (result == JFontChooser.OK_OPTION) {
@@ -390,6 +396,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
             catch (Exception ex) {
                 getMessenger().showError(ex);
                 ex.printStackTrace();
+            }
+            finally {
+                setCursor(frameCursor);
+		getSelectedBuffer().setCursor(bufferCursor);
             }
         }
         else if (e.getSource() == this.aboutMenuItem) {
