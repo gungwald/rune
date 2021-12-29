@@ -130,4 +130,8 @@ public class ImageIconLoader {
     public Icon getExitIcon() throws FileNotFoundException {
         return getToolbarIcon("Stop");
     }
+
+    public Icon getDeleteIcon() throws FileNotFoundException {
+        return getToolbarIcon("Delete");
+    }
 }

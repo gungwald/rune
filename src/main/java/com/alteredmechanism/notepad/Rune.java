@@ -169,6 +169,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveAsMenuItem);
 
+        closeMenuItem.setIcon(loader.getDeleteIcon());
         closeMenuItem.addActionListener(this);
         closeMenuItem.setMnemonic(KeyEvent.VK_C);
         closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
