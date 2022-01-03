@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# $1 - The name of this script
+# $2 - Purpose of the temporary file
+# TODO - Limit number of tries to avoid potential infinite loop
+makeTempDir()
+(
+	TRUE=0
+	FALSE=1
+	scriptName=`basename "$1"`
+	purpose="$2"
+	sysTempDir="${TMPDIR:-/tmp}"
+	found=$FALSE
+	while [ ! $found ]
+	do
+		dateToSeconds=`date +%Y%m%d%H%M%S`
+		tempDir="$sysTempDir"/"$scriptName"."$purpose".$$."$dateToSeconds"
+		if mkdir "$tempDir" > /dev/null 2>&1
+		then
+			found=$TRUE
+		fi
+	done
+	echo "$tempDir"
+)
+
+PGM_BASENAME="$(basename "$0")"
+DESKTOP_TMP="$(mktemp --directory --tmpdir "$PGM_BASENAME".XXXXXXX.tmp)"/"$PACKAGE_VENDOR"-"$PROGRAM_BASENAME".desktop
+cat <<EOF >"$DESKTOP_TMP"
+[Desktop Entry]
+Name=GS+
+Exec=$START_SCRIPT
+Type=Application
+StartupNotify=true
+Terminal=false
+Comment=Apple IIgs Emulator
+Path=$HOME
+Categories=Emulator
+Encoding=UTF-8
+Icon=$ICON_NAME
+#
+# See here for a list of valid categories:
+# https://specifications.freedesktop.org/menu-spec/latest/apa.html
+EOF
+xdg-desktop-menu install "$DESKTOP_TMP" || exit
+#  update-desktop-database ~/.local/share/applications/ || exit
+rm "$DESKTOP_TMP" || exit
+rmdir "$(dirname "$DESKTOP_TMP")" || exit
