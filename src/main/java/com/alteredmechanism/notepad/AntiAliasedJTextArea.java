@@ -58,5 +58,4 @@ public class AntiAliasedJTextArea extends JTextArea {
 
 		super.paintComponent(g2d);
 	}
-
 }
