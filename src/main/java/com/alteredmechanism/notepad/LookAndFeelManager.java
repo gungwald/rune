@@ -26,8 +26,8 @@ public class LookAndFeelManager implements ActionListener {
 
     public static final String OCEAN_THEME_CLASS_NAME = "javax.swing.plaf.metal.OceanTheme";
     public static final String DEFAULT_METAL_THEME_CLASS_NAME = "javax.swing.plaf.metal.DefaultMetalTheme";
-    public static final String METAL_STEEL_THEME_ID = "Metal with Steel Theme";
-    public static final String METAL_OCEAN_THEME_ID = "Metal";
+    public static final String METAL_WITH_STEEL_THEME = "Metal with Steel Theme";
+    public static final String METAL_WITH_OCEAN_THEME = "Metal with Ocean Theme";
     public static final String MOTIF_THEME_ID = "CDE/Motif";
 
     protected ButtonGroup buttonGroup = new ButtonGroup();
@@ -72,23 +72,39 @@ public class LookAndFeelManager implements ActionListener {
         }
     }
 
-    protected void addMenuItemsForMetalThemes(JMenu lafMenu, LookAndFeelInfo metal) {
+    protected boolean isOceanThemeAvailable() {
+        boolean isAvailable;
         try {
-            MetalTheme theme = MetalTheme.getCurrentTheme();
-            String themeName = theme.getName();
             oceanTheme = Class.forName(OCEAN_THEME_CLASS_NAME);
-            steelTheme = Class.forName(STEEL_THEME_CLASS_NAME);
-            defaultTheme = Class.forName(DEFAULT_METAL_THEME_CLASS_NAME);
-            String lookName = METAL_STEEL_THEME_ID;
-            lookMap.put(lookName, metalPlaf);
+            isAvailable = true;
+        catch (ClassNotFoundException e) {
+            System.out.println("Ocean theme for Metal look-and-feel was not found");
+            isAvailable = false;
+        }
+        return isAvailable;
+    }
+
+    protected void addMenuItemsForMetalThemes(JMenu lafMenu, LookAndFeelInfo metal) {
+        if (isOceanThemeAvailable()) {
+            // Add the Ocean theme and the default metal theme.
+            // They both have the same laf. The theme will be determined by the name.
+            lookMap.put(METAL_WITH_OCEAN_THEME, metal);
+            lookMap.put(METAL_WITH_STEEL_THEME, metal);
+            addMenuItem(METAL_WITH_OCEAN_THEME, lafMenu, metal);
+            addMenuItem(METAL_WITH_STEEL_THEME, lafMenu, metal);
+        } else {
+            // Just add the default Metal theme.
+            lookMap.put(metal.getName(), metal);
             addMenuItem(lafMenu, metal);
-        } catch (ClassNotFoundException e) {
-            System.err.println("No steel theme");
         }
     }
 
-    protected void addMenuItem(JMenu lafMenu, LookAndFeelInfo look) {
-        JRadioButtonMenuItem lookMenuItem = new JRadioButtonMenuItem(look.getName());
+    protected void addMenuItem(JMenu lafMenu, LookAndFeelInfo laf) {
+        addMenuItem(laf.getName(), lafMenu, laf);
+    }
+
+    protected void addMenuItem(String name, JMenu lafMenu, LookAndFeelInfo look) {
+        JRadioButtonMenuItem lookMenuItem = new JRadioButtonMenuItem(name);
         lookMenuItem.addActionListener(this);
         buttonGroup.add(lookMenuItem);
         lafMenu.add(lookMenuItem);
