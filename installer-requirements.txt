@@ -9,3 +9,10 @@ Installer Requirements
 7. GUI installer later
 8. Installer class that runs as main class of installer jar
 9. Install assembler - Can maven do it? Custom class?
+
+Other Requirements
+1. Toolbar
+2. Search
+3. Link from opt/bin/rune to opt/rune/bin
+4. Auto-detect high-res and double size, if possible
+5. Mac key bindings

@@ -89,7 +89,7 @@ public class FontManager {
 		String[] familyNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 		for (int i = 0; i < familyNames.length; i++) {
 			String familyName = familyNames[i];
-			System.out.printf("Evaluating font family %s...", familyName);
+			System.out.print("Evaluating font family " + familyName + "...");
 			if (familyName.startsWith("Noto") && familyName.indexOf("Mono") < 0) {
 				// These fonts are very slow when trying to determine if they're
 				// monospaced, so we can eliminate them quickly this way instead.

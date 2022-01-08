@@ -76,6 +76,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>retrotranslator-maven-plugin</artifactId>
+                <version>1.0-alpha-4</version>
+                <configuration>
+                    <classifier>Java-1.4</classifier>
+                    <target>1.4</target>
+                    <verbose>true</verbose>
+                    <verify>true</verify>
+                    <verifyClasspath>
+                        <element>${basedir}/lib/rt.jar</element>
+                    </verifyClasspath>
+                    <backport>com.alteredmechanism.rune.backport</backport>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>translate-project</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

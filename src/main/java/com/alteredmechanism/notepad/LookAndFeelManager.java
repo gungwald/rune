@@ -1,4 +1,5 @@
 package com.alteredmechanism.notepad;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -21,28 +22,27 @@ import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
-
 public class LookAndFeelManager implements ActionListener {
 
     public static final String OCEAN_THEME_CLASS_NAME = "javax.swing.plaf.metal.OceanTheme";
     public static final String DEFAULT_METAL_THEME_CLASS_NAME = "javax.swing.plaf.metal.DefaultMetalTheme";
     public static final String METAL_WITH_STEEL_THEME = "Metal with Steel Theme";
     public static final String METAL_WITH_OCEAN_THEME = "Metal with Ocean Theme";
-    public static final String MOTIF_THEME_ID = "CDE/Motif";
+    public static final String METAL_LAF_NAME = "Metal";
+    public static final String MOTIF_THEME_NAME = "CDE/Motif";
 
     protected ButtonGroup buttonGroup = new ButtonGroup();
-    private Messenger messenger;
-    private Map lookMap = new TreeMap();
-    private List componentsToUpdate = new ArrayList();
+    private final Messenger messenger;
+    private final Map<String, LookAndFeelInfo> lookMap = new TreeMap<String, LookAndFeelInfo>();
+    private final List<Component> componentsToUpdate = new ArrayList<Component>();
     protected LookAndFeelInfo metalPlaf = null;
-    protected Class oceanThemeClass = null;
+    private Class<?> oceanThemeClass;
 
     public static void setSystemLookAndFeel() {
         // Default to the operating system's native look and feel. Duh...
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             new Messenger(LookAndFeelManager.class.getName()).showError(e);
         }
     }
@@ -63,7 +63,7 @@ public class LookAndFeelManager implements ActionListener {
         LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
         int i = 0;
         for (LookAndFeelInfo laf : lafs) {
-            if (laf.getName().equals("Metal")) {
+            if (laf.getName().equals(METAL_LAF_NAME)) {
                 addMenuItemsForMetalThemes(lafMenu, laf);
             } else {
                 lookMap.put(laf.getName(), laf);
@@ -75,9 +75,9 @@ public class LookAndFeelManager implements ActionListener {
     protected boolean isOceanThemeAvailable() {
         boolean isAvailable;
         try {
-            oceanTheme = Class.forName(OCEAN_THEME_CLASS_NAME);
+            oceanThemeClass = Class.forName(OCEAN_THEME_CLASS_NAME);
             isAvailable = true;
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             System.out.println("Ocean theme for Metal look-and-feel was not found");
             isAvailable = false;
         }
@@ -125,34 +125,51 @@ public class LookAndFeelManager implements ActionListener {
         try {
             Class.forName("net.sourceforge.openlook_plaf.OpenLookLookAndFeel");
             UIManager.installLookAndFeel("Open Look", "net.sourceforge.openlook_plaf.OpenLookLookAndFeel");
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             // If Open Look is not available, just do nothing.
         }
+    }
+
+    private MetalTheme steelTheme = null;
+    protected MetalTheme getSteelTheme() {
+        if (steelTheme == null) {
+            steelTheme = new DefaultMetalTheme();
+        }
+        return steelTheme;
+    }
+
+    private MetalTheme oceanTheme = null;
+    protected MetalTheme getOceanTheme() {
+        if (oceanTheme == null) {
+            try {
+                oceanTheme = (MetalTheme) oceanThemeClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+                oceanTheme = getSteelTheme();
+            }
+        }
+        return oceanTheme;
     }
 
     public void actionPerformed(ActionEvent event) {
         System.out.println(event.paramString());
         try {
             // The theme must be set before setting the look and feel to Metal.
-            if (METAL_STEEL_THEME_ID.equals(event.getActionCommand())) {
-                MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
-            } else if (METAL_OCEAN_THEME_ID.equals(event.getActionCommand())) {
-                MetalTheme oceanThemeInstance = (MetalTheme) oceanThemeClass.newInstance();
-                MetalLookAndFeel.setCurrentTheme(oceanThemeInstance);
+            if (METAL_WITH_STEEL_THEME.equals(event.getActionCommand())) {
+                MetalLookAndFeel.setCurrentTheme(getSteelTheme());
+            } else if (METAL_WITH_OCEAN_THEME.equals(event.getActionCommand())) {
+                MetalLookAndFeel.setCurrentTheme(getOceanTheme());
             }
-            UIManager.setLookAndFeel(((LookAndFeelInfo)lookMap.get(event.getActionCommand())).getClassName());
-                // Must be done after setting LAF.
-            if (MOTIF_THEME_ID.equals(event.getActionCommand())) {
-                setAllBackgrounds();
-                }
-            for (int i = 0; i < componentsToUpdate.size(); i++) {
-                Component c = (Component) componentsToUpdate.get(i);
+            UIManager.setLookAndFeel((lookMap.get(event.getActionCommand())).getClassName());
+            // Must be done after setting LAF.
+//            if (MOTIF_THEME_NAME.equals(event.getActionCommand())) {
+//                setAllBackgrounds();
+//            }
+            for (Component c : componentsToUpdate) {
                 SwingUtilities.updateComponentTreeUI(c);
             }
-        }
-        catch (Exception e) {
-                messenger.showError(e);
+        } catch (Exception e) {
+            messenger.showError(e);
         }
     }
 

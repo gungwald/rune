@@ -102,7 +102,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
 
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
         bufferTabs.addChangeListener(this);
-        System.out.printf("Tabs layout: %s%n", bufferTabs.getLayout().getClass().getName());
 
         loader = new ImageIconLoader(getMessenger());
         List<Image> icons = loader.loadAll("writbred");
@@ -261,7 +260,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     }
 
     public void zoom(int magnitude) {
-        System.out.printf("zoom %d%n", magnitude);
+        System.out.println("zoom " + magnitude);
         RuneTextArea buffer = getSelectedBuffer();
         Font currentFont = getBufferFont();
         int adjustedSize = currentFont.getSize() + magnitude;
@@ -269,7 +268,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         setBufferFont(adjustedFont);
         int width = (int) (this.getWidth() * Math.abs(0.05 + magnitude));
         int height = (int) (this.getHeight() * Math.abs(0.05 + magnitude));
-        System.out.printf("%d,%d%n", width, height);
+        System.out.println(width + "," + height);
         this.setSize(width, height);
         this.repaint();
     }
