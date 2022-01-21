@@ -1,47 +1,67 @@
 #!/bin/sh
 
+APP_NAME=Rune
+START_SCRIPT=rune
+ICON=rune.png
+
+# Creates a temporary directory in the system temp directory with
+# a unique name.
 # $1 - The name of this script
-# $2 - Purpose of the temporary file
-# TODO - Limit number of tries to avoid potential infinite loop
+# $2 - Purpose of the temporary directory
+# Output - The name of the temp directory that was created
 makeTempDir()
-(
-	TRUE=0
-	FALSE=1
-	scriptName=`basename "$1"`
-	purpose="$2"
-	sysTempDir="${TMPDIR:-/tmp}"
-	found=$FALSE
-	while [ ! $found ]
-	do
-		dateToSeconds=`date +%Y%m%d%H%M%S`
-		tempDir="$sysTempDir"/"$scriptName"."$purpose".$$."$dateToSeconds"
-		if mkdir "$tempDir" > /dev/null 2>&1
-		then
-			found=$TRUE
-		fi
-	done
-	echo "$tempDir"
+( # Parentheses create subshell which makes all variables local.
+  TRUE=0
+  FALSE=1
+  MAX_TRY_COUNT=20
+
+  scriptName=`basename "$1"`
+  purpose="$2"
+  sysTempDir="${TMPDIR:-/tmp}"
+  foundAvailableName=$FALSE
+  tryCount=0
+  unset tempDir
+
+  while [ ! $foundAvailableName ] && [ "$tryCount" -le "$MAX_TRY_COUNT" ]
+  do
+    dateToSeconds=`date +%Y%m%d%H%M%S`
+    tempDir="$sysTempDir"/"$scriptName"."$purpose".$$."$dateToSeconds"
+    if stat "$tempFile"
+    then
+      # File already exists, skip it
+      tryCount=`expr "$tryCount" + 1`
+    else
+      # File does not exist
+      mkdir "$tempFile" || exit
+      foundAvailableName=$TRUE
+    fi
+  done
+  [ -z "$tempDir" ] && echo Failed to create temp dir && exit 1
+  echo "$tempDir"
 )
 
-PGM_BASENAME="$(basename "$0")"
-DESKTOP_TMP="$(mktemp --directory --tmpdir "$PGM_BASENAME".XXXXXXX.tmp)"/"$PACKAGE_VENDOR"-"$PROGRAM_BASENAME".desktop
+# A temp directory is needed as opposed to a temp file
+# because the temp name that will be created will not be the kind
+# of name that is needed.
+DESKTOP_TMP=`makeTempDir "$0" "desktop-file"`/"$APP_NAME".desktop
+
 cat <<EOF >"$DESKTOP_TMP"
 [Desktop Entry]
-Name=GS+
+Name=$APP_NAME
 Exec=$START_SCRIPT
 Type=Application
 StartupNotify=true
 Terminal=false
-Comment=Apple IIgs Emulator
+Comment=A multi-tab, themeable, text editor
 Path=$HOME
-Categories=Emulator
+Categories=Development,Utility
 Encoding=UTF-8
-Icon=$ICON_NAME
-#
-# See here for a list of valid categories:
+Icon=$ICON
+# List of valid categories:
 # https://specifications.freedesktop.org/menu-spec/latest/apa.html
 EOF
+
 xdg-desktop-menu install "$DESKTOP_TMP" || exit
 #  update-desktop-database ~/.local/share/applications/ || exit
-rm "$DESKTOP_TMP" || exit
+rm "$DESKTOP_TMP"
 rmdir "$(dirname "$DESKTOP_TMP")" || exit
