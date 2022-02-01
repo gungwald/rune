@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.Collection;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -163,7 +165,7 @@ public class AboutDialog extends JDialog implements ActionListener {
 
     private Object[][] getSortedSystemProperties() {
         int propIndex = 0;
-        TreeSet keys = new TreeSet(System.getProperties().keySet());
+        TreeSet<Object> keys = new TreeSet<Object>((Collection<Object>) System.getProperties().keySet());
         String[][] propsArray = new String[keys.size()][2];
         Iterator keysIterator = keys.iterator();
         while (keysIterator.hasNext()) {
@@ -188,12 +190,12 @@ public class AboutDialog extends JDialog implements ActionListener {
         try {
             if (Float.parseFloat(System.getProperty("java.specification.version")) >= 1.6) {
                 // Version 1.6 has the Desktop class which can open a link.
-                Class desktopClass = this.getClass().getClassLoader().loadClass("java.awt.Desktop");
-                Method isDesktopSupportedMethod = desktopClass.getMethod("isDesktopSupported", null);
-                Boolean isDesktopSupportedResult = (Boolean) isDesktopSupportedMethod.invoke(null, null);
+                Class<?> desktopClass = this.getClass().getClassLoader().loadClass("java.awt.Desktop");
+                Method isDesktopSupportedMethod = desktopClass.getMethod("isDesktopSupported", (Class<?>[]) null);
+                Boolean isDesktopSupportedResult = (Boolean) isDesktopSupportedMethod.invoke(null, (Object[]) null);
                 if (isDesktopSupportedResult.booleanValue()) {
-                    Method getDesktopMethod = desktopClass.getMethod("getDesktop", null);
-                    Object desktop = getDesktopMethod.invoke(null, null);
+                    Method getDesktopMethod = desktopClass.getMethod("getDesktop", (Class<?>[]) null);
+                    Object desktop = getDesktopMethod.invoke(null, (Object[]) null);
                     Method browseMethod = desktopClass.getMethod("browse", new Class[] {java.net.URI.class});
                     browseMethod.invoke(desktop, new Object[] {new URI(link)});
                 }

@@ -34,7 +34,7 @@ public class AntiAliasedJTextArea extends JTextArea {
 		super(doc, text, rows, columns);
 	}
 
-	// Anti-aliasing fonts in JDK 1.3 to get rid of the jaggies.
+	// Anti-aliasing fonts in Java 1.3 and 1.4 to get rid of the jaggies.
 	// Override the paintComponent method of the JComponent you
 	// want to anti-alias.
 

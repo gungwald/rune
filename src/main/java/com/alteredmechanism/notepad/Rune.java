@@ -15,12 +15,36 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JViewport;
+import javax.swing.KeyStroke;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
@@ -39,7 +63,7 @@ import com.alteredmechanism.javax.swing.ImageIconLoader;
  *
  * @author Bill Chatfield
  */
-public class Rune extends JFrame implements ActionListener, MouseListener, ChangeListener, KeyListener {
+public class Rune extends JFrame implements ActionListener, MouseListener, ChangeListener, KeyListener, CaretListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -261,7 +285,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
 
     public void zoom(int magnitude) {
         System.out.println("zoom " + magnitude);
-        RuneTextArea buffer = getSelectedBuffer();
+        //RuneTextArea buffer = getSelectedBuffer();
         Font currentFont = getBufferFont();
         int adjustedSize = currentFont.getSize() + magnitude;
         Font adjustedFont = currentFont.deriveFont((float) adjustedSize);
@@ -759,4 +783,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     public void keyReleased(KeyEvent e) {
         
     }
+
+	public void caretUpdate(CaretEvent e) {
+		int position = e.getDot();
+		getSelectedBuffer().getDocument();
+		JTextComponent t = (JTextComponent) e.getSource();
+		
+	}
 }
