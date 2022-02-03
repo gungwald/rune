@@ -21,7 +21,7 @@
     <fileSets>
         <!--
             Adds startup scripts to the root directory of zip package. The startup
-            scripts are copied from the src/main/scripts directory.
+            scripts are copied from the src/main/dist/bin directory.
         -->
         <fileSet>
             <directory>${project.build.scriptSourceDirectory}</directory>
