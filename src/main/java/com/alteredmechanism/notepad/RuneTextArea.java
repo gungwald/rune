@@ -78,10 +78,6 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         }
     }
 
-    public int getLineNumber() {
-        return getDocument().getRootElements().length + 1;
-    }
-
     /**
      * Attempt to center the line containing the caret at the center of the
      * scroll pane.
@@ -106,7 +102,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         }
     }
 
-    /*
+    /**
      *  Return the column number at the Caret position.
      *
      *  The column returned will only make sense when using a
@@ -124,13 +120,13 @@ public class RuneTextArea extends AntiAliasedJTextArea {
             Rectangle r = this.modelToView(this.getCaretPosition());
             int width = r.x - this.getInsets().left;
             column = width / characterWidth;
-        } catch (BadLocationException ble) {
+        } catch (BadLocationException e) {
+            creator.getMessenger().showError(e);
         }
-
         return column + 1;
     }
 
-    /*
+    /**
      *  Return the line number at the Caret position.
      */
     public int getLineAtCaret() {
@@ -140,7 +136,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         return root.getElementIndex(caretPosition) + 1;
     }
 
-    /*
+    /**
      *  Return the number of lines of text in the Document
      */
     public int getLines() {
@@ -148,7 +144,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         return root.getElementCount();
     }
 
-    /*
+    /**
      *  Position the caret at the start of a line.
      */
     public void gotoStartOfLine(RuneTextArea runeTextArea, int line) {
@@ -159,7 +155,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         this.setCaretPosition(startOfLineOffset);
     }
 
-    /*
+    /**
      *  Position the caret on the first word of a line.
      */
     public void gotoFirstWordOnLine(int line) {
@@ -175,10 +171,11 @@ public class RuneTextArea extends AntiAliasedJTextArea {
                 this.setCaretPosition(Utilities.getNextWord(this, position));
             }
         } catch (Exception e) {
+            creator.getMessenger().showError(e);
         }
     }
 
-    /*
+    /**
      *  Return the number of lines of text, including wrapped lines.
      */
     public int getWrappedLines() {
@@ -188,7 +185,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         return preferredHeight / lineHeight;
     }
 
-    /*
+    /**
      *  Return the number of lines of text, including wrapped lines.
      */
 //	public int getWrappedLines(/* JTextComponent */)

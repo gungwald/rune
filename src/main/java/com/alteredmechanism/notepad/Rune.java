@@ -785,9 +785,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     }
 
 	public void caretUpdate(CaretEvent e) {
-		int position = e.getDot();
-		getSelectedBuffer().getDocument();
-		JTextComponent t = (JTextComponent) e.getSource();
-		
+        System.out.println("line=" + (RuneTextArea) e.getSource());
 	}
 }
