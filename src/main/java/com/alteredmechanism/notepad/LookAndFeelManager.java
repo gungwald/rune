@@ -41,6 +41,7 @@ public class LookAndFeelManager implements ActionListener {
     public static void setSystemLookAndFeel() {
         // Default to the operating system's native look and feel. Duh...
         try {
+            System.out.println("SystemLaf=" + UIManager.getSystemLookAndFeelClassName());
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             new Messenger(LookAndFeelManager.class.getName()).showError(e);

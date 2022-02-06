@@ -785,6 +785,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     }
 
 	public void caretUpdate(CaretEvent e) {
-        System.out.println("line=" + (RuneTextArea) e.getSource());
+        System.out.println("line=" + ((RuneTextArea) e.getSource()).getLineAtCaret());
 	}
 }

@@ -2,6 +2,8 @@ package com.alteredmechanism.notepad;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
@@ -13,6 +15,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
     private JScrollPane scroller;
     private Rune creator;
     private UndoManager undoManager;
+    private LineNumberingTextArea lineNumberingTextArea;
 
     public RuneTextArea(Rune creator) {
         init(creator);
@@ -56,6 +59,27 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         undoManager = new UndoManager();
         getDocument().addUndoableEditListener(undoManager);
         this.addCaretListener(creator);
+
+        // Set up line numbers. Yea!
+        lineNumberingTextArea = new LineNumberingTextArea(this);
+        scroller.setRowHeaderView(lineNumberingTextArea);
+        this.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void insertUpdate(DocumentEvent documentEvent)
+            {
+                lineNumberingTextArea.updateLineNumbers();
+            }
+
+            public void removeUpdate(DocumentEvent documentEvent)
+            {
+                lineNumberingTextArea.updateLineNumbers();
+            }
+
+            public void changedUpdate(DocumentEvent documentEvent)
+            {
+                lineNumberingTextArea.updateLineNumbers();
+            }
+        });
     }
 
     public JScrollPane getScrollPane() {

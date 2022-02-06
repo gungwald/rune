@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Dev install under OS/2
+# Dev install under SunOS because it's version of "install" is weird.
 # Maybe this should be done with the Maven Ant plugin?
 
 # Steps:
@@ -19,7 +19,10 @@ then
 fi
 
 unzip -o "$DIST_ZIP" -d target
-sudo install target/rune-1.0/bin/rune /usr/local/bin
-sudo install target/rune-1.0/lib/rune-1.0.jar /usr/local/lib
-sudo install target/rune-1.0/lib/jlfgr-1_0.jar /usr/local/lib
+sudo install -d /usr/local
+sudo install -d /usr/local/bin
+sudo install -d /usr/local/lib
+sudo install -f /usr/local/bin target/rune-1.0/bin/rune
+sudo install -f /usr/local/lib target/rune-1.0/lib/rune-1.0.jar
+sudo install -f /usr/local/lib target/rune-1.0/lib/jlfgr-1_0.jar
 sudo target/rune-1.0/bin/install-gnome-icon
