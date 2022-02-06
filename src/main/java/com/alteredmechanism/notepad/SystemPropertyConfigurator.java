@@ -6,11 +6,11 @@ public class SystemPropertyConfigurator {
 	}
 
 	protected static boolean isGnomeDesktop() {
-		return System.getenv("XDG_CURRENT_DESKTOP").equalsIgnoreCase("gnome");
+		return "gnome".equalsIgnoreCase(System.getenv("XDG_CURRENT_DESKTOP"));
 	}
 
 	public static boolean isMateDesktop() {
-		return System.getenv("XDG_CURRENT_DESKTOP").equalsIgnoreCase("mate");
+		return "mate".equalsIgnoreCase(System.getenv("XDG_CURRENT_DESKTOP"));
 	}
 
 	public static void autoConfigure() {

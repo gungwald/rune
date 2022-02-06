@@ -4,13 +4,10 @@ import javax.swing.*;
 import javax.swing.text.Element;
 import java.awt.*;
 
-/**
- * I didn't write this code. It was written by
- * <a href="https://tips4java.wordpress.com/2009/05/23/text-component-line-number">Rob Camick</a>
- * and <a href="https://stackoverflow.com/a/35583276">BullyWiiPlaza</a>.
- */
 public class LineNumberingTextArea extends JTextArea {
-    protected final static String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	private static final long serialVersionUID = 1L;
+	protected final static String LINE_SEPARATOR = System.getProperty("line.separator");
     private JTextArea textArea;
 
     public LineNumberingTextArea(JTextArea textArea) {
@@ -46,17 +43,22 @@ public class LineNumberingTextArea extends JTextArea {
         final int windowWidth = textArea.getColumns();
         int characterCount = textArea.getDocument().getLength();
         Element root = textArea.getDocument().getDefaultRootElement();
-        StringBuilder lineNumbersTextBuilder = new StringBuilder();
+        StringBuilder lineNumbers = new StringBuilder();
         int lineCount = root.getElementIndex((characterCount)) + 2;
         int maxDigits = String.valueOf(lineCount).length();
-        lineNumbersTextBuilder.append(rightJustify(1, maxDigits)).append(LINE_SEPARATOR);
+        lineNumbers.append(rightJustify(1, maxDigits)).append(LINE_SEPARATOR);
 
         int lineLength = root.getElement(0).toString().length();
 
         for (int lineNumber = 2; lineNumber < lineCount; lineNumber++) {
-            lineNumbersTextBuilder.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
-            int rowsConsumedByWrappedLine;
+            lineNumbers.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
+	    if (windowWidth > 0) {
+	            int rowsConsumedByWrappedLine = lineLength / windowWidth;
+        	    for (int i = 0; i < rowsConsumedByWrappedLine; i++) {
+                	lineNumbers.append(LINE_SEPARATOR);
+	            }
+	    }
         }
-        return lineNumbersTextBuilder.toString();
+        return lineNumbers.toString();
     }
 }
