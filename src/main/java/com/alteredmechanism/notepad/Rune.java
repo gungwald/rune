@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -37,14 +38,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.JTextComponent;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 
@@ -100,6 +99,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
     private JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
     private JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
+    private JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");   
 
     private JFontChooser fontChooser = null;
     private JFileChooser fileChooser = null;
@@ -256,6 +256,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK));
         zoomOutMenuItem.addActionListener(this);
         viewMenu.add(zoomOutMenuItem);
+
+        // Line wrap menu item
+        lineWrapMenuItem.setIcon(loader.getZoomOutIcon());
+        lineWrapMenuItem.setMnemonic(KeyEvent.VK_W);
+        lineWrapMenuItem.addActionListener(this);
+        viewMenu.add(lineWrapMenuItem);
         
         // Select Font menu item
         selectFontMenuItem.setIcon(loader.getPreferencesIcon());
