@@ -6,13 +6,7 @@ public class SystemPropertyConfigurator {
 	}
 
 	protected static boolean isGnomeDesktop() {
-		String sunDesktop = System.getProperty("sun.desktop");
-		if (sunDesktop != null && sunDesktop.equalsIgnoreCase("gnome")) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return System.getenv("XDG_CURRENT_DESKTOP").equalsIgnoreCase("gnome");
 	}
 
 	public static boolean isMateDesktop() {

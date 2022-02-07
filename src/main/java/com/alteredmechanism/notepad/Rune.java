@@ -679,10 +679,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         return text;
     }
 
-    protected JTextArea getBufferAt(int index) {
+    protected RuneTextArea getBufferAt(int index) {
         JScrollPane scroll = (JScrollPane) bufferTabs.getComponentAt(index);
         JViewport view = (JViewport) scroll.getComponent(0);
-        JTextArea text = (JTextArea) view.getComponent(0);
+        RuneTextArea text = (RuneTextArea) view.getComponent(0);
         return text;
     }
 

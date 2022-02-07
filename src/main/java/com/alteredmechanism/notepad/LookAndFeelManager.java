@@ -45,11 +45,15 @@ public class LookAndFeelManager implements ActionListener {
             String systemLafClassName = UIManager.getSystemLookAndFeelClassName();
             System.out.println("SystemLaf=" + systemLafClassName);
             // OpenJDK on OpenIndiana Mate desktop incorrectly returns Motif instead of GTK.
-            if (systemLafClassName.indexOf("Motif") >= 0 && SystemPropertyConfigurator.isMateDesktop()) {
+            if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isMateDesktop()) {
+                System.out.println("Overriding default system look and feel with GTK+ for Mate desktop");
                 systemLafClassName = GTK_LAF_CLASS_NAME;
-            } else {
-                UIManager.setLookAndFeel(systemLafClassName);
             }
+            if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isGnomeDesktop()) {
+                System.out.println("Overriding default look and feel with GTK+ for Gnome desktop");
+                systemLafClassName = GTK_LAF_CLASS_NAME;
+            }
+            UIManager.setLookAndFeel(systemLafClassName);
         } catch (Exception e) {
             new Messenger(LookAndFeelManager.class.getName()).showError(e);
         }

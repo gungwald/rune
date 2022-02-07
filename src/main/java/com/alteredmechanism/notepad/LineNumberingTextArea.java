@@ -16,9 +16,16 @@ public class LineNumberingTextArea extends JTextArea
 
     public LineNumberingTextArea(JTextArea textArea)
     {
+        this(textArea, Color.LIGHT_GRAY);
+    }
+    public LineNumberingTextArea(JTextArea textArea, Color background)
+    {
         this.textArea = textArea;
-        setBackground(Color.LIGHT_GRAY);
+        setBackground(background);
         setEditable(false);
+        // This unfortunately causes the vertical spacing of the lines in the line numbering
+        // text area to be shorter than that of the main text area.
+//        setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
     }
 
     public void updateLineNumbers()

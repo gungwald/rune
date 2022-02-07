@@ -1,6 +1,7 @@
 package com.alteredmechanism.notepad;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -48,9 +49,11 @@ public class RuneTextArea extends AntiAliasedJTextArea {
 
     private void init(Rune creator) {
         this.creator = creator;
-        setFont(this.creator.getBufferFont());
+        Font bufferFont = this.creator.getBufferFont();
+        Border textBorder = new EmptyBorder(new Insets(3, 3, 3, 3));
         setTabSize(8);
-        setBorder(new EmptyBorder(new Insets(3, 3, 3, 3)));
+        setFont(bufferFont);
+        setBorder(textBorder);
         Color notepadPlusPlusBackground = new Color(242, 244, 255);
         this.setBackground(notepadPlusPlusBackground);
         scroller = new JScrollPane(this,
@@ -61,7 +64,9 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         this.addCaretListener(creator);
 
         // Set up line numbers. Yea!
-        lineNumberingTextArea = new LineNumberingTextArea(this);
+        lineNumberingTextArea = new LineNumberingTextArea(this, notepadPlusPlusBackground.darker());
+        lineNumberingTextArea.setBorder(textBorder);
+        lineNumberingTextArea.setFont(bufferFont);
         scroller.setRowHeaderView(lineNumberingTextArea);
         this.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -80,6 +85,14 @@ public class RuneTextArea extends AntiAliasedJTextArea {
                 lineNumberingTextArea.updateLineNumbers();
             }
         });
+    }
+
+    // Override
+    public void setFont(Font f) {
+        super.setFont(f);
+        if (lineNumberingTextArea != null) {
+            lineNumberingTextArea.setFont(f);
+        }
     }
 
     public JScrollPane getScrollPane() {
