@@ -30,6 +30,7 @@ public class LookAndFeelManager implements ActionListener {
     public static final String METAL_WITH_OCEAN_THEME = "Metal with Ocean Theme";
     public static final String METAL_LAF_NAME = "Metal";
     public static final String MOTIF_THEME_NAME = "CDE/Motif";
+    public static final String GTK_LAF_CLASS_NAME = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
     protected ButtonGroup buttonGroup = new ButtonGroup();
     private final Messenger messenger;
@@ -41,8 +42,14 @@ public class LookAndFeelManager implements ActionListener {
     public static void setSystemLookAndFeel() {
         // Default to the operating system's native look and feel. Duh...
         try {
-            System.out.println("SystemLaf=" + UIManager.getSystemLookAndFeelClassName());
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            String systemLafClassName = UIManager.getSystemLookAndFeelClassName();
+            System.out.println("SystemLaf=" + systemLafClassName);
+            // OpenJDK on OpenIndiana Mate desktop incorrectly returns Motif instead of GTK.
+            if (systemLafClassName.indexOf("Motif") >= 0 && SystemPropertyConfigurator.isMateDesktop()) {
+                systemLafClassName = GTK_LAF_CLASS_NAME;
+            } else {
+                UIManager.setLookAndFeel(systemLafClassName);
+            }
         } catch (Exception e) {
             new Messenger(LookAndFeelManager.class.getName()).showError(e);
         }

@@ -15,6 +15,10 @@ public class SystemPropertyConfigurator {
 		}
 	}
 
+	public static boolean isMateDesktop() {
+		return System.getenv("XDG_CURRENT_DESKTOP").equalsIgnoreCase("mate");
+	}
+
 	public static void autoConfigure() {
 		// Enable anti-aliased text: http://mindprod.com/jgloss/antialiasing.html#JAVA15
 		// This property is used by Java 1.5.
