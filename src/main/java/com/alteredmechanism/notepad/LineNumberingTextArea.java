@@ -9,17 +9,15 @@ import java.awt.*;
  * <a href="https://tips4java.wordpress.com/2009/05/23/text-component-line-number">Rob Camick</a>
  * and <a href="https://stackoverflow.com/a/35583276">BullyWiiPlaza</a>.
  */
-public class LineNumberingTextArea extends JTextArea
-{
+public class LineNumberingTextArea extends JTextArea {
     protected final static String LINE_SEPARATOR = System.getProperty("line.separator");
     private JTextArea textArea;
 
-    public LineNumberingTextArea(JTextArea textArea)
-    {
+    public LineNumberingTextArea(JTextArea textArea) {
         this(textArea, Color.LIGHT_GRAY);
     }
-    public LineNumberingTextArea(JTextArea textArea, Color background)
-    {
+
+    public LineNumberingTextArea(JTextArea textArea, Color background) {
         this.textArea = textArea;
         setBackground(background);
         setEditable(false);
@@ -28,8 +26,7 @@ public class LineNumberingTextArea extends JTextArea
 //        setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
     }
 
-    public void updateLineNumbers()
-    {
+    public void updateLineNumbers() {
         String lineNumbersText = getLineNumbersText();
         setText(lineNumbersText);
     }
@@ -45,8 +42,8 @@ public class LineNumberingTextArea extends JTextArea
         return justified.toString();
     }
 
-    private String getLineNumbersText()
-    {
+    private String getLineNumbersText() {
+        final int windowWidth = textArea.getColumns();
         int characterCount = textArea.getDocument().getLength();
         Element root = textArea.getDocument().getDefaultRootElement();
         StringBuilder lineNumbersTextBuilder = new StringBuilder();
@@ -54,11 +51,12 @@ public class LineNumberingTextArea extends JTextArea
         int maxDigits = String.valueOf(lineCount).length();
         lineNumbersTextBuilder.append(rightJustify(1, maxDigits)).append(LINE_SEPARATOR);
 
-        for (int lineNumber = 2; lineNumber < lineCount; lineNumber++)
-        {
-            lineNumbersTextBuilder.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
-        }
+        int lineLength = root.getElement(0).toString().length();
 
+        for (int lineNumber = 2; lineNumber < lineCount; lineNumber++) {
+            lineNumbersTextBuilder.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
+            int rowsConsumedByWrappedLine;
+        }
         return lineNumbersTextBuilder.toString();
     }
 }
