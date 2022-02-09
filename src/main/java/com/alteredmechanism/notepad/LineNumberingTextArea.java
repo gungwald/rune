@@ -34,16 +34,29 @@ public class LineNumberingTextArea extends JTextArea
         setText(lineNumbersText);
     }
 
+    public String rightJustify(int n, int maxDigits) {
+        StringBuilder justified = new StringBuilder();
+        String digits = String.valueOf(n);
+        int spaceCount = maxDigits - digits.length();
+        for (int i = 0; i < spaceCount; i++) {
+            justified.append(' ');
+        }
+        justified.append(digits);
+        return justified.toString();
+    }
+
     private String getLineNumbersText()
     {
-        int caretPosition = textArea.getDocument().getLength();
+        int characterCount = textArea.getDocument().getLength();
         Element root = textArea.getDocument().getDefaultRootElement();
         StringBuilder lineNumbersTextBuilder = new StringBuilder();
-        lineNumbersTextBuilder.append("1").append(LINE_SEPARATOR);
+        int lineCount = root.getElementIndex((characterCount)) + 2;
+        int maxDigits = String.valueOf(lineCount).length();
+        lineNumbersTextBuilder.append(rightJustify(1, maxDigits)).append(LINE_SEPARATOR);
 
-        for (int elementIndex = 2; elementIndex < root.getElementIndex(caretPosition) + 2; elementIndex++)
+        for (int lineNumber = 2; lineNumber < lineCount; lineNumber++)
         {
-            lineNumbersTextBuilder.append(elementIndex).append(LINE_SEPARATOR);
+            lineNumbersTextBuilder.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
         }
 
         return lineNumbersTextBuilder.toString();

@@ -451,8 +451,18 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         else if (e.getSource() == this.redoMenuItem) {
             getSelectedBuffer().redo();
         }
+        else if (e.getSource() == this.lineWrapMenuItem) {
+            setLineWrap(lineWrapMenuItem.isSelected());
+        }
     }
-    
+
+    public void setLineWrap(boolean isSelected) {
+        int tabCount = bufferTabs.getTabCount();
+        for (int i = 0; i < tabCount; i++) {
+            getBufferAt(i).setLineWrap(isSelected);
+        }
+    }
+
     public void setBufferFont(Font font) {
         int tabCount = bufferTabs.getTabCount();
         for (int i = 0; i < tabCount; i++) {
