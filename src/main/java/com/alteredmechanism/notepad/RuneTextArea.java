@@ -8,10 +8,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 import javax.swing.undo.UndoManager;
 import java.awt.*;
+import java.util.logging.Logger;
 
 public class RuneTextArea extends AntiAliasedJTextArea {
 
     private static final long serialVersionUID = 1L;
+    private static final String CLASS_NAME = RuneTextArea.class.getName();
+    private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
     private JScrollPane scroller;
     private Rune creator;
@@ -237,5 +240,28 @@ public class RuneTextArea extends AntiAliasedJTextArea {
 //		}
 //		return lines;
 //	}
+
+    /**
+     * Overrides superclass method because it never returns the correct
+     * value. If the number of columns is not set explicitly, either in the
+     * constructor or by the set method, the superclass method just returns
+     * 0. If the number of columns is set, it returns the value that was set,
+     * not the current value after the user resized the window.
+     * <p><br>
+     * This method
+     * attempts to return the correct value based on the current size of the
+     * window and the width of the current font.</p>
+     * <p><br>
+     * This method requires that the font is monospaced.
+     * </p>
+     * @return The calculated value of the current number of columns of text
+     *          in the JTextArea assuming font is monospaced.
+     * @see JTextArea#getColumns()
+     */
+    public int getColumns() {
+        int columnCount = getWidth() / getFontMetrics(getFont()).charWidth('A');
+        logger.exiting(CLASS_NAME, "getColumns", columnCount);
+        return columnCount;
+    }
 
 }
