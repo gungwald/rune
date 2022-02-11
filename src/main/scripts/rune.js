@@ -80,14 +80,18 @@ function findJava(fs, env)
     	javaProgramToFind = "javaw.exe";
     }
 
-    var javaHome = env("JAVA_HOME");
-    if (javaHome) {
-        var javaBinDir = fs.BuildPath(javaHome, "bin");
-        var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
-        if (fs.FileExists(testJava)) {
-       	    java = testJava;
-        }
-    }
+	var javaHomeEnvVars = [ 'RUNE_JAVA_HOME', 'JAVA_HOME' ];
+	for (var i=0; i < javaHomeEnvVars.length; i++) {
+		var javaHome = env(javaHomeEnvVars[i]);
+		if (javaHome) {
+			var javaBinDir = fs.BuildPath(javaHome, "bin");
+			var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
+			if (fs.FileExists(testJava)) {
+				java = testJava;
+				break;
+			}
+		}
+	}
     if (java == null) {
     	java = javaProgramToFind;
     }
