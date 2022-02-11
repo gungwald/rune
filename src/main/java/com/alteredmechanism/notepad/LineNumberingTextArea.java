@@ -6,19 +6,25 @@ import java.awt.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO - Turning on/off line wrap must trigger recalculating of line numbers.
+// TODO - getLineWrap should be isLineWrapEnabled
+// TODO - Numbering when line wrap is on is still off by one in long documents.
+
 public class LineNumberingTextArea extends JTextArea {
 
     private static final long serialVersionUID = 1L;
     private static final String CLASS_NAME = LineNumberingTextArea.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
     protected final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    private Rune creator;
     private JTextArea textArea;
 
-    public LineNumberingTextArea(JTextArea textArea) {
-        this(textArea, Color.LIGHT_GRAY);
+    public LineNumberingTextArea(Rune creator, JTextArea textArea) {
+        this(creator, textArea, Color.LIGHT_GRAY);
     }
 
-    public LineNumberingTextArea(JTextArea textArea, Color background) {
+    public LineNumberingTextArea(Rune creator, JTextArea textArea, Color background) {
+        this.creator = creator;
         this.textArea = textArea;
         setBackground(background);
         setEditable(false);
@@ -45,14 +51,14 @@ public class LineNumberingTextArea extends JTextArea {
 
     private String getLineNumbersText() {
         StringBuilder lineNumbers = new StringBuilder();
-        final int windowWidth = textArea.getColumns();
+        int windowWidth = textArea.getColumns();
         Element root = textArea.getDocument().getDefaultRootElement();
         int lineCount = root.getElementCount();
         int maxDigits = String.valueOf(lineCount).length();
 
         for (int lineNumber = 0; lineNumber < lineCount; lineNumber++) {
             lineNumbers.append(rightJustify(lineNumber+1, maxDigits)).append(LINE_SEPARATOR);
-            if (windowWidth > 0) {
+            if (creator.getLineWrap() && windowWidth > 0) {
                 int lineLength = getLine(textArea, lineNumber).length();
                 int rowsConsumedByWrappedLine = lineLength / windowWidth;
                 for (int i = 0; i < rowsConsumedByWrappedLine; i++) {

@@ -107,6 +107,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     private AboutDialog aboutDialog = null;
     private LookAndFeelManager lafManager = null;
     private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
+    private StatusBar statusBar = new StatusBar(this);
 
     private Font bufferFont = null;
     private ImageIconLoader loader = null;
@@ -124,6 +125,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
 
         this.getContentPane().setLayout(new BorderLayout());
 
+        getContentPane().add(statusBar, BorderLayout.SOUTH);
         getContentPane().add(bufferTabs, BorderLayout.CENTER);
         bufferTabs.addChangeListener(this);
 
@@ -805,6 +807,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     }
 
 	public void caretUpdate(CaretEvent e) {
-        System.out.println("line=" + ((RuneTextArea) e.getSource()).getLineAtCaret());
+        RuneTextArea textArea = (RuneTextArea) e.getSource();
+        statusBar.setCursorPosition(textArea.getLineAtCaret(), textArea.getColumnAtCaret());
 	}
 }

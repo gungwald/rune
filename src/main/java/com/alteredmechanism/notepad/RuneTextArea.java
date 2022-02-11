@@ -68,7 +68,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         this.addCaretListener(creator);
 
         // Set up line numbers. Yea!
-        lineNumberingTextArea = new LineNumberingTextArea(this, notepadPlusPlusBackground.darker());
+        lineNumberingTextArea = new LineNumberingTextArea(creator, this, notepadPlusPlusBackground.darker());
         lineNumberingTextArea.setBorder(textBorder);
         lineNumberingTextArea.setFont(bufferFont);
         scroller.setRowHeaderView(lineNumberingTextArea);
@@ -159,8 +159,10 @@ public class RuneTextArea extends AntiAliasedJTextArea {
 
         try {
             Rectangle r = this.modelToView(this.getCaretPosition());
-            int width = r.x - this.getInsets().left;
-            column = width / characterWidth;
+            if (r != null) {
+                int width = r.x - this.getInsets().left;
+                column = width / characterWidth;
+            }
         } catch (BadLocationException e) {
             creator.getMessenger().showError(e);
         }
