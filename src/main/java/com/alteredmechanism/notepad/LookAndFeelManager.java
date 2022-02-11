@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
@@ -23,6 +25,9 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
 
 public class LookAndFeelManager implements ActionListener {
+
+    private static final String CLASS_NAME = LookAndFeelManager.class.getName();
+    private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
     public static final String OCEAN_THEME_CLASS_NAME = "javax.swing.plaf.metal.OceanTheme";
     public static final String DEFAULT_METAL_THEME_CLASS_NAME = "javax.swing.plaf.metal.DefaultMetalTheme";
@@ -43,14 +48,16 @@ public class LookAndFeelManager implements ActionListener {
         // Default to the operating system's native look and feel. Duh...
         try {
             String systemLafClassName = UIManager.getSystemLookAndFeelClassName();
-            System.out.println("SystemLaf=" + systemLafClassName);
+            logger.log(Level.INFO, "SystemLookAndFeel={0}", systemLafClassName);
             // OpenJDK on OpenIndiana Mate desktop incorrectly returns Motif instead of GTK.
             if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isMateDesktop()) {
-                System.out.println("Overriding default system look and feel with GTK+ for Mate desktop");
+                logger.log(Level.WARNING, "Overriding system look and feel {0} with {1} for Mate desktop",
+                        new Object[]{systemLafClassName, GTK_LAF_CLASS_NAME});
                 systemLafClassName = GTK_LAF_CLASS_NAME;
             }
             if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isGnomeDesktop()) {
-                System.out.println("Overriding default look and feel with GTK+ for Gnome desktop");
+                logger.log(Level.WARNING, "Overriding system look and feel {0} with {1} for Gnome desktop",
+                        new Object[] {systemLafClassName, GTK_LAF_CLASS_NAME});
                 systemLafClassName = GTK_LAF_CLASS_NAME;
             }
             UIManager.setLookAndFeel(systemLafClassName);

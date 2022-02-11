@@ -1,6 +1,11 @@
 package com.alteredmechanism.notepad;
 
+import java.util.logging.Logger;
+
 public class SystemPropertyConfigurator {
+
+	private static final String CLASS_NAME = SystemPropertyConfigurator.class.getName();
+	private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
 	public SystemPropertyConfigurator() {
 	}
@@ -34,7 +39,7 @@ public class SystemPropertyConfigurator {
 		// Mac OS
 		if (System.getProperty("os.name").startsWith("Mac OS")) {
 			// https://www.oracle.com/technical-resources/articles/javase/javatomac.html
-			System.out.println("Detected Mac OS");
+			logger.info("Detected Mac OS");
 
 			// Java 1.3
 			System.setProperty("com.apple.macos.useScreenMenuBar", "true"); // Default is false

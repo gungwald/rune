@@ -44,16 +44,14 @@ public class LineNumberingTextArea extends JTextArea {
     }
 
     private String getLineNumbersText() {
-        final int windowWidth = textArea.getColumns();
-        int characterCount = textArea.getDocument().getLength();
-        Element root = textArea.getDocument().getDefaultRootElement();
         StringBuilder lineNumbers = new StringBuilder();
-        int lineCount = root.getElementIndex((characterCount)) + 2;
+        final int windowWidth = textArea.getColumns();
+        Element root = textArea.getDocument().getDefaultRootElement();
+        int lineCount = root.getElementCount();
         int maxDigits = String.valueOf(lineCount).length();
-        lineNumbers.append(rightJustify(1, maxDigits)).append(LINE_SEPARATOR);
 
-        for (int lineNumber = 2; lineNumber < lineCount; lineNumber++) {
-            lineNumbers.append(rightJustify(lineNumber, maxDigits)).append(LINE_SEPARATOR);
+        for (int lineNumber = 0; lineNumber < lineCount; lineNumber++) {
+            lineNumbers.append(rightJustify(lineNumber+1, maxDigits)).append(LINE_SEPARATOR);
             if (windowWidth > 0) {
                 int lineLength = getLine(textArea, lineNumber).length();
                 int rowsConsumedByWrappedLine = lineLength / windowWidth;
@@ -66,13 +64,13 @@ public class LineNumberingTextArea extends JTextArea {
     }
 
     public String getLine(JTextArea textArea, int lineNumber) {
-        String text = null;
+        String text = "";
         try {
             int start = textArea.getLineStartOffset(lineNumber);
             int end = textArea.getLineEndOffset(lineNumber);
             text = textArea.getDocument().getText(start, end - start);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to get line of text", e);
+            logger.log(Level.SEVERE, "Failed to get text for 0-based line " + lineNumber, e);
         }
         return text;
     }

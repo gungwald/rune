@@ -57,6 +57,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         setTabSize(8);
         setFont(bufferFont);
         setBorder(textBorder);
+        setLineWrap(creator.getLineWrap());
         Color notepadPlusPlusBackground = new Color(242, 244, 255);
         this.setBackground(notepadPlusPlusBackground);
         scroller = new JScrollPane(this,
@@ -260,7 +261,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
      */
     public int getColumns() {
         int columnCount = getWidth() / getFontMetrics(getFont()).charWidth('A');
-        logger.exiting(CLASS_NAME, "getColumns", columnCount);
+        logger.exiting(CLASS_NAME, "getColumns", String.valueOf(columnCount));
         return columnCount;
     }
 

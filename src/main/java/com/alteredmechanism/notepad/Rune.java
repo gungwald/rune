@@ -463,6 +463,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         }
     }
 
+    public boolean getLineWrap() {
+        return lineWrapMenuItem.isSelected();
+    }
+
     public void setBufferFont(Font font) {
         int tabCount = bufferTabs.getTabCount();
         for (int i = 0; i < tabCount; i++) {
