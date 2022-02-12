@@ -52,7 +52,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>./</classpathPrefix>
-                            <mainClass>com.alteredmechanism.notepad.Rune</mainClass>
+                            <mainClass>com.alteredmechanism.rune.Rune</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

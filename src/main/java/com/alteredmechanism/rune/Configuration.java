@@ -1,4 +1,4 @@
-package com.alteredmechanism.notepad;
+package com.alteredmechanism.rune;
 
 import java.io.File;
 import java.io.FileInputStream;

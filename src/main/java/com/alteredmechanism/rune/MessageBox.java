@@ -1,4 +1,4 @@
-package com.alteredmechanism.notepad;
+package com.alteredmechanism.rune;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Dialog;

@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import com.alteredmechanism.notepad.Messenger;
+import com.alteredmechanism.rune.Messenger;
 
 public class ImageIconLoader {
 

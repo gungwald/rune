@@ -1,4 +1,4 @@
-package com.alteredmechanism.notepad;
+package com.alteredmechanism.rune;
 
 import javax.swing.*;
 import javax.swing.border.Border;

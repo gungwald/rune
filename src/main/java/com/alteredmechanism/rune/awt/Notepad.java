@@ -1,4 +1,4 @@
-package com.alteredmechanism.notepad.awt;
+package com.alteredmechanism.rune.awt;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

@@ -7,7 +7,7 @@
 
 <project name="rune" default="jar" basedir=".">
 
-  <property name="main.class" value="com.alteredmechanism.notepad.Notepad" />
+  <property name="main.class" value="com.alteredmechanism.rune.Notepad" />
   <property name="version" value="1.0" />
   <property name="lang.version" value="1.4" />
   <property name="src.dir" value="src/" />
