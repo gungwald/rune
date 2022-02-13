@@ -9,7 +9,7 @@
     - NetBSD, OpenBSD, FreeBSD
     - Solaris 8 and newer
     - OpenIndiana (Illumos)
-    - OS/2 Warp 4
+    - OS/2 Warp 4 with OpenJDK 6 from https://trac.netlabs.org/java
 - Themeable, but the default theme is consistent with your operating system
 - Multiple files can be open at the same time in different tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
