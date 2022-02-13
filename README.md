@@ -9,7 +9,7 @@
     - NetBSD, OpenBSD, FreeBSD
     - Solaris 8 and newer
     - OpenIndiana (Illumos)
-    - OS/2 Warp 4 with OpenJDK 6 from https://trac.netlabs.org/javahttps://github.com/ibneyhasan/unzipparts.giton:
+    - OS/2 Warp 4 with OpenJDK 6 from https://trac.netlabs.org/java:
 - Tested on:
     - Windows 10
     - Mac OS 10.4
