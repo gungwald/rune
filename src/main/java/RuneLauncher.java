@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.alteredmechanism.notepad.Rune;
+import com.alteredmechanism.rune.Rune;
 
 public class RuneLauncher {
 

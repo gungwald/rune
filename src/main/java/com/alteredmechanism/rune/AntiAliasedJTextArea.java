@@ -1,4 +1,4 @@
-package com.alteredmechanism.notepad;
+package com.alteredmechanism.rune;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;

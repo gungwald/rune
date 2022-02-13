@@ -6,7 +6,7 @@
 public class Rune {
 
 	public static void main(String[] args) {
-		com.alteredmechanism.notepad.Rune.main(args);
+		com.alteredmechanism.rune.Rune.main(args);
 	}
 
 }
