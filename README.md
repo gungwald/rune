@@ -9,7 +9,16 @@
     - NetBSD, OpenBSD, FreeBSD
     - Solaris 8 and newer
     - OpenIndiana (Illumos)
-    - OS/2 Warp 4 with OpenJDK 6 from https://trac.netlabs.org/java
+    - OS/2 Warp 4 with OpenJDK 6 from https://trac.netlabs.org/javahttps://github.com/ibneyhasan/unzipparts.giton:
+- Tested on:
+    - Windows 10
+    - Mac OS 10.4
+    - Fedora Linux 34, 35
+    - Ubuntu Linux
+    - OpenBSD, NetBSD
+    - Solaris 8 UltraSparc 64-bit
+    - OpenIndiana 2021.10
+    - OS/2 Warp 4
 - Themeable, but the default theme is consistent with your operating system
 - Multiple files can be open at the same time in different tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
