@@ -6,8 +6,10 @@
     - Windows 95, 98, ME, XP, Vista, 7, 8 and 10
     - Mac OS 10.4 and newer
     - Linux
-    - BSD
+    - NetBSD, OpenBSD, FreeBSD
     - Solaris 8 and newer
+    - OpenIndiana (Illumos)
+    - OS/2 Warp 4
 - Themeable, but the default theme is consistent with your operating system
 - Multiple files can be open at the same time in different tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
