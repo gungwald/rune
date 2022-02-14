@@ -37,6 +37,5 @@
 
 ## Downloads
 
-Download ready-to-run executable file: https://github.com/gungwald/notepad/releases/download/0.8.0/rune.jar
-Instructions: https://github.com/gungwald/notepad/releases
+https://github.com/gungwald/rune/releases
 
