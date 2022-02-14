@@ -2,7 +2,7 @@
 
 ## Features
 
-- Any OS supporting Java 1.5 or newer can run it:
+- Any OS supporting [Java 5](https://en.wikipedia.org/wiki/Java_version_history#J2SE_5.0) or newer can run it:
     - Windows 95, 98, ME, XP, Vista, 7, 8 and 10
     - Mac OS 10.4 and newer
     - Linux
