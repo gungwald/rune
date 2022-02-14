@@ -2,7 +2,7 @@
 
 ## Features
 
-- Many operating systems are supported. Any OS supporting Java 1.5 or newer can run it:
+- Any OS supporting Java 1.5 or newer can run it:
     - Windows 95, 98, ME, XP, Vista, 7, 8 and 10
     - Mac OS 10.4 and newer
     - Linux
@@ -32,6 +32,8 @@
 - Ability to save state
 - Project files
 - Vim emulation
+- Haiku tested
+- Raspberry Pi tested
 
 ## Downloads
 
