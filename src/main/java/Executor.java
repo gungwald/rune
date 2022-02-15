@@ -26,7 +26,7 @@ public class Executor {
 		return mvn.waitFor();
 	}
 	
-	public static int exec(List cmd) throws IOException, InterruptedException {
+	public static int exec(List<String> cmd) throws IOException, InterruptedException {
 		return exec((String[]) cmd.toArray(new String[cmd.size()]));
 	}
 }
