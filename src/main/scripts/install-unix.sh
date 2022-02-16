@@ -21,15 +21,26 @@ getAbsolutePath()
 }
 
 INSTALL_DIR=/usr/local
-DIST_ZIP=target/rune-1.0-bin.zip
+OS=`uname -s`
+OS_VERSION=`uname -r`
+SELF=`getAbsolutePath "$0"`
+SELF_DIR=`dirname "$SELF"`
+TOP_DIR=`dirname "$SELF_DIR"`
+LIB_DIR="$TOP_DIR"/lib
 
-if [ ! -f "$DIST_ZIP" ]
+if [ "$OS" = "SunOS" ] && [ "$OS_VERSION" = "5.11" ]
 then
-  ./mvnw package || exit
+  # More recent versions of Solaris (SunOS) have an install command that is different.
+  sudo install -d "$INSTALL_DIR"
+  sudo install -d "$INSTALL_DIR"/bin
+  sudo install -d "$INSTALL_DIR"/lib
+  sudo install -f "$INSTALL_DIR"/bin "$SELF_DIR"/rune
+  sudo install -f "$INSTALL_DIR"/lib "$LIB_DIR"/rune-1.0.jar
+  sudo install -f "$INSTALL_DIR"/lib "$LIB_DIR"/jlfgr-1_0.jar
+else
+  sudo install "$SELF_DIR"/rune "$INSTALL_DIR"/bin
+  sudo install "$LIB_DIR"/rune-1.0.jar "$INSTALL_DIR"/lib
+  sudo install "$LIB_DIR"/jlfgr-1_0.jar "$INSTALL_DIR"/lib
 fi
 
-unzip -o "$DIST_ZIP" -d target
-sudo install target/rune-1.0/bin/rune /usr/local/bin
-sudo install target/rune-1.0/lib/rune-1.0.jar /usr/local/lib
-sudo install target/rune-1.0/lib/jlfgr-1_0.jar /usr/local/lib
-sudo target/rune-1.0/bin/install-gnome-icon
+sudo "$SELF_DIR"/install-gnome-icon
