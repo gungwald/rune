@@ -35,8 +35,7 @@
 
 @REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
 @echo off
-@REM set title of command window - Doesn't work on OS/2
-@REM title %0
+
 @REM enable echoing by setting MAVEN_BATCH_ECHO to 'on'
 @if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
 
@@ -46,7 +45,6 @@ if "%HOME%" == "" (set "HOME=C:\")
 @REM Execute a user defined script before this one
 if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
 @REM check for pre script, once with legacy .bat ending and once with .cmd ending
-if exist "%HOME%\mavenrc_pre.bat" call "%HOME%\mavenrc_pre.bat"
 if exist "%HOME%\mavenrc_pre.cmd" call "%HOME%\mavenrc_pre.cmd"
 :skipRcPre
 
@@ -88,14 +86,11 @@ goto error
 set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%
 IF NOT "%MAVEN_PROJECTBASEDIR%"=="" goto endDetectBaseDir
 
-set EXEC_DIR=%CD%
+set EXEC_DIR=.
 set WDIR=%EXEC_DIR%
 :findBaseDir
 IF EXIST "%WDIR%"\.mvn goto baseDirFound
-cd ..
-IF "%WDIR%"=="%CD%" goto baseDirNotFound
-set WDIR=%CD%
-goto findBaseDir
+goto baseDirNotFound
 
 :baseDirFound
 set MAVEN_PROJECTBASEDIR=%WDIR%
@@ -103,31 +98,19 @@ cd "%EXEC_DIR%"
 goto endDetectBaseDir
 
 :baseDirNotFound
-set MAVEN_PROJECTBASEDIR=%EXEC_DIR%
-cd "%EXEC_DIR%"
+echo Can't find .mvn directory.
+goto end
 
 :endDetectBaseDir
 
 IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
-
-@REM OS/2 can't do this:
-@REM @setlocal EnableExtensions EnableDelayedExpansion
-@REM for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do set JVM_CONFIG_MAVEN_PROPS=!JVM_CONFIG_MAVEN_PROPS! %%a
-@REM @endlocal & set JVM_CONFIG_MAVEN_PROPS=%JVM_CONFIG_MAVEN_PROPS%
 
 :endReadAdditionalConfig
 
 SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
 set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
 set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
-
-@REM set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
 set DOWNLOAD_URL="http://insecure.repo1.maven.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
-
-@REM OS/2 can't do this:
-@REM FOR /F "tokens=1,2 delims==" %%A IN ("%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties") DO (
-@REM     IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B
-@REM )
 
 @REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
 @REM This allows using the maven wrapper in projects that prohibit checking in binary data.
@@ -147,6 +130,7 @@ if "%MVNW_VERBOSE%" == "true" (
 )
 
 %MAVEN_JAVA_EXE% -classpath lib JGet %DOWNLOAD_URL%
+move maven-wrapper-0.5.6.jar "%WRAPPER_JAR%"
 
 if "%MVNW_VERBOSE%" == "true" (
     echo Finished downloading %WRAPPER_JAR%
@@ -158,7 +142,7 @@ if "%MVNW_VERBOSE%" == "true" (
 @REM work with both Windows and non-Windows executions.
 set MAVEN_CMD_LINE_ARGS=%*
 
-%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
+%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %1 %2 %3 %4 %5 %6 %7 %8 %9
 if ERRORLEVEL 1 goto error
 goto end
 
@@ -170,7 +154,6 @@ set ERROR_CODE=1
 
 if not "%MAVEN_SKIP_RC%" == "" goto skipRcPost
 @REM check for post script, once with legacy .bat ending and once with .cmd ending
-if exist "%HOME%\mavenrc_post.bat" call "%HOME%\mavenrc_post.bat"
 if exist "%HOME%\mavenrc_post.cmd" call "%HOME%\mavenrc_post.cmd"
 :skipRcPost
 
@@ -178,6 +161,3 @@ if exist "%HOME%\mavenrc_post.cmd" call "%HOME%\mavenrc_post.cmd"
 if "%MAVEN_BATCH_PAUSE%" == "on" pause
 
 if "%MAVEN_TERMINATE_CMD%" == "on" exit %ERROR_CODE%
-
-@REM Doesn't work on OS/2
-@REM exit /B %ERROR_CODE%
