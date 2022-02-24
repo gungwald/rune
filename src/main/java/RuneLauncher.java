@@ -19,7 +19,7 @@ public class RuneLauncher {
 	// they don't work and don't even display an error message when the fail.
 
 	public static void main(String[] args) {
-		List cmd = new ArrayList(Arrays.asList(args));
+		List<String> cmd = new ArrayList<String>(Arrays.asList(args));
 		cmd.add(0, "-classpath");
 		cmd.add(1, System.getProperty("java.class.path"));
 		cmd.add(2, Rune.class.getName());

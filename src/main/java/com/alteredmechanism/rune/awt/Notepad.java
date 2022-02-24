@@ -70,7 +70,7 @@ public class Notepad implements WindowListener, ActionListener{
         
         openItem.addActionListener(this);
         
-        Map fontAttributes = new HashMap();
+        Map<TextAttribute,Object> fontAttributes = new HashMap<TextAttribute,Object>();
         fontAttributes.put(TextAttribute.FAMILY, "Monospaced");
         fontAttributes.put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
         fontAttributes.put(TextAttribute.SIZE, new Float(16));

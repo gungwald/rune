@@ -22,8 +22,8 @@ import java.util.Vector;
 
 public class TabPanel extends Panel implements MouseListener {
     private static final long serialVersionUID = 1L;
-    protected Vector labels = new Vector();
-    protected Vector panels = new Vector();
+    protected Vector<String> labels = new Vector<String>();
+    protected Vector<Panel> panels = new Vector<Panel>();
 
     protected Panel cardPanel = new Panel();
 

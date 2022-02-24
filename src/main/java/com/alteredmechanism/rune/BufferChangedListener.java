@@ -7,13 +7,11 @@ import javax.swing.event.DocumentListener;
 public class BufferChangedListener implements DocumentListener {
     
     private JTabbedPane tabPane;
-    private String textToAppendOnModify;
     private JMenuItem saveItem;
     private Icon saveIcon;
 
     public BufferChangedListener(JTabbedPane tabPane, String textToAppendOnModify, JMenuItem saveItem, Icon saveIcon) {
         this.tabPane = tabPane;
-        this.textToAppendOnModify = textToAppendOnModify;
         this.saveItem = saveItem;
         this.saveIcon = saveIcon;
     }

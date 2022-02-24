@@ -16,7 +16,7 @@ public class FontManager {
 
 	private Messenger messenger;
 	private FontRenderContext fontRenderer = null;
-	private Map monospacedFamilies = new TreeMap(new CaseInsensitiveComparator()); // familyName -> Font sample
+	private Map<String,Font> monospacedFamilies = new TreeMap<String,Font>(new CaseInsensitiveComparator()); // familyName -> Font sample
 
 	public FontManager(Messenger messenger) {
 		this.messenger = messenger;
@@ -117,7 +117,7 @@ public class FontManager {
 	/**
 	 * Provides a Map of family names to sample Fonts.
 	 */
-	public Map getMonospacedFamilies() {
+	public Map<String,Font> getMonospacedFamilies() {
 		if (monospacedFamilies.size() == 0) {
 			loadBundledFonts();
 			loadMonospacedSystemFamilies();

@@ -80,7 +80,6 @@ public class LookAndFeelManager implements ActionListener {
     public void initChooserMenuItems(JMenu lafMenu) {
         installOpenLookLookAndFeel();
         LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
-        int i = 0;
         for (LookAndFeelInfo laf : lafs) {
             if (laf.getName().equals(METAL_LAF_NAME)) {
                 addMenuItemsForMetalThemes(lafMenu, laf);

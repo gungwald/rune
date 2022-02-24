@@ -92,7 +92,7 @@ public class JFontChooser extends JComponent {
 	protected int dialogResultValue = ERROR_OPTION;
 
 	private String[] fontStyleNames = null;
-	private Map fontFamilies = null;
+	private Map<String,Font> fontFamilies = null;
 	private String[] fontSizeStrings = null;
 	private JTextField fontFamilyTextField = null;
 	private JTextField fontStyleTextField = null;
@@ -718,7 +718,7 @@ public class JFontChooser extends JComponent {
 		return sampleTextScrollPane;
 	}
 
-	protected Map getFontFamilies() {
+	protected Map<String,Font> getFontFamilies() {
 		if (fontFamilies == null) {
 			fontFamilies = new FontManager(messenger).getMonospacedFamilies();
 		}
@@ -737,7 +737,7 @@ public class JFontChooser extends JComponent {
 		return fontStyleNames;
 	}
 	
-	public String[] getMapKeys(Map m) {
+	public String[] getMapKeys(Map<String,?> m) {
 		return (String[]) m.keySet().toArray(new String[m.size()]);
 	}
 }
