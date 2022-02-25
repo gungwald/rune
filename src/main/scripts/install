@@ -14,9 +14,9 @@ getAbsolutePath()
 {
 	if [ -d "$1" ]
 	then
-		(cd "$1" ; `pwd`)
+		(cd "$1" ; pwd)
 	else
-		(cd `dirname "$1"` ; `pwd`/`basename "$1"`)
+		(cd `dirname "$1"` ; echo `pwd`/`basename "$1"`)
 	fi
 }
 
@@ -43,4 +43,5 @@ else
   sudo install "$LIB_DIR"/jlfgr-1_0.jar "$INSTALL_DIR"/lib
 fi
 
-sudo "$SELF_DIR"/install-gnome-icon
+sudo "$SELF_DIR"/install-gnome-icon "$INSTALL_DIR"/bin/rune
+

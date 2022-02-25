@@ -18,4 +18,4 @@ fi
 
 unzip -o "$DIST_ZIP" -d target
 
-"$EXTRACT_DIR"/bin/install-unix.sh
+"$EXTRACT_DIR"/bin/install

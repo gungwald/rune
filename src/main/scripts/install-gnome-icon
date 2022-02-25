@@ -1,8 +1,18 @@
 #!/bin/sh
 
+VENDOR_PREFIX=alteredmechanism
 APP_NAME=Rune
-START_SCRIPT=rune
+START_SCRIPT="$1"
 ICON=rune.png
+
+cleanup()
+{
+  if [ -f "$DESKTOP_TMP" ]
+  then
+    rm "$DESKTOP_TMP"
+    rmdir "$(dirname "$DESKTOP_TMP")" 
+  fi
+}
 
 # Creates a temporary directory in the system temp directory with
 # a unique name.
@@ -22,30 +32,35 @@ makeTempDir()
   tryCount=0
   unset tempDir
 
-  while [ ! $foundAvailableName ] && [ "$tryCount" -le "$MAX_TRY_COUNT" ]
+  while [ "$foundAvailableName" -eq "$FALSE" ] && [ "$tryCount" -lt "$MAX_TRY_COUNT" ]
   do
     dateToSeconds=`date +%Y%m%d%H%M%S`
     tempDir="$sysTempDir"/"$scriptName"."$purpose".$$."$dateToSeconds"
-    if stat "$tempFile"
+    if stat "$tempDir" 2> /dev/null
     then
-      # File already exists, skip it
+      # Directory already exists, skip it
       tryCount=`expr "$tryCount" + 1`
     else
       # File does not exist
-      mkdir "$tempFile" || exit
+      mkdir "$tempDir" || exit
       foundAvailableName=$TRUE
     fi
   done
-  [ -z "$tempDir" ] && echo Failed to create temp dir && exit 1
   echo "$tempDir"
 )
 
 # A temp directory is needed as opposed to a temp file
 # because the temp name that will be created will not be the kind
-# of name that is needed.
-DESKTOP_TMP=`makeTempDir "$0" "desktop-file"`/"$APP_NAME".desktop
+# of name that is needed. The vendor prefix is required.
+TEMP_DIR=`makeTempDir "$0" "desktop-file"`
+if [ -z "$TEMP_DIR" ]
+then
+  echo Failed to create temp dir 1>&2
+  exit 1
+fi
+DESKTOP_FILE="$TEMP_DIR"/"$VENDOR_PREFIX"-"$APP_NAME".desktop
 
-cat <<EOF >"$DESKTOP_TMP"
+cat <<EOF >"$DESKTOP_FILE"
 [Desktop Entry]
 Name=$APP_NAME
 Exec=$START_SCRIPT
@@ -61,7 +76,6 @@ Icon=$ICON
 # https://specifications.freedesktop.org/menu-spec/latest/apa.html
 EOF
 
-xdg-desktop-menu install "$DESKTOP_TMP" || exit
-#  update-desktop-database ~/.local/share/applications/ || exit
-rm "$DESKTOP_TMP"
-rmdir "$(dirname "$DESKTOP_TMP")" || exit
+xdg-desktop-menu install "$DESKTOP_FILE"
+cleanup
+
