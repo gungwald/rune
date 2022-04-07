@@ -79,13 +79,13 @@ public class Configuration {
 		else {
 			System.out.println("Loaded property: " + name + "=" + value);
 		}
-        return Boolean.valueOf(value);
+		return Boolean.valueOf(value);
 	}
     
 	public boolean isReplaceTabsWithSpacesEnabled() {
-        if (replaceTabsWithSpaces == null) {
-        	replaceTabsWithSpaces = getBoolean("replace.tabs.with.spaces");
-        }
+		if (replaceTabsWithSpaces == null) {
+			replaceTabsWithSpaces = getBoolean("replace.tabs.with.spaces");
+		}
 		return replaceTabsWithSpaces.booleanValue();
 	}
 

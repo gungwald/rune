@@ -17,7 +17,7 @@ public class StatusBar extends JPanel {
     protected JLabel cursorPosition;
 
     public StatusBar(Rune creator) {
-        setBorder(new BevelBorder(BevelBorder.LOWERED));
+        //setBorder(new BevelBorder(BevelBorder.LOWERED));
         //setPreferredSize(new Dimension(creator.getWidth(), 16));
         setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
