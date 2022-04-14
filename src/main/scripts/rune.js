@@ -147,7 +147,7 @@ var jar = fs.BuildPath(libDir, scriptNameWithoutExtension + "-1.0.jar");
 
 // Find javer
 var java = findJava(fs, env);
-var outOfMemoryErrorHandler = fs.BuildPath(binDir, "handle-out-of-memory.js");
+var outOfMemoryErrorHandler = fs.BuildPath(binDir, "rune-out-of-mem-err-handler.js");
 var javerCommand = '"' + java + '" -XX:OnOutOfMemoryError=' + outOfMemoryErrorHandler + ' -jar ' + jar + ' ' + argumentString;
 
 //WScript.Echo("Running: " + javerCommand);
