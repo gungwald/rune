@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This DOCTYPE tag shuts off the warning from Eclipse that there is no DTD
+     associated with this XML file. -->
+
+<!DOCTYPE project>
+
+<project name="rune" default="dmg" basedir=".">
+
+	<property environment="env" />
+	<property name="version" value="1.0" />
+	<property name="build.dir" value="target" />
+	<property name="cls.dir" value="${build.dir}/classes" />
+	<property name="lib.dir" value="${build.dir}/lib" />
+	<property name="app.jar" value="${build.dir}/${ant.project.name}-1.0.jar" />
+	<property name="app" value="${build.dir}/Rune.app" />
+	<property name="dmg" value="${build.dir}/Rune.dmg" />
+	<property name="zip" value="${build.dir}/Rune.zip" />
+
+	<target name="app" description="Builds Rune.app directory structure">
+		<mkdir dir="${app}/Contents/MacOS" />
+		<mkdir dir="${app}/Contents/Resources/Java" />
+		<copy file="src/main/scripts/rune" todir="${app}/Contents/MacOS" 
+			preservelastmodified="true" />
+		<chmod perm="ugo+rx">
+			<fileset file="${app}/Contents/MacOS/rune" />
+		</chmod>
+		<copy file="${app.jar}" todir="${app}/Contents/Resources/Java" 
+			preservelastmodified="true" />
+		<copy todir="${app}/Contents/Resources" preservelastmodified="true">
+			<fileset file="src/main/resources/icons/rune.icns" />
+		</copy>
+	</target>
+
+	<target name="zip" depends="app" description="Build a zip file containing the mac app">
+		<zip destfile="${build.dir}/${ant.project.name}.zip">
+			<fileset file="${app}"/>
+		</zip>
+	</target>
+
+	<target name="dmg" depends="app,zip" description="Builds dmg">
+		<exec dir="${build.dir}" executable="hdiutil" osfamily="mac">
+            <arg value="create"/>
+		    <arg value="-srcfolder"/>
+			<arg value="Rune.app"/>
+			<arg value="Rune.dmg"/>
+		</exec>
+		<exec dir="${build.dir}" executable="hdiutil" osfamily="mac">
+            <arg value="internet-enable"/>
+		    <arg value="-yes"/>
+			<arg value="Rune.dmg"/>
+		</exec>
+	</target>
+
+</project>
