@@ -20,8 +20,11 @@
 	<target name="app" description="Builds Rune.app directory structure">
 		<mkdir dir="${app}/Contents/MacOS" />
 		<mkdir dir="${app}/Contents/Resources/Java" />
-		<copy file="src/main/scripts/rune" todir="${app}/Contents/MacOS" 
-			preservelastmodified="true" />
+		<copy todir="${app}/Contents/MacOS" preservelastmodified="true">
+			<fileset file="src/main/scripts/rune" />
+			<fileset file="src/main/scripts/common-functions.sh" />
+			<fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
+        </copy>
 		<chmod perm="ugo+rx">
 			<fileset file="${app}/Contents/MacOS/rune" />
 		</chmod>
@@ -29,6 +32,9 @@
 			preservelastmodified="true" />
 		<copy todir="${app}/Contents/Resources" preservelastmodified="true">
 			<fileset file="src/main/resources/icons/rune.icns" />
+		</copy>
+		<copy todir="${app}/Contents" preservelastmodified="true">
+			<fileset file="src/main/resources/mac/*" />
 		</copy>
 	</target>
 
@@ -41,6 +47,7 @@
 	<target name="dmg" depends="app,zip" description="Builds dmg">
 		<exec dir="${build.dir}" executable="hdiutil" osfamily="mac">
             <arg value="create"/>
+            <arg value="-ov"/>          <!-- Overwrite any existing file -->
 		    <arg value="-srcfolder"/>
 			<arg value="Rune.app"/>
 			<arg value="Rune.dmg"/>

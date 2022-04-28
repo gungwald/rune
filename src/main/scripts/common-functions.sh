@@ -1,9 +1,22 @@
-# TODO - Standardize variable names with upper case
+# Common functions for Rune scripts
 
-THIS_SCRIPT=$(basename "$0" .sh)
-SCRIPT_DIR=$(dirname "$0") && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=$(pwd)
+THIS_SCRIPT=`basename "$0" .sh`
+SCRIPT_DIR=`dirname "$0"` && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=`pwd`
 SCRIPT_FULL_NAME="$SCRIPT_DIR"/"$THIS_SCRIPT"
 DTKSH_DIALOG="$SCRIPT_DIR"/dtksh-dialog
+
+endsWith() (
+  SEARCH_IN="$1"
+  SEARCH_FOR="$2"
+  case "$SEARCH_IN" in
+    *"$SEARCH_FOR")
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+)
 
 # $1 - Command basename
 commandExists() ( # Parentheses make variables local to function.
@@ -25,7 +38,7 @@ EOF
 
 displayError() ( # Parentheses make variables local to function.
   TITLE="ERROR in Program: $SCRIPT_FULL_NAME"
-  if [ "$(uname -s)" = "Darwin" ]; then
+  if [ "`uname -s`" = "Darwin" ]; then
     # This needs to be tried first because OS X could have xterm but it
     # won't get displayed if the X Windows System isn't running...
     displayErrorOnMac "$*"
@@ -85,14 +98,14 @@ displayErrorFile() ( # Parentheses make variables local to function.
 )
 
 removeFiles() ( # Parentheses make variables local to function.
-  for fileToRemove in "$@"; do
+  for FILE_TO_REMOVE in "$@"; do
     # These conditions were added for troubleshooting failure
     # scenarios that actually occurred. They are not frivolous.
-    if [ -n "$fileToRemove" ]; then
-      if [ -f "$fileToRemove" ] || [ -p "$fileToRemove" ]; then
-        rm -f "$fileToRemove"
+    if [ -n "$FILE_TO_REMOVE" ]; then
+      if [ -f "$FILE_TO_REMOVE" ] || [ -p "$FILE_TO_REMOVE" ]; then
+        rm -f "$FILE_TO_REMOVE"
       else
-        displayError "$0": "$fileToRemove" does not exist, can\'t remove
+        displayError "$0": "$FILE_TO_REMOVE" does not exist, can\'t remove
       fi
     else
       displayError "$0": received empty file name parameter
@@ -101,27 +114,17 @@ removeFiles() ( # Parentheses make variables local to function.
 )
 
 makeTempFile() ( # Parentheses make variables local to function.
-  if [ "$1" = "-u" ]; then
-    switch="-u"
-    desc="$2"
-  else
-    switch=""
-    desc="$1"
-  fi
-  tempDir=${TMPDIR:-/tmp}
+  DESC="$1"
+  TEMP_DIR=${TMPDIR:-/tmp}
   # Solaris 8 actually does not have mktemp...
   if commandExists mktemp; then
-    # The mktemp command is the way it is for compatibility with
-    # BSD systems like Mac OS X 10.4.11. Don't change without
-    # testing.
-    mktemp "$switch" "$tempDir"/"$THIS_SCRIPT"."$desc".XXXXXXXXXX
+    # MacOS 10.4.11 reqires this mktemp syntax.
+    TEMP_FILE=`mktemp "$TEMP_DIR"/"$THIS_SCRIPT"."$DESC".XXXXXXXXXX` || exit
   else
-    tempName="$tempDir"/"$THIS_SCRIPT"."$desc".$$.$(date +%Y%m%d%H%M%S)
-    if [ "$switch" != "-u" ]; then
-      touch "$tempName" || exit
-    fi
-    echo "$tempName"
+    TEMP_FILE="$TEMP_DIR"/"$THIS_SCRIPT"."$DESC".$$.`date +%Y%m%d%H%M%S`
+    touch "$TEMP_FILE" || exit
   fi
+  echo "$TEMP_FILE"
 )
 
 quoteOrNothing() ( # Parentheses make variables local to function.
@@ -131,20 +134,20 @@ quoteOrNothing() ( # Parentheses make variables local to function.
 )
 
 # Determines if $1 is less than $2, where $1 and $2 are floating point numbers
-# inside strings.
+# represented as strings.
 #
-# Returns: 0, if $1 <  $2
-#          1, if $1 >= $2
-lessThan() ( # Parentheses make variables local to function.
+# Returns: true,  if $1 <  $2
+#          false, if $1 >= $2
+isLessThan() ( # Parentheses make variables local to function.
   if [ $# -ne 2 ]; then
     displayError "$0": wrong number of arguments: $#
     exit 1
   fi
   # Old versions of 'bc', like in Solaris 8, need the less-than condition
   # to be inside an 'if' statement.
-  condition="if ($1 < $2) \"true\""
-  result=$(echo "$condition" | bc)
-  [ "$result" = "true" ]
+  CONDITION="if ($1 < $2) \"true\""
+  IS_LESS_THAN=`echo "$CONDITION" | bc`
+  [ "$IS_LESS_THAN" = "true" ]
 )
 
 findJava() ( # Parentheses make variables local to function.
@@ -177,13 +180,12 @@ findJava() ( # Parentheses make variables local to function.
 getJavaSpecVersion() ( # Parentheses make variables local to function.
   JAVA="$1"
   # shellcheck disable=SC2006
-  VERSION="`"$JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2`"
-  echo "$VERSION"
+  "$JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2
 )
 
 isJavaLessThan_1_6() (
   JAVA="$1"
   # shellcheck disable=SC2006
-  JAVA_SPEC_VERSION="`getJavaSpecVersion "$JAVA"`"
-  lessThan "$JAVA_SPEC_VERSION" "1.6"
+  isLessThan "`getJavaSpecVersion "$JAVA"`" "1.6"
 )
+
