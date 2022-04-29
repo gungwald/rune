@@ -12,7 +12,7 @@
 	<property name="build.dir" value="target" />
 	<property name="cls.dir" value="${build.dir}/classes" />
 	<property name="lib.dir" value="${build.dir}/lib" />
-	<property name="app.jar" value="${build.dir}/${ant.project.name}-1.0.jar" />
+	<property name="app.jar" value="${build.dir}/${ant.project.name}-1.0-jar-with-dependencies.jar" />
 	<property name="app" value="${build.dir}/Rune.app" />
 	<property name="dmg" value="${build.dir}/Rune.dmg" />
 	<property name="zip" value="${build.dir}/Rune.zip" />
@@ -28,7 +28,7 @@
 		<chmod perm="ugo+rx">
 			<fileset file="${app}/Contents/MacOS/rune" />
 		</chmod>
-		<copy file="${app.jar}" todir="${app}/Contents/Resources/Java" 
+		<copy file="${app.jar}" tofile="${app}/Contents/Resources/Java/rune.jar"
 			preservelastmodified="true" />
 		<copy todir="${app}/Contents/Resources" preservelastmodified="true">
 			<fileset file="src/main/resources/icons/rune.icns" />
@@ -39,7 +39,7 @@
 	</target>
 
 	<target name="zip" depends="app" description="Build a zip file containing the mac app">
-		<zip destfile="${build.dir}/${ant.project.name}.zip">
+		<zip destfile="${zip}">
 			<fileset file="${app}"/>
 		</zip>
 	</target>

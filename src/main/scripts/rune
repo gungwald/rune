@@ -30,7 +30,7 @@ else
   LIB_DIR="$PARENT_DIR"/lib
 fi
 
-APP_JAR="$LIB_DIR"/"$THIS_SCRIPT"-1.0.jar
+APP_JAR="$LIB_DIR"/"$THIS_SCRIPT".jar
 
 # Setup fifo so that we can use 'tee' to send stderr to both the console
 # and a file. The file will be used to display a window on the desktop
