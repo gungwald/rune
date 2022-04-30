@@ -7,58 +7,125 @@
 
 <project name="rune" default="dmg" basedir=".">
 
-	<property environment="env" />
-	<property name="version" value="1.0" />
-	<property name="build.dir" value="target" />
-	<property name="cls.dir" value="${build.dir}/classes" />
-	<property name="lib.dir" value="${build.dir}/lib" />
-	<property name="app.jar" value="${build.dir}/${ant.project.name}-1.0-jar-with-dependencies.jar" />
-	<property name="app" value="${build.dir}/Rune.app" />
-	<property name="dmg" value="${build.dir}/Rune.dmg" />
-	<property name="zip" value="${build.dir}/Rune.zip" />
+    <property environment="env"/>
+    <property name="version" value="1.0"/>
+    <property name="build.dir" value="target"/>
+    <property name="cls.dir" value="${build.dir}/classes"/>
+    <property name="lib.dir" value="${build.dir}/lib"/>
+    <property name="app.jar" value="${build.dir}/${ant.project.name}-1.0-jar-with-dependencies.jar"/>
+    <property name="app" value="${build.dir}/Rune.app"/>
+    <property name="dmg" value="${build.dir}/Rune.dmg"/>
+    <property name="zip" value="${build.dir}/Rune.zip"/>
 
-	<target name="app" description="Builds Rune.app directory structure">
-		<mkdir dir="${app}/Contents/MacOS" />
-		<mkdir dir="${app}/Contents/Resources/Java" />
-		<copy todir="${app}/Contents/MacOS" preservelastmodified="true">
-			<fileset file="src/main/scripts/rune" />
-			<fileset file="src/main/scripts/rune-debug.sh" />
-			<fileset file="src/main/scripts/common-functions.sh" />
-			<fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
+    <condition property="mac">
+        <os family="mac"/>
+    </condition>
+
+    <condition property="linux">
+        <os name="linux"/>
+    </condition>
+
+    <condition property="windows">
+        <os family="windows"/>
+    </condition>
+
+    <target name="app" description="Builds Rune.app directory structure">
+        <delete dir="${app}"/>
+        <mkdir dir="${app}/Contents/MacOS"/>
+        <mkdir dir="${app}/Contents/Resources/Java"/>
+        <copy todir="${app}/Contents/MacOS" preservelastmodified="true">
+            <fileset file="src/main/scripts/rune"/>
+            <fileset file="src/main/scripts/rune-debug.sh"/>
+            <fileset file="src/main/scripts/common-functions.sh"/>
+            <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
         </copy>
-		<chmod perm="ugo+rx">
-			<fileset file="${app}/Contents/MacOS/rune" />
-			<fileset file="${app}/Contents/MacOS/rune-debug.sh" />
-		</chmod>
-		<copy file="${app.jar}" tofile="${app}/Contents/Resources/Java/rune.jar"
-			preservelastmodified="true" />
-		<copy todir="${app}/Contents/Resources" preservelastmodified="true">
-			<fileset file="src/main/resources/icons/rune.icns" />
-		</copy>
-		<copy todir="${app}/Contents" preservelastmodified="true">
-			<fileset file="src/main/resources/mac/*" />
-		</copy>
-	</target>
+        <chmod perm="ugo+rx">
+            <fileset file="${app}/Contents/MacOS/rune"/>
+            <fileset file="${app}/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+        </chmod>
+        <copy file="${app.jar}" tofile="${app}/Contents/Resources/Java/rune.jar"
+              preservelastmodified="true"/>
+        <copy todir="${app}/Contents/Resources" preservelastmodified="true">
+            <fileset file="src/main/resources/icons/rune.icns"/>
+        </copy>
+        <copy todir="${app}/Contents" preservelastmodified="true">
+            <fileset file="src/main/resources/mac/*"/>
+        </copy>
+    </target>
 
-	<target name="zip" depends="app" description="Build a zip file containing the mac app">
-		<zip destfile="${zip}">
-			<fileset file="${app}"/>
-		</zip>
-	</target>
+    <target name="zip-on-windows" depends="app" description="Build a zip file containing the mac app" if="windows">
+        <echo message="Can't build a DMG on Windows so building a Zip instead."/>
+        <zip destfile="${zip}">
+            <fileset file="${app}"/>
+        </zip>
+    </target>
 
-	<target name="dmg" depends="app,zip" description="Builds dmg">
-		<exec dir="${build.dir}" executable="hdiutil" osfamily="mac">
+    <target name="dmg-on-mac" depends="app" description="Builds a dmg on a Mac" if="mac">
+        <exec dir="${build.dir}" executable="hdiutil">
             <arg value="create"/>
             <arg value="-ov"/>          <!-- Overwrite any existing file -->
-		    <arg value="-srcfolder"/>
-			<arg value="Rune.app"/>
-			<arg value="Rune.dmg"/>
-		</exec>
-		<exec dir="${build.dir}" executable="hdiutil" osfamily="mac">
+            <arg value="-srcfolder"/>
+            <arg value="Rune.app"/>
+            <arg value="Rune.dmg"/>
+        </exec>
+        <exec dir="${build.dir}" executable="hdiutil">
             <arg value="internet-enable"/>
-		    <arg value="-yes"/>
-			<arg value="Rune.dmg"/>
-		</exec>
-	</target>
+            <arg value="-yes"/>
+            <arg value="Rune.dmg"/>
+        </exec>
+    </target>
 
+    <target name="dmg-on-linux" depends="app" if="linux" description="Builds a dmg on a Lignix">
+        <touch file="${dmg}"/>
+        <exec dir="${basedir}" executable="dd" failonerror="true">
+            <arg value="if=/dev/zero"/>
+            <arg value="of=${dmg}"/>
+            <arg value="bs=1M"/>
+            <arg value="count=2"/>    <!-- Number of megabytes -->
+            <arg value="status=progress"/>
+        </exec>
+        <exec dir="${basedir}" executable="mkfs.hfsplus" failonerror="true">
+            <arg value="-v"/>
+            <arg value="Rune"/>
+            <arg value="${dmg}"/>
+        </exec>
+        <mkdir dir="target/dmg-mount"/>
+        <!--		<exec dir="${basedir}" executable="sudo" failonerror="true">-->
+        <!--			<arg value="chown"/>-->
+        <!--			<arg value="root"/>-->
+        <!--			<arg value="${dmg}"/>-->
+        <!--		</exec>-->
+        <exec dir="${basedir}" executable="sudo" failonerror="true">
+            <arg value="mount"/>
+            <arg value="--verbose"/>
+            <arg value="-o"/>
+            <arg value="loop"/>
+            <arg value="${dmg}"/>
+            <arg value="target/dmg-mount"/>
+        </exec>
+        <exec dir="${build.dir}" executable="sudo" failonerror="true">
+            <arg value="chown"/>
+			<arg value="-R"/>
+			<arg value="${user.name}:${user.name}"/>
+            <arg value="dmg-mount"/>
+        </exec>
+        <copy todir="${build.dir}/dmg-mount" verbose="true">
+            <fileset dir="${build.dir}">
+                <include name="Rune.app/**"/>
+            </fileset>
+        </copy>
+        <exec dir="${build.dir}" executable="sudo" failonerror="true">
+            <arg value="umount"/>
+            <arg value="--verbose"/>
+            <arg value="dmg-mount"/>
+        </exec>
+        <!--		<exec dir="${basedir}" executable="sudo" failonerror="true">-->
+        <!--			<arg value="chown"/>-->
+        <!--			<arg value="${user.name"/>-->
+        <!--			<arg value="${dmg}"/>-->
+        <!--		</exec>-->
+    </target>
+
+    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,zip-on-windows" description="Builds a dmg"/>
 </project>
