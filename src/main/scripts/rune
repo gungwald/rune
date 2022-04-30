@@ -12,6 +12,10 @@
 
 # Backtick syntax is preferred over `...` because it works on old systems.
 
+echo Arguments:
+for ARG in "$@"; do
+  echo ARG="$ARG"
+done
 
 # Locate relevant directories.
 APP_NAME=Rune
@@ -26,6 +30,7 @@ ON_OUT_OF_MEM_ERR="$SCRIPT_DIR"/rune-out-of-mem-err-handler.sh
 # Check if running from Mac Rune.app.
 if endsWith "$SCRIPT_DIR" Contents/MacOS; then
   LIB_DIR="$PARENT_DIR"/Resources/Java
+  ICON="$PARENT_DIR"/Resources/rune.icns
 else
   LIB_DIR="$PARENT_DIR"/lib
 fi
@@ -60,9 +65,7 @@ else
 fi
 
 if [ "$OS" = 'Darwin' ]; then
-  MAC_OPTS=-Xdock:name="$APP_NAME"
-  # TODO - Need to make this icon available:
-  # -Xdock:icon="$RESOURCES_DIR"/icons/notepad-64x64.png
+  MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$ICON"
 else
   unset MAC_OPTS
 fi

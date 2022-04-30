@@ -22,11 +22,13 @@
 		<mkdir dir="${app}/Contents/Resources/Java" />
 		<copy todir="${app}/Contents/MacOS" preservelastmodified="true">
 			<fileset file="src/main/scripts/rune" />
+			<fileset file="src/main/scripts/rune-debug.sh" />
 			<fileset file="src/main/scripts/common-functions.sh" />
 			<fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
         </copy>
 		<chmod perm="ugo+rx">
 			<fileset file="${app}/Contents/MacOS/rune" />
+			<fileset file="${app}/Contents/MacOS/rune-debug.sh" />
 		</chmod>
 		<copy file="${app.jar}" tofile="${app}/Contents/Resources/Java/rune.jar"
 			preservelastmodified="true" />

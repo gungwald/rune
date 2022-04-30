@@ -1,45 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
-<plist version="0.9">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>Rune</string>
-	<key>CFBundleVersion</key>
-	<string>1.0.0</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
-	<key>CFBundleExecutable</key>
-	<string>rune</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>rune-debug.sh</string>
+	<key>CFBundleIconFile</key>
+	<string>rune.icns</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Rune</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleIconFile</key>
-	<string>rune.icns</string>
-	<key>Java</key>
-
-        <!-- Not used by rune run script. -->
-	<dict>
-		<key>MainClass</key>
-		<string>com.alteredmechanism.rune.Rune</string>
-		<key>JVMVersion</key>
-		<string>1.5+</string>
-		<key>ClassPath</key>
-			<array>
-			<string>/Users/bill/opt/rune-1.0/lib/jlfgr-1_0.jar</string>
-			<string>/Users/bill/opt/rune-1.0/lib/rune-1.0.jar</string>
-			<string>$JAVAROOT/rune-1.0.jar</string>
-			</array>
-		<key>Properties</key>
-		<dict>
-			<key>apple.laf.useScreenMenuBar</key>
-			<string>true</string>
-		</dict>
-	</dict>
+	<key>CFBundleVersion</key>
+	<string>1.0.0</string>
 </dict>
 </plist>
-

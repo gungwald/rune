@@ -336,11 +336,20 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         // of a file that hasn't yet been changed.
         setSelectedTabTitle(null);
 
-        getSelectedBuffer().setText(readFileContents(f));
-        getSelectedBuffer().setCaretPosition(0);
-        setSelectedTabTitle(f.getName());
-        setSelectedTabToolTip(f.getAbsolutePath());
-        updateTitle();
+        try {
+            getSelectedBuffer().setText(readFileContents(f));
+            getSelectedBuffer().setCaretPosition(0);
+            setSelectedTabTitle(f.getName());
+            setSelectedTabToolTip(f.getAbsolutePath());
+            updateTitle();
+        } catch (Exception e) {
+            getSelectedBuffer().setText("");
+            getSelectedBuffer().setCaretPosition(0);
+            setSelectedTabTitle("EMPTY");
+            setSelectedTabToolTip("EMPTY");
+            updateTitle();
+            getMessenger().showError("Failed to load file into tab", e);
+        }
     }
 
     private void setSelectedTabToolTip(String text) {
@@ -613,13 +622,33 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     public void dispose() {
         super.dispose();
     }
+    
+    /**
+     * This is a thing that happens on older versions of MacOS for programs
+     * that use the Carbon framework. This is true for Java 1.5 on
+     * MacOS 10.4.11. A command line argument in the form "-psn_X_XXXXXXX"
+     * where each X is a digit is passed to the program. 
+     * 
+     * @param s The string to check to see if it is a process serial number
+     * @return  true If <code>s</code> is a process serial number
+     *          false If not
+     */
+    public static boolean isMacCarbonProcessSerialNumber(String s) {
+        return System.getProperty("os.name").startsWith("Mac") && s.startsWith("-psn_");
+    }
 
     public static void main(String args[]) {
         try {
             SystemPropertyConfigurator.autoConfigure();
             Rune n = new Rune();
-            for (int i = 0; i < args.length; i++) {
-                n.open(new File(args[i]));
+            for (String arg : args) {
+                if (! isMacCarbonProcessSerialNumber(arg)) {
+                    try {
+                        n.open(new File(arg));
+                    } catch (Exception e) {
+                        n.getMessenger().showError("Failed to open file specified on command line: " + arg, e);
+                    }
+                }
             }
         }
         catch (Exception e) {
