@@ -5,6 +5,7 @@
 
 getSystemFontDir()
 (
+    # shellcheck disable=SC2006
     OS=`uname -s`
     if [ "$OS" = 'darwin' ]; then
         SYSTEM_FONT_DIR='/Library/Fonts'
@@ -12,29 +13,29 @@ getSystemFontDir()
         echo Unknown system $OS
         exit 1
     fi
+    echo $SYSTEM_FONT_DIR
 )
 
 getAbsolutePath()
 (
     SHORT_NAME="$1"
     if [ -d "$SHORT_NAME" ]; then
-        ( cd `dirname "$SHORT_NAME"`
+        # shellcheck disable=SC2006
+        ( cd "`dirname "$SHORT_NAME"`" || exit
           pwd )
     else
-        ( cd `dirname "$SHORT_NAME"`
-          echo `pwd`/`basename "$SHORT_NAME"` )
+        # shellcheck disable=SC2006
+        ( cd "`dirname "$SHORT_NAME"`" || exit
+          echo "`pwd`"/"`basename "$SHORT_NAME"`" )
     fi
 )
 
-installFont()
-(
-    FONT_FILE="$1"
-    INSTALL_DIR="$2"
-    sudo cp -ipv "$FONT_FILE" "$INSTALL_DIR"
-)
-
+# shellcheck disable=SC2006
 SELF=`getAbsolutePath "$0"`
+# shellcheck disable=SC2006
 MY_DIR=`dirname "$SELF"`
-SYSTEM_FONT_DIR=`getSystemFontDir`
-find "$MY_DIR" -name '*.ttf' -exec installFont '{}' "$SYSTEM_FONT_DIR" ;
+
+# Find and install any TrueType fonts.
+# shellcheck disable=SC2006
+find "$MY_DIR" -name '*.ttf' -exec cp -ipv '{}' "`getSystemFontDir`" ';'
 

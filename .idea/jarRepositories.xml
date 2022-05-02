@@ -7,6 +7,11 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="snapshots" />
+      <option name="name" value="snapshots" />
+      <option name="url" value="https://artifact-m1.shr.oclc.org/artifactory/snapshots" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="http://repo.maven.apache.org/maven2" />
@@ -17,6 +22,11 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="releases" />
+      <option name="name" value="releases" />
+      <option name="url" value="https://artifact-m1.shr.oclc.org/artifactory/releases" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
@@ -25,6 +35,11 @@
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="http://insecure.repo1.maven.org/maven2/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="legacy-releases" />
+      <option name="name" value="legacy-releases" />
+      <option name="url" value="https://artifact-m1.shr.oclc.org/artifactory/internal" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="Central with HTTPS" />

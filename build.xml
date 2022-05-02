@@ -30,6 +30,7 @@
     <property name="app" value="${build.dir}/Rune.app" />
     <property name="dmg" value="${build.dir}/Rune.dmg" />
     <property name="zip" value="${build.dir}/Rune.zip" />
+    <property name="dmg.setup.dir" value="${build.dir}/Rune" />
 
     <condition property="mac">
         <os family="mac" />
@@ -77,7 +78,8 @@
             <fileset file="src/main/scripts/common-functions.sh" />
             <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
         </copy>
-        <chmod perm="ugo+rx">
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <chmod perm="ugo+rx" verbose="true">
             <fileset file="${app}/Contents/MacOS/rune" />
             <fileset file="${app}/Contents/MacOS/rune-debug.sh" />
             <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh" />
@@ -88,8 +90,10 @@
             <fileset file="src/main/resources/icons/rune.icns" />
         </copy>
         <copy todir="${app}/Contents" preservelastmodified="true" verbose="true">
-            <fileset file="src/main/resources/mac/Info.plist" />
-            <fileset file="src/main/resources/mac/Pkginfo" />
+            <fileset dir="src/main/resources/mac">
+                <include name="Info.plist"/>
+                <include name="PkgInfo"/>
+            </fileset>
         </copy>
     </target>
 
@@ -101,16 +105,23 @@
     </target>
 
     <target name="dmg-on-mac-setup" depends="app" description="Setup for building a dmg on a Mac" if="mac">
-        <mkdir dir="${build.dir}/dmg-staging" />
-        <copy todir="${build.dir}/dmg-staging">
+        <mkdir dir="${dmg.setup.dir}" />
+        <copy todir="${dmg.setup.dir}">
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
         </copy>
-        <copy file="src/main/scripts/install-fonts.sh" tofile="${build.dir}/dmg-staging/Install Fonts" />
-        <chmod file="${build.dir}/dmg-staging/Install Fonts" perm="ugo+rx"/>
-        <mkdir dir="${build.dir}/dmg-staging/Fonts" />
-        <copy todir="${build.dir}/dmg-staging/Fonts">
-            <fileset dir="${basedir}" includes="src/main/resources/fonts/**" />
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <chmod perm="ugo+rx" verbose="true">
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune" />
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh" />
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh" />
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh" />
+        </chmod>
+        <copy file="src/main/scripts/install-fonts.sh" tofile="${dmg.setup.dir}/Install Free Programming"/>
+        <chmod file="${dmg.setup.dir}/Install Fonts" perm="ugo+rx"/>
+        <mkdir dir="${dmg.setup.dir}/Fonts" />
+        <copy todir="${dmg.setup.dir}/Fonts">
+            <fileset dir="${basedir}/src/main/resources/fonts" includes="**" />
         </copy>
     </target>
 
@@ -120,9 +131,10 @@
             <arg value="-ov" />
             <!-- Overwrite any existing file -->
             <arg value="-srcfolder" />
-            <arg value="dmg-staging" />
+            <arg value="Rune" />
             <arg value="Rune.dmg" />
         </exec>
+        <!-- This should be "if mac os < catalina" -->
         <exec dir="${build.dir}" executable="hdiutil">
             <arg value="internet-enable" />
             <arg value="-yes" />
@@ -146,11 +158,6 @@
             <arg value="${dmg}" />
         </exec>
         <mkdir dir="target/dmg-mount" />
-        <!--		<exec dir="${basedir}" executable="sudo" failonerror="true">-->
-        <!--			<arg value="chown"/>-->
-        <!--			<arg value="root"/>-->
-        <!--			<arg value="${dmg}"/>-->
-        <!--		</exec>-->
         <exec dir="${basedir}" executable="sudo" failonerror="true">
             <arg value="mount" />
             <arg value="--verbose" />
@@ -175,11 +182,6 @@
             <arg value="--verbose" />
             <arg value="dmg-mount" />
         </exec>
-        <!--		<exec dir="${basedir}" executable="sudo" failonerror="true">-->
-        <!--			<arg value="chown"/>-->
-        <!--			<arg value="${user.name"/>-->
-        <!--			<arg value="${dmg}"/>-->
-        <!--		</exec>-->
     </target>
 
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,zip" description="Builds a dmg" />
