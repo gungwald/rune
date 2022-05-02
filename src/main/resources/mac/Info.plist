@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>rune-debug.sh</string>
+	<string>rune</string>
 	<key>CFBundleIconFile</key>
 	<string>rune.icns</string>
 	<key>CFBundleInfoDictionaryVersion</key>
