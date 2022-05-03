@@ -3,6 +3,7 @@ package com.alteredmechanism.rune;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Image;
@@ -30,7 +31,6 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -102,7 +102,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
     private JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");   
 
     private JFontChooser fontChooser = null;
-    private JFileChooser fileChooser = null;
+    private FileDialog fileChooser = null;
     private Messenger messenger = null;
     private AboutDialog aboutDialog = null;
     private LookAndFeelManager lafManager = null;
@@ -392,12 +392,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         }
         else if (e.getSource() == this.openMenuItem) {
         	try {
-	            getFileChooser().setDialogTitle("Open File");
-	            if (getFileChooser().showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-	                File[] selectedFiles = getFileChooser().getSelectedFiles();
-	                for (int i = 0; i < selectedFiles.length; ++i) {
-	                	open(selectedFiles[i]);
-	                }
+	            getFileChooser().setTitle("Open File");
+	            getFileChooser().setMode(FileDialog.LOAD);
+	            getFileChooser().setVisible(true);
+                    String fileName = getFileChooser().getFile();
+	            if (fileName != null) {
+	                File selectedFile = new File(fileName);
+	                open(selectedFile);
 	            }
         	} catch (Exception ex) {
         		ex.printStackTrace();
@@ -511,10 +512,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         return fontChooser;
     }
 
-    private JFileChooser getFileChooser() {
+    private FileDialog getFileChooser() {
         if (fileChooser == null) {
-            fileChooser = new JFileChooser();
-            fileChooser.setMultiSelectionEnabled(true);
+            fileChooser = new FileDialog(this);
+            //fileChooser.setMultiSelectionEnabled(true);
             getLafManager().addComponentToUpdate(fileChooser);
         }
         return fileChooser;
@@ -547,10 +548,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener, Chang
         boolean operationCancelled = false;
         File fileToSave = null;
         while (! fileConfirmed && !operationCancelled) {
-            getFileChooser().setDialogTitle("Save File");
-            int option = getFileChooser().showSaveDialog(this);
-            if (option == JFileChooser.APPROVE_OPTION) {
-                fileToSave = getFileChooser().getSelectedFile();
+            getFileChooser().setTitle("Save File");
+            getFileChooser().setMode(FileDialog.SAVE);
+            getFileChooser().setVisible(true);
+            String fileName = getFileChooser().getFile();
+            if (fileName != null) {
+                fileToSave = new File(fileName);
                 if (fileToSave.exists()) {
                     int response = JOptionPane.showConfirmDialog(Rune.this, "This file already exists. Are you sure you want to overwrite it?", "Confirm Overwrite of Existing File", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                     switch (response) {
