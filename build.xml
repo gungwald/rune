@@ -31,6 +31,7 @@
     <property name="dmg" value="${build.dir}/Rune.dmg" />
     <property name="zip" value="${build.dir}/Rune.zip" />
     <property name="dmg.setup.dir" value="${build.dir}/Rune" />
+    <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts" />
 
     <condition property="mac">
         <os family="mac" />
@@ -87,7 +88,7 @@
         </chmod>
         <copy file="${jar}" tofile="${app}/Contents/Resources/Java/rune.jar" preservelastmodified="true" verbose="true"/>
         <copy todir="${app}/Contents/Resources" preservelastmodified="true" verbose="true">
-            <fileset file="src/main/resources/icons/rune.icns" />
+            <fileset file="src/main/resources/icons/vegvisir.icns" />
         </copy>
         <copy todir="${app}/Contents" preservelastmodified="true" verbose="true">
             <fileset dir="src/main/resources/mac">
@@ -111,14 +112,14 @@
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
-        <chmod perm="ugo+rx" verbose="true">
+        <chmod perm="a+rx" verbose="true">
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune" />
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh" />
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh" />
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh" />
         </chmod>
-        <copy file="src/main/scripts/install-fonts.sh" tofile="${dmg.setup.dir}/Install Free Programming"/>
-        <chmod file="${dmg.setup.dir}/Install Fonts" perm="ugo+rx"/>
+        <copy file="src/main/scripts/install-fonts.sh" tofile="${font.install.script}"/>
+        <chmod file="${font.install.script}" perm="a+rx"/>
         <mkdir dir="${dmg.setup.dir}/Fonts" />
         <copy todir="${dmg.setup.dir}/Fonts">
             <fileset dir="${basedir}/src/main/resources/fonts" includes="**" />

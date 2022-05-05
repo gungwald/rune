@@ -30,7 +30,7 @@ ON_OUT_OF_MEM_ERR="$SCRIPT_DIR"/rune-out-of-mem-err-handler.sh
 # Check if running from Mac Rune.app.
 if endsWith "$SCRIPT_DIR" Contents/MacOS; then
   LIB_DIR="$PARENT_DIR"/Resources/Java
-  ICON="$PARENT_DIR"/Resources/rune.icns
+  ICON="$PARENT_DIR"/Resources/vegvisir.icns
 else
   LIB_DIR="$PARENT_DIR"/lib
 fi
