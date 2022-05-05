@@ -132,7 +132,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         bufferTabs.addChangeListener(this);
 
         loader = new ImageIconLoader(getMessenger());
-        List<Image> icons = loader.loadAll("writbred");
+        List<Image> icons = loader.loadAll("vegvisir");
         if (icons.size() > 0) {
             this.setIconImage((Image) icons.get(0));
         }
