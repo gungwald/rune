@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Backtick syntax is preferred over $(...) because it works on old systems.
+# So disable the warning. This must come before any command to disable warnings
+# in the whole file.
+# shellcheck disable=SC2006
+
 # The application jar file should work without this file. But this file adds
 # some features:
 # 1. Icon on Mac
@@ -9,13 +14,6 @@
 
 # Avoid long options, like --tmpdir for mktemp because they are not supported
 # on UNIX and BSD.
-
-# Backtick syntax is preferred over `...` because it works on old systems.
-
-echo Arguments:
-for ARG in "$@"; do
-  echo ARG="$ARG"
-done
 
 # Locate relevant directories.
 APP_NAME=Rune
@@ -73,6 +71,8 @@ fi
 # Run
 duplicateStdErr
 # -Xshare:on is critical but usually on by default...
+# MAC_OPTS must be split up on spaces, so disable the warning.
+# shellcheck disable=SC2086
 "$JAVA" $MAC_OPTS $ON_OUT_OF_MEM_ERR_SWITCH -jar "$APP_JAR" "$@" 2>"$STDERR_FIFO"
 JAVA_EXIT_CODE=$?
 
