@@ -24,11 +24,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -46,6 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
+import com.alteredmechanism.rune.actions.SaveAction;
 
 // TODO - Implement vi key bindings
 // TODO - Go to line
@@ -85,7 +89,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private JMenuItem newTabItem = new JMenuItem("New Tab");
     private JMenuItem openMenuItem = new JMenuItem("Open...");
-    private JMenuItem saveMenuItem = new JMenuItem("Save");
+    public JMenuItem saveMenuItem = new JMenuItem("Save");
     private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
     private JMenuItem closeMenuItem = new JMenuItem("Close Tab");
     private JMenuItem exitMenuItem = new JMenuItem("Exit");
@@ -108,11 +112,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private Messenger messenger = null;
     private AboutDialog aboutDialog = null;
     private LookAndFeelManager lafManager = null;
-    private final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
+    public final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
     private StatusBar statusBar = new StatusBar(this);
 
     private Font bufferFont = null;
-    private ImageIconLoader loader = null;
+    public ImageIconLoader loader = null;
 
     public Rune(File f) throws FontFormatException, IOException {
         this();
@@ -145,13 +149,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 zoom(1);
             }
         };
-        KeyStroke plus = KeyStroke.getKeyStroke(KeyEvent.VK_UP,
-                KeyEvent.CTRL_DOWN_MASK);
-        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(plus, "zoomIn");
-        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                .put(plus, "zoomIn");
-        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(plus,
-                "zoomIn");
+        KeyStroke ctrlPlus = KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK);
+        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(ctrlPlus, "zoomIn");
+        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(ctrlPlus, "zoomIn");
+        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlPlus, "zoomIn");
         bufferTabs.getActionMap().put("zoomIn", zoomIn);
 
         // Zoom out
@@ -162,13 +163,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 zoom(-1);
             }
         };
-        KeyStroke minus = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
-                KeyEvent.CTRL_DOWN_MASK);
-        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(minus, "zoomOut");
-        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                .put(minus, "zoomOut");
-        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(minus,
-                "zoomOut");
+        KeyStroke ctrlMinus = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK);
+        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(ctrlMinus, "zoomOut");
+        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(ctrlMinus, "zoomOut");
+        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlMinus, "zoomOut");
         bufferTabs.getActionMap().put("zoomOut", zoomOut);
 
         appendNewTab();
@@ -183,8 +181,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         newTabItem.setIcon(loader.getNewIcon());
         newTabItem.addActionListener(this);
         newTabItem.setMnemonic(KeyEvent.VK_T);
-        newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
-                KeyEvent.CTRL_DOWN_MASK));
+        newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
         file.add(newTabItem);
 
         openMenuItem.setIcon(loader.getOpenIcon());
@@ -194,18 +191,25 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 KeyEvent.CTRL_DOWN_MASK));
         file.add(openMenuItem);
 
-        saveMenuItem.setIcon(loader.getSaveIcon());
-        saveMenuItem.addActionListener(this);
-        saveMenuItem.setMnemonic(KeyEvent.VK_S);
-        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                KeyEvent.CTRL_DOWN_MASK));
+        InputMap inputMap = new KeyBindings().getInputMap();
+        bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
+        bufferTabs.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+        bufferTabs.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+
+        Action save = new SaveAction(this);
+        bufferTabs.getActionMap().put(KeyBindings.SAVE_ACTION_ID, save);
+
+        saveMenuItem.setAction(save);
+//        saveMenuItem.setIcon(loader.getSaveIcon());
+//        saveMenuItem.addActionListener(this);
+//        saveMenuItem.setMnemonic(KeyEvent.VK_S);
+//        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveMenuItem);
 
         saveAsMenuItem.setIcon(loader.getSaveAsIcon());
         saveAsMenuItem.addActionListener(this);
         saveAsMenuItem.setMnemonic(KeyEvent.VK_A);
-        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-                KeyEvent.CTRL_DOWN_MASK));
+        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         file.add(saveAsMenuItem);
 
         closeMenuItem.setIcon(loader.getDeleteIcon());
@@ -504,16 +508,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         bufferFont = font;
     }
 
-    protected void save() {
-        String absFileName = getSelectedTabToolTip();
-        if (absFileName == null || absFileName.trim().length() == 0
-                || absFileName.startsWith(UNTITLED)) {
-            saveAs();
-        } else {
-            save(new File(absFileName));
-        }
-    }
-
     /**
      * Must throw exceptions. Otherwise we'll end up returning null.
      * 
@@ -561,7 +555,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return lafManager;
     }
 
-    protected void saveAs() {
+    public void saveAs() {
         boolean fileConfirmed = false;
         boolean operationCancelled = false;
         File fileToSave = null;
@@ -607,20 +601,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         }
     }
 
-    protected void save(File f) {
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(f));
-            out.write(getSelectedBuffer().getText());
-            int selectedIndex = bufferTabs.getSelectedIndex();
-            bufferTabs.setIconAt(selectedIndex, null);
-            saveMenuItem.setEnabled(false);
-        } catch (Exception ex) {
-            getMessenger().showError(ex);
-        } finally {
-            close(out);
-        }
-    }
 
     private void close(Reader reader) {
         if (reader != null) {
@@ -632,7 +612,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         }
     }
 
-    private void close(Writer writer) {
+    public void close(Writer writer) {
         if (writer != null) {
             try {
                 writer.close();
@@ -754,7 +734,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return UNTITLED + " " + nextEmptyTabNumber++;
     }
 
-    protected RuneTextArea getSelectedBuffer() {
+    public RuneTextArea getSelectedBuffer() {
         JScrollPane scroll = (JScrollPane) bufferTabs.getSelectedComponent();
         JViewport view = (JViewport) scroll.getComponent(0);
         RuneTextArea text = (RuneTextArea) view.getComponent(0);
@@ -768,7 +748,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return text;
     }
 
-    private String getSelectedTabToolTip() {
+    public String getSelectedTabToolTip() {
         return bufferTabs.getToolTipTextAt(bufferTabs.getSelectedIndex());
     }
 
