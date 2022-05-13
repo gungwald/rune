@@ -104,8 +104,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private JMenuItem aboutMenuItem = new JMenuItem("About...");
     private JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
     private JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
-    private JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem(
-            "Wrap Lines");
+    private JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");
 
     private JFontChooser fontChooser = null;
     private FileDialog fileChooser = null;
@@ -117,6 +116,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private Font bufferFont = null;
     public ImageIconLoader loader = null;
+    protected SaveAction save = new SaveAction(this);
 
     public Rune(File f) throws FontFormatException, IOException {
         this();
@@ -138,7 +138,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         loader = new ImageIconLoader(getMessenger());
         List<Image> icons = loader.loadAll("vegvisir");
         if (icons.size() > 0) {
-            this.setIconImage((Image) icons.get(0));
+            this.setIconImage(icons.get(0));
         }
 
         // Zoom in
@@ -187,8 +187,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         openMenuItem.setIcon(loader.getOpenIcon());
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
-        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-                KeyEvent.CTRL_DOWN_MASK));
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         file.add(openMenuItem);
 
         InputMap inputMap = new KeyBindings().getInputMap();
@@ -196,7 +195,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         bufferTabs.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
         bufferTabs.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
 
-        Action save = new SaveAction(this);
         bufferTabs.getActionMap().put(KeyBindings.SAVE_ACTION_ID, save);
 
         saveMenuItem.setAction(save);
@@ -342,7 +340,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     public String readFileContents(File f) throws IOException {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         BufferedReader reader = null;
         final int END_OF_STREAM = -1;
         try {
@@ -358,7 +356,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return s.toString();
     }
 
-    public void openIntoSelectedTab(File f) throws IOException {
+    public void openIntoSelectedTab(File f) {
         // Tell the change listener not to mark the tab as unsaved
         // because this is the initial setting of the contents
         // of a file that hasn't yet been changed.
@@ -404,7 +402,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                         JOptionPane.WARNING_MESSAGE);
                 switch (response) {
                 case JOptionPane.YES_OPTION:
-                    save();
+                    save.actionPerformed(e);
                     break;
                 case JOptionPane.NO_OPTION:
                     break;
@@ -435,7 +433,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 getMessenger().showError(ex);
             }
         } else if (e.getSource() == this.saveMenuItem) {
-            save();
+            save.actionPerformed(e);
         } else if (e.getSource() == this.saveAsMenuItem) {
             saveAs();
         } else if (e.getSource() == this.cutMenuItem) {
@@ -509,11 +507,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     /**
-     * Must throw exceptions. Otherwise we'll end up returning null.
+     * Must throw exceptions. Otherwise, we'll end up returning null.
      * 
-     * @return
-     * @throws IOException
-     * @throws FontFormatException
+     * @return The font chooser
+     * @throws IOException If a bad thing happens
+     * @throws FontFormatException If a bad thing happens
      */
     private JFontChooser getFontChooser() throws FontFormatException,
             IOException {
@@ -580,10 +578,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                         fileConfirmed = true;
                         break;
                     case JOptionPane.NO_OPTION:
-                        operationCancelled = true;
-                        break;
-                    case JOptionPane.CANCEL_OPTION:
-                        operationCancelled = true;
+                        case JOptionPane.CANCEL_OPTION:
+                            operationCancelled = true;
                         break;
                     }
                 } else {
@@ -593,8 +589,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 operationCancelled = true;
             }
         }
-        if (fileConfirmed && fileToSave != null) {
-            save(fileToSave);
+        if (fileConfirmed) {
+            save.save(fileToSave);
             setSelectedTabTitle(fileToSave.getName());
             setSelectedTabToolTip(fileToSave.getAbsolutePath());
             updateTitle();
@@ -641,7 +637,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 && s.startsWith("-psn_");
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         try {
             SystemPropertyConfigurator.autoConfigure();
             Rune n = new Rune();
@@ -722,7 +718,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         try {
             saveIcon = loader.getSaveIcon();
         } catch (Exception e) {
-            System.err.println(e);
+            getMessenger().showError(e);
         }
         text.getDocument().addDocumentListener(
                 new BufferChangedListener(bufferTabs, MODIFIED, saveMenuItem,
@@ -737,15 +733,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     public RuneTextArea getSelectedBuffer() {
         JScrollPane scroll = (JScrollPane) bufferTabs.getSelectedComponent();
         JViewport view = (JViewport) scroll.getComponent(0);
-        RuneTextArea text = (RuneTextArea) view.getComponent(0);
-        return text;
+        return (RuneTextArea) view.getComponent(0);
     }
 
     protected RuneTextArea getBufferAt(int index) {
         JScrollPane scroll = (JScrollPane) bufferTabs.getComponentAt(index);
         JViewport view = (JViewport) scroll.getComponent(0);
-        RuneTextArea text = (RuneTextArea) view.getComponent(0);
-        return text;
+        return (RuneTextArea) view.getComponent(0);
     }
 
     public String getSelectedTabToolTip() {
@@ -806,9 +800,9 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     public Font findExistingFont(String[] fontFamiliesToSearch) {
         Font f = null;
         boolean foundFont = false;
-        for (int i = 0; i < fontFamiliesToSearch.length; i++) {
-            f = new Font(fontFamiliesToSearch[i], Font.PLAIN, 12);
-            if (f.getFamily().equals(fontFamiliesToSearch[i])) {
+        for (String familiesToSearch : fontFamiliesToSearch) {
+            f = new Font(familiesToSearch, Font.PLAIN, 12);
+            if (f.getFamily().equals(familiesToSearch)) {
                 // The font we asked for actually exists.
                 foundFont = true;
                 break;

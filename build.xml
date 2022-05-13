@@ -26,7 +26,7 @@
     <property name="cls.dir" value="${build.dir}/classes" />
     <property name="main.class" value="Rune" />
     <property name="lib.dir" value="lib" />
-    <property name="jar" value="${build.dir}/${ant.project.name}.jar" />
+    <property name="jar" value="${build.dir}/rune-1.0-jar-with-dependencies.jar" />
     <property name="app" value="${build.dir}/Rune.app" />
     <property name="dmg" value="${build.dir}/Rune.dmg" />
     <property name="zip" value="${build.dir}/Rune.zip" />
@@ -69,7 +69,7 @@
         </jar>
     </target>
 
-    <target name="app" depends="jar" description="Builds Rune.app directory structure">
+    <target name="app" description="Builds Rune.app directory structure">
         <delete dir="${app}" />
         <mkdir dir="${app}/Contents/MacOS" />
         <mkdir dir="${app}/Contents/Resources/Java" />

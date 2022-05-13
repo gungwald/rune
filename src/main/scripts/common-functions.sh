@@ -1,5 +1,10 @@
 # Common functions for Rune scripts
 
+# Backtick syntax is preferred over $(...) because it works on old systems.
+# So disable the warning. This must come before any command to disable warnings
+# in the whole file.
+# shellcheck disable=SC2006
+
 THIS_SCRIPT=`basename "$0" .sh`
 SCRIPT_DIR=`dirname "$0"` && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=`pwd`
 SCRIPT_FULL_NAME="$SCRIPT_DIR"/"$THIS_SCRIPT"
@@ -118,7 +123,7 @@ makeTempFile() ( # Parentheses make variables local to function.
   TEMP_DIR=${TMPDIR:-/tmp}
   # Solaris 8 actually does not have mktemp...
   if commandExists mktemp; then
-    # MacOS 10.4.11 reqires this mktemp syntax.
+    # MacOS 10.4.11 requires this mktemp syntax.
     TEMP_FILE=`mktemp "$TEMP_DIR"/"$THIS_SCRIPT"."$DESC".XXXXXXXXXX` || exit
   else
     TEMP_FILE="$TEMP_DIR"/"$THIS_SCRIPT"."$DESC".$$.`date +%Y%m%d%H%M%S`
@@ -179,13 +184,11 @@ findJava() ( # Parentheses make variables local to function.
 
 getJavaSpecVersion() ( # Parentheses make variables local to function.
   JAVA="$1"
-  # shellcheck disable=SC2006
   "$JAVA" -version 2>&1 | head -1 | cut -d ' ' -f 3 | tr -d '"' | cut -d . -f 1,2
 )
 
 isJavaLessThan_1_6() (
   JAVA="$1"
-  # shellcheck disable=SC2006
   isLessThan "`getJavaSpecVersion "$JAVA"`" "1.6"
 )
 

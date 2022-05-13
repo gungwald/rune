@@ -4,14 +4,22 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
+import java.util.logging.Logger;
 
 import com.alteredmechanism.rune.Rune;
+import com.alteredmechanism.rune.SystemPropertyConfigurator;
 
 import static com.alteredmechanism.rune.Rune.UNTITLED;
 
 public class SaveAction extends AbstractAction implements Action {
-    Rune rune;
+
+    private static final String CLASS_NAME = SaveAction.class.getName();
+    private static final Logger logger = Logger.getLogger(CLASS_NAME);
+
+    private Rune rune;
+
     public SaveAction(Rune app) {
+        logger.warning("SaveAction constructor");
         this.rune = app;
         this.putValue(NAME, "Save");
         this.putValue(SHORT_DESCRIPTION, "Save the current file");
@@ -31,9 +39,12 @@ public class SaveAction extends AbstractAction implements Action {
      * @param e The triggering event
      */
     public void actionPerformed(ActionEvent e) {
+        logger.info("SaveAction.actionPerformed");
         save();
     }
-    protected void save() {
+
+    public void save() {
+        logger.info("SaveAction.save");
         String absFileName = rune.getSelectedTabToolTip();
         if (absFileName == null || absFileName.trim().length() == 0 || absFileName.startsWith(UNTITLED)) {
             rune.saveAs();
@@ -42,7 +53,8 @@ public class SaveAction extends AbstractAction implements Action {
         }
     }
 
-    protected void save(java.io.File f) {
+    public void save(java.io.File f) {
+        logger.info("SaveAction.save(f)");
         java.io.BufferedWriter out = null;
         try {
             out = new java.io.BufferedWriter(new java.io.FileWriter(f));
