@@ -1,13 +1,14 @@
 package com.alteredmechanism.rune.actions;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
+import com.alteredmechanism.rune.Rune;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.FileNotFoundException;
 import java.util.logging.Logger;
-
-import com.alteredmechanism.rune.Rune;
-import com.alteredmechanism.rune.SystemPropertyConfigurator;
 
 import static com.alteredmechanism.rune.Rune.UNTITLED;
 
@@ -16,7 +17,7 @@ public class SaveAction extends AbstractAction implements Action {
     private static final String CLASS_NAME = SaveAction.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
-    private Rune rune;
+    private final Rune rune;
 
     public SaveAction(Rune app) {
         logger.warning("SaveAction constructor");
@@ -24,10 +25,10 @@ public class SaveAction extends AbstractAction implements Action {
         this.putValue(NAME, "Save");
         this.putValue(SHORT_DESCRIPTION, "Save the current file");
         this.putValue(LONG_DESCRIPTION, "Save the current file");
-        this.putValue(ACCELERATOR_KEY, "Control-S");
-        this.putValue(MNEMONIC_KEY, "S");
+        this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        this.putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
         try {
-            this.putValue(SMALL_ICON, rune.loader.getSaveIcon());
+            this.putValue(SMALL_ICON, rune.getLoader().getSaveIcon());
         } catch (FileNotFoundException e) {
             rune.getMessenger().showError(e);
         }

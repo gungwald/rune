@@ -28,21 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.InputMap;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JViewport;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
@@ -115,7 +101,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private StatusBar statusBar = new StatusBar(this);
 
     private Font bufferFont = null;
-    public ImageIconLoader loader = null;
+    private ImageIconLoader loader = null;
     protected SaveAction save = new SaveAction(this);
 
     public Rune(File f) throws FontFormatException, IOException {
@@ -190,7 +176,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         file.add(openMenuItem);
 
-        InputMap inputMap = new KeyBindings().getInputMap();
+        ComponentInputMap inputMap = new KeyBindings(bufferTabs).getInputMap();
         bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
         bufferTabs.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
         bufferTabs.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
@@ -313,6 +299,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         setLocationRelativeTo(null);
         setVisible(true);
         getSelectedBuffer().requestFocusInWindow();
+    }
+
+    public ImageIconLoader getLoader() {
+        if (loader == null) {
+            loader = new ImageIconLoader(getMessenger());
+        }
+        return loader;
     }
 
     public void zoom(int magnitude) {

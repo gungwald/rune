@@ -1,6 +1,9 @@
 package com.alteredmechanism.rune;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,18 +13,15 @@ public class KeyBindings {
 
     public static final String SAVE_ACTION_ID = "save";
 
-    InputMap inputMap = new InputMap();
+    ComponentInputMap inputMap;
 
-    public KeyBindings() {
+    public KeyBindings(JComponent componentWithMap) {
+        inputMap = new ComponentInputMap(componentWithMap);
         String os = System.getProperty("os.name");
-        if (os.startsWith("Mac")) {
-            inputMap.put(getKeyStroke("Command-S"), SAVE_ACTION_ID);
-        } else {
-            inputMap.put(getKeyStroke("Control-S"), SAVE_ACTION_ID);
-        }
+        inputMap.put(getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), SAVE_ACTION_ID);
     }
 
-    public InputMap getInputMap() {
+    public ComponentInputMap getInputMap() {
         return inputMap;
     }
 }
