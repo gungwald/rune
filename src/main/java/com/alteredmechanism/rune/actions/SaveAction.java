@@ -26,7 +26,7 @@ public class SaveAction extends AbstractAction implements Action {
         this.putValue(SHORT_DESCRIPTION, "Save the current file");
         this.putValue(LONG_DESCRIPTION, "Save the current file");
         this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        this.putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
+        this.putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_S)); // Conversion to Integer required for retrotranslator
         try {
             this.putValue(SMALL_ICON, rune.getLoader().getSaveIcon());
         } catch (FileNotFoundException e) {

@@ -1,41 +1,20 @@
 package com.alteredmechanism.rune;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.alteredmechanism.javax.swing.ImageIconLoader;
+import com.alteredmechanism.rune.actions.SaveAction;
+import com.alteredmechanism.rune.actions.ZoomInAction;
+import com.alteredmechanism.rune.actions.ZoomOutAction;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import com.alteredmechanism.javax.swing.ImageIconLoader;
-import com.alteredmechanism.rune.actions.SaveAction;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.*;
+import java.io.*;
+import java.util.List;
 
 // TODO - Implement vi key bindings
 // TODO - Go to line
@@ -103,6 +82,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private Font bufferFont = null;
     private ImageIconLoader loader = null;
     protected SaveAction save = new SaveAction(this);
+    protected ZoomInAction zoomIn = new ZoomInAction(this);
+    protected ZoomOutAction zoomOut = new ZoomOutAction(this);
 
     public Rune(File f) throws FontFormatException, IOException {
         this();
@@ -112,6 +93,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     public Rune() throws FontFormatException, IOException {
         super(USER_FACING_APP_NAME);
         this.setSize(600, 400);
+        int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -127,34 +109,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
             this.setIconImage(icons.get(0));
         }
 
-        // Zoom in
-        Action zoomIn = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            public void actionPerformed(ActionEvent e) {
-                zoom(1);
-            }
-        };
-        KeyStroke ctrlPlus = KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK);
-        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(ctrlPlus, "zoomIn");
-        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(ctrlPlus, "zoomIn");
-        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlPlus, "zoomIn");
-        bufferTabs.getActionMap().put("zoomIn", zoomIn);
-
-        // Zoom out
-        Action zoomOut = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            public void actionPerformed(ActionEvent e) {
-                zoom(-1);
-            }
-        };
-        KeyStroke ctrlMinus = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK);
-        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(ctrlMinus, "zoomOut");
-        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(ctrlMinus, "zoomOut");
-        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlMinus, "zoomOut");
-        bufferTabs.getActionMap().put("zoomOut", zoomOut);
-
         appendNewTab();
 
         this.setJMenuBar(this.menuBar);
@@ -167,40 +121,39 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         newTabItem.setIcon(loader.getNewIcon());
         newTabItem.addActionListener(this);
         newTabItem.setMnemonic(KeyEvent.VK_T);
-        newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
+        newTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, shortcutKeyMask));
         file.add(newTabItem);
 
         openMenuItem.setIcon(loader.getOpenIcon());
         openMenuItem.addActionListener(this);
         openMenuItem.setMnemonic(KeyEvent.VK_O);
-        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKeyMask));
         file.add(openMenuItem);
 
-        ComponentInputMap inputMap = new KeyBindings(bufferTabs).getInputMap();
-        bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
-        bufferTabs.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
-        bufferTabs.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+//        ComponentInputMap inputMap = new KeyBindings(bufferTabs).getInputMap();
+//        bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
+//        bufferTabs.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+//        bufferTabs.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
 
-        bufferTabs.getActionMap().put(KeyBindings.SAVE_ACTION_ID, save);
+//        bufferTabs.getActionMap().put(KeyBindings.SAVE_ACTION_ID, save);
 
         saveMenuItem.setAction(save);
 //        saveMenuItem.setIcon(loader.getSaveIcon());
 //        saveMenuItem.addActionListener(this);
 //        saveMenuItem.setMnemonic(KeyEvent.VK_S);
-//        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+//        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, shortcutKeyMask));
         file.add(saveMenuItem);
 
         saveAsMenuItem.setIcon(loader.getSaveAsIcon());
         saveAsMenuItem.addActionListener(this);
         saveAsMenuItem.setMnemonic(KeyEvent.VK_A);
-        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
+        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, shortcutKeyMask));
         file.add(saveAsMenuItem);
 
         closeMenuItem.setIcon(loader.getDeleteIcon());
         closeMenuItem.addActionListener(this);
         closeMenuItem.setMnemonic(KeyEvent.VK_C);
-        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-                KeyEvent.CTRL_DOWN_MASK));
+        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, shortcutKeyMask));
         file.add(closeMenuItem);
 
         exitMenuItem.setIcon(loader.getExitIcon());
@@ -211,16 +164,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         // Undo menu item
         undoMenuItem.setIcon(loader.getUndoIcon());
         undoMenuItem.setMnemonic(KeyEvent.VK_U);
-        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-                KeyEvent.CTRL_DOWN_MASK));
+        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, shortcutKeyMask));
         undoMenuItem.addActionListener(this);
         editMenu.add(undoMenuItem);
 
         // Undo menu item
         redoMenuItem.setIcon(loader.getRedoIcon());
         redoMenuItem.setMnemonic(KeyEvent.VK_R);
-        redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
-                KeyEvent.CTRL_DOWN_MASK));
+        redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, shortcutKeyMask));
         redoMenuItem.addActionListener(this);
         editMenu.add(redoMenuItem);
 
@@ -229,24 +180,21 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         // Cut menu item
         cutMenuItem.setIcon(loader.getCutIcon());
         cutMenuItem.setMnemonic(KeyEvent.VK_T);
-        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,
-                KeyEvent.CTRL_DOWN_MASK));
+        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, shortcutKeyMask));
         cutMenuItem.addActionListener(this);
         editMenu.add(cutMenuItem);
 
         // Copy menu item
         copyMenuItem.setIcon(loader.getCopyIcon());
         copyMenuItem.setMnemonic(KeyEvent.VK_C);
-        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                KeyEvent.CTRL_DOWN_MASK));
+        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, shortcutKeyMask));
         copyMenuItem.addActionListener(this);
         editMenu.add(copyMenuItem);
 
         // Paste menu item
         pasteMenuItem.setIcon(loader.getPasteIcon());
         pasteMenuItem.setMnemonic(KeyEvent.VK_P);
-        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-                KeyEvent.CTRL_DOWN_MASK));
+        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, shortcutKeyMask));
         pasteMenuItem.addActionListener(this);
         editMenu.add(pasteMenuItem);
 
@@ -255,18 +203,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         copyFileNameMenuItem.addActionListener(this);
         editMenu.add(copyFileNameMenuItem);
 
-        zoomInMenuItem.setIcon(loader.getZoomInIcon());
-        zoomInMenuItem.setMnemonic(KeyEvent.VK_I);
-        zoomInMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP,
-                KeyEvent.CTRL_DOWN_MASK));
-        zoomInMenuItem.addActionListener(this);
+        zoomInMenuItem.setAction(zoomIn);
         viewMenu.add(zoomInMenuItem);
 
-        zoomOutMenuItem.setIcon(loader.getZoomOutIcon());
-        zoomOutMenuItem.setMnemonic(KeyEvent.VK_O);
-        zoomOutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
-                KeyEvent.CTRL_DOWN_MASK));
-        zoomOutMenuItem.addActionListener(this);
+        zoomOutMenuItem.setAction(zoomOut);
         viewMenu.add(zoomOutMenuItem);
 
         // Line wrap menu item
@@ -306,20 +246,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
             loader = new ImageIconLoader(getMessenger());
         }
         return loader;
-    }
-
-    public void zoom(int magnitude) {
-        System.out.println("zoom " + magnitude);
-        // RuneTextArea buffer = getSelectedBuffer();
-        Font currentFont = getBufferFont();
-        int adjustedSize = currentFont.getSize() + magnitude;
-        Font adjustedFont = currentFont.deriveFont((float) adjustedSize);
-        setBufferFont(adjustedFont);
-        int width = (int) (this.getWidth() * Math.abs(0.05 + magnitude));
-        int height = (int) (this.getHeight() * Math.abs(0.05 + magnitude));
-        System.out.println(width + "," + height);
-        this.setSize(width, height);
-        this.repaint();
     }
 
     public void open(File f) throws IOException {
@@ -466,10 +392,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                         "The editor does not contain a file.", "Unknown File",
                         JOptionPane.WARNING_MESSAGE);
             } else {
-                StringSelection content = new StringSelection(
-                        f.getAbsolutePath());
-                Toolkit.getDefaultToolkit().getSystemClipboard()
-                        .setContents(content, content);
+                StringSelection content = new StringSelection(f.getAbsolutePath());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(content, content);
             }
         } else if (e.getSource() == this.undoMenuItem) {
             getSelectedBuffer().undo();
