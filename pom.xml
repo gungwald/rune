@@ -15,6 +15,7 @@
         <maven.compiler.target>1.5</maven.compiler.target>
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.release>1.5</maven.compiler.release>
+        <izpack.staging>${project.build.directory}/izpack-staging</izpack.staging>
     </properties>
 
     <repositories>
@@ -68,10 +69,11 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>build-mac-app</id>
@@ -84,6 +86,12 @@
                                 <property name="plugin_classpath" refid="maven.plugin.classpath"/>
 
                                 <ant antfile="${basedir}/build-mac-app.xml"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                                <ant antfile="${basedir}/build.xml"/>
+   				<ant antfile="${basedir}/build.xml" target="izpack"/>
                             </target>
                         </configuration>
                         <goals>
@@ -115,6 +123,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
@@ -124,6 +133,13 @@
             <groupId>net.java.linoleum</groupId>
             <artifactId>jlfgr</artifactId>
             <version>1_0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.codehaus.izpack/izpack-standalone-compiler -->
+        <dependency>
+            <groupId>org.codehaus.izpack</groupId>
+            <artifactId>izpack-standalone-compiler</artifactId>
+            <version>4.3.5</version>
         </dependency>
 
     </dependencies>

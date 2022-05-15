@@ -35,6 +35,9 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private static final long serialVersionUID = 1L;
 
+    public static final String ZOOM_IN_KEY_KEY = "zoomIn";
+    public static final String ZOOM_OUT_KEY_KEY = "zoomOut";
+
     public static final int EXIT_SUCCESS = 0;
     public static final int EXIT_FAILURE = 1;
 
@@ -205,9 +208,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
         zoomInMenuItem.setAction(zoomIn);
         viewMenu.add(zoomInMenuItem);
-
         zoomOutMenuItem.setAction(zoomOut);
         viewMenu.add(zoomOutMenuItem);
+        bindControlKey(KeyEvent.VK_UP, zoomIn);
+        bindControlKey(KeyEvent.VK_DOWN, zoomOut);
 
         // Line wrap menu item
         lineWrapMenuItem.setIcon(loader.getZoomOutIcon());
@@ -239,6 +243,21 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         setLocationRelativeTo(null);
         setVisible(true);
         getSelectedBuffer().requestFocusInWindow();
+    }
+
+    /**
+     * Bind a key, modified by the platform shortcut key (Control for Windows,
+     * Command for Mac) to an action.
+     * @param key    A key code as specified by one of KeyEvent.VK_*
+     * @param action The action to invoke when the key is pressed
+     */
+    public void bindControlKey(int key, Action action) {
+        String actionMapKeyKey = (String) action.getValue(Action.NAME);
+        KeyStroke keySequence = KeyStroke.getKeyStroke(key, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(keySequence, actionMapKeyKey);
+        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keySequence, actionMapKeyKey);
+        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keySequence, actionMapKeyKey);
+        bufferTabs.getActionMap().put(actionMapKeyKey, action);
     }
 
     public ImageIconLoader getLoader() {

@@ -158,7 +158,7 @@
             <arg value="if=/dev/zero" />
             <arg value="of=${dmg}" />
             <arg value="bs=1M" />
-            <arg value="count=2" />
+            <arg value="count=10" />
             <!-- Number of megabytes -->
             <arg value="status=progress" />
         </exec>
@@ -195,4 +195,8 @@
     </target>
 
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
+
+    <target name="izpack">
+
+    </target>
 </project>
