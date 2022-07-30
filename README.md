@@ -37,7 +37,8 @@
 - Raspberry Pi
 - RiscOS? I don't think it supports Java but not sure.
 - Amiga with [JAmiga](http://os4depot.net/?function=showfile&file=development/language/jamiga.lha)
-- 
+- Atari?
+- ReactOS
 
 ## Downloads
 
