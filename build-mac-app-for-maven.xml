@@ -5,7 +5,7 @@
      Ultra 5. Ant is more than 2X faster and the Ant code is more than 2X
      simpler, shorter and easier to understand. The only thing that Maven
      would offer is dependency management. But there is only one dependency
-     so Maven is just an annoying nuisance for this purpose.
+     so Maven is just an annoying nuesance for this purpose. 
      
      Also, Maven can't build a DMG that works on both old and new Macs.
      Ant is required for that.
@@ -26,21 +26,12 @@
     <property name="cls.dir" value="${build.dir}/classes" />
     <property name="main.class" value="Rune" />
     <property name="lib.dir" value="lib" />
-    <property name="jar" value="${build.dir}/rune.jar" />
+    <property name="jar" value="${build.dir}/rune-1.0-jar-with-dependencies.jar" />
     <property name="app" value="${build.dir}/Rune.app" />
     <property name="dmg" value="${build.dir}/Rune.dmg" />
     <property name="zip" value="${build.dir}/Rune.zip" />
     <property name="dmg.setup.dir" value="${build.dir}/Rune" />
     <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts" />
-
-    <condition property="target.java.version" value="1.5" else="1.7">
-        <or>
-            <equals arg1="5" arg2="${java.specification.version}"/>
-            <equals arg1="6" arg2="${java.specification.version}"/>
-            <equals arg1="7" arg2="${java.specification.version}"/>
-            <equals arg1="8" arg2="${java.specification.version}"/>
-        </or>
-    </condition>
 
     <condition property="mac">
         <os family="mac" />
@@ -63,7 +54,7 @@
     </target>
     
     <target name="compile" depends="compile-setup" description="Compiles Java code">
-        <javac srcdir="src/main/java" source="${target.java.version}" target="${target.java.version}" destdir="${cls.dir}"
+        <javac srcdir="src/main/java" source="1.5" target="1.5" destdir="${cls.dir}" 
             includeantruntime="false" />
     </target>
 
@@ -78,7 +69,7 @@
         </jar>
     </target>
 
-    <target name="mac-app" depends="jar" description="Builds Rune.app directory structure">
+    <target name="app" description="Builds Rune.app directory structure">
         <delete dir="${app}" />
         <mkdir dir="${app}/Contents/MacOS" />
         <mkdir dir="${app}/Contents/Resources/Java" />
@@ -107,14 +98,14 @@
         </copy>
     </target>
 
-    <target name="mac-app-zip" depends="mac-app" description="Build a zip file containing the mac app">
+    <target name="zip" depends="app" description="Build a zip file containing the mac app">
         <echo message="A DMG is a Mac-only technology so building a Zip also" />
         <zip destfile="${zip}">
             <fileset file="${app}" />
         </zip>
     </target>
 
-    <target name="dmg-on-mac-setup" depends="mac-app" description="Setup for building a dmg on a Mac" if="mac">
+    <target name="dmg-on-mac-setup" depends="app" description="Setup for building a dmg on a Mac" if="mac">
         <mkdir dir="${dmg.setup.dir}" />
         <copy todir="${dmg.setup.dir}">
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
@@ -152,7 +143,7 @@
         </exec>
     </target>
 
-    <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
+    <target name="dmg-on-linux" depends="app" if="linux" description="Builds a dmg on a Lignix">
         <touch file="${dmg}" />
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero" />
@@ -194,5 +185,5 @@
         </exec>
     </target>
 
-    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
+    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,zip" description="Builds a dmg" />
 </project>

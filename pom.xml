@@ -1,130 +1,131 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<!-- Done with this -->
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.alteredmechanism.rune</groupId>
-	<artifactId>rune</artifactId>
-	<packaging>jar</packaging>
-	<version>1.0</version>
-	<name>rune</name>
-	<url>http://maven.apache.org</url>
+    <!-- Done with this -->
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.alteredmechanism.rune</groupId>
+    <artifactId>rune</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+    <name>rune</name>
+    <url>http://maven.apache.org</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.target>1.5</maven.compiler.target>
-		<maven.compiler.source>1.5</maven.compiler.source>
-		<maven.compiler.release>1.5</maven.compiler.release>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>1.5</maven.compiler.target>
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.release>1.5</maven.compiler.release>
+    </properties>
 
-	<repositories>
-		<repository>
-			<id>central-insecure</id>
-			<name>Central Repository with no SSL so Java 1.5 will work</name>
-			<url>http://insecure.repo1.maven.org/maven2/</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>central-insecure</id>
+            <name>Central Repository with no SSL so Java 1.5 will work</name>
+            <url>http://insecure.repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>central-insecure</id>
-			<name>Central Repository with no SSL so Java 1.5 will work</name>
-			<url>http://insecure.repo1.maven.org/maven2/</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central-insecure</id>
+            <name>Central Repository with no SSL so Java 1.5 will work</name>
+            <url>http://insecure.repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.5.5</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>Rune</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>assemble-all</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>build-mac-app</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<property name="compile_classpath" refid="maven.compile.classpath" />
-								<property name="runtime_classpath" refid="maven.runtime.classpath" />
-								<property name="test_classpath" refid="maven.test.classpath" />
-								<property name="plugin_classpath" refid="maven.plugin.classpath" />
+    <build>
+        <plugins>
 
-								<ant antfile="${basedir}/build.xml" />
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.5</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>Rune</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble-all</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>build-mac-app</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <property name="compile_classpath" refid="maven.compile.classpath"/>
+                                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                                <property name="test_classpath" refid="maven.test.classpath"/>
+                                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>retrotranslator-maven-plugin</artifactId>
-				<version>1.0-alpha-4</version>
-				<configuration>
-					<classifier>java-1.4</classifier>
-					<target>1.4</target>
-					<verbose>true</verbose>
-					<verify>true</verify>
-					<verifyClasspath>
-						<element>${basedir}/lib/rt-1.4.jar</element>
-					</verifyClasspath>
-					<backport>com.alteredmechanism.rune.backport</backport>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>translate-project</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+                                <ant antfile="${basedir}/build-mac-app.xml"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-	<dependencies>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>retrotranslator-maven-plugin</artifactId>
+                <version>1.0-alpha-4</version>
+                <configuration>
+                    <classifier>java-1.4</classifier>
+                    <target>1.4</target>
+                    <verbose>true</verbose>
+                    <verify>true</verify>
+                    <verifyClasspath>
+                        <element>${basedir}/lib/rt-1.4.jar</element>
+                    </verifyClasspath>
+                    <backport>com.alteredmechanism.rune.backport</backport>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>translate-project</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-		<dependency>
-			<groupId>net.java.linoleum</groupId>
-			<artifactId>jlfgr</artifactId>
-			<version>1_0</version>
-		</dependency>
+    <dependencies>
 
-	</dependencies>
+        <dependency>
+            <groupId>net.java.linoleum</groupId>
+            <artifactId>jlfgr</artifactId>
+            <version>1_0</version>
+        </dependency>
+
+    </dependencies>
 
 </project>
