@@ -20,20 +20,6 @@
 
 <project name="rune" default="dmg" basedir=".">
 
-<<<<<<< HEAD
-    <property environment="env" />
-    <property name="version" value="1.0" />
-    <property name="build.dir" value="target" />
-    <property name="cls.dir" value="${build.dir}/classes" />
-    <property name="main.class" value="Rune" />
-    <property name="lib.dir" value="lib" />
-    <property name="jar" value="${build.dir}/rune.jar" />
-    <property name="app" value="${build.dir}/Rune.app" />
-    <property name="dmg" value="${build.dir}/Rune.dmg" />
-    <property name="zip" value="${build.dir}/Rune.zip" />
-    <property name="dmg.setup.dir" value="${build.dir}/Rune" />
-    <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts" />
-=======
     <property environment="env"/>
     <property name="version" value="1.0"/>
     <property name="build.dir" value="target"/>
@@ -53,7 +39,6 @@
     <taskdef name="izpack"
              classpath="${user.home}/.m2/repository/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
->>>>>>> 5604f77 (IzPack config)
 
     <condition property="target.java.version" value="1.5" else="1.7">
         <or>
@@ -85,13 +70,8 @@
     </target>
 
     <target name="compile" depends="compile-setup" description="Compiles Java code">
-<<<<<<< HEAD
         <javac srcdir="src/main/java" source="${target.java.version}" target="${target.java.version}" destdir="${cls.dir}"
             includeantruntime="false" />
-=======
-        <javac srcdir="src/main/java" source="1.5" target="1.5" destdir="${cls.dir}"
-               includeantruntime="false"/>
->>>>>>> 5604f77 (IzPack config)
     </target>
 
     <target name="jar" depends="compile" description="Builds a fat jar, rune.jar">
@@ -105,17 +85,10 @@
         </jar>
     </target>
 
-<<<<<<< HEAD
     <target name="mac-app" depends="jar" description="Builds Rune.app directory structure">
         <delete dir="${app}" />
         <mkdir dir="${app}/Contents/MacOS" />
         <mkdir dir="${app}/Contents/Resources/Java" />
-=======
-    <target name="app" description="Builds Rune.app directory structure">
-        <delete dir="${app}"/>
-        <mkdir dir="${app}/Contents/MacOS"/>
-        <mkdir dir="${app}/Contents/Resources/Java"/>
->>>>>>> 5604f77 (IzPack config)
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true" verbose="true">
             <fileset file="src/main/scripts/rune"/>
             <fileset file="src/main/scripts/rune-debug.sh"/>
@@ -142,25 +115,15 @@
         </copy>
     </target>
 
-<<<<<<< HEAD
     <target name="mac-app-zip" depends="mac-app" description="Build a zip file containing the mac app">
         <echo message="A DMG is a Mac-only technology so building a Zip also" />
-=======
-    <target name="zip" depends="app" description="Build a zip file containing the mac app">
-        <echo message="A DMG is a Mac-only technology so building a Zip also"/>
->>>>>>> 5604f77 (IzPack config)
         <zip destfile="${zip}">
             <fileset file="${app}"/>
         </zip>
     </target>
 
-<<<<<<< HEAD
     <target name="dmg-on-mac-setup" depends="mac-app" description="Setup for building a dmg on a Mac" if="mac">
-        <mkdir dir="${dmg.setup.dir}" />
-=======
-    <target name="dmg-on-mac-setup" depends="app" description="Setup for building a dmg on a Mac" if="mac">
         <mkdir dir="${dmg.setup.dir}"/>
->>>>>>> 5604f77 (IzPack config)
         <copy todir="${dmg.setup.dir}">
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
@@ -197,13 +160,8 @@
         </exec>
     </target>
 
-<<<<<<< HEAD
     <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
         <touch file="${dmg}" />
-=======
-    <target name="dmg-on-linux" depends="app" if="linux" description="Builds a dmg on a Lignix">
-        <touch file="${dmg}"/>
->>>>>>> 5604f77 (IzPack config)
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -244,11 +202,7 @@
         </exec>
     </target>
 
-<<<<<<< HEAD
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
-=======
-    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,zip" description="Builds a dmg"/>
->>>>>>> 5604f77 (IzPack config)
 
     <target name="izpack-setup">
         <mkdir dir="${izpack.setup.dir}"/>
