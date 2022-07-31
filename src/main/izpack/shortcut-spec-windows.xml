@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<shortcuts>
+
+    <programGroup defaultName="Rune"
+                  location="applications"/>
+
+    <shortcut
+            name="Rune"
+            programGroup="yes"
+            desktop="no"
+            applications="no"
+            startMenu="yes"
+            startup="no"
+            target="$INSTALL_PATH/bin/rune"
+            commandLine=""
+            workingDirectory="$INSTALL_PATH/bin"
+            description="A text editor that works the way you expect"
+            iconFile="$INSTALL_PATH/share/icons/rune.png"
+            iconIndex="0"
+            type="Application"
+            encoding="UTF-8"
+            terminal="false"
+            KdeSubstUID="false"
+            initialState="normal">
+        <createForPack name="Core"/>
+    </shortcut>
+
+    <shortcut
+            name="Rune Support"
+            programGroup="yes"
+            desktop="no"
+            applications="no"
+            startMenu="yes"
+            startup="no"
+            target="start"
+            workingDirectory=""
+            commandLine=""
+            initialState="noShow"
+            iconFile="help"
+            iconIndex="0"
+            url="https://github.com/gungwald/rune"
+            type="Link"
+            encoding="UTF-8"
+            description="Help and support for Rune">
+    </shortcut>
+
+    <shortcut
+            name="Uninstaller"
+            programGroup="yes"
+            desktop="no"
+            applications="no"
+            startMenu="yes"
+            startup="no"
+            target="java"
+            commandLine="-jar &amp;quot;$INSTALL_PATH/Uninstaller/uninstaller.jar&amp;quot;"
+            initialState="noShow"
+            iconFile="trashcan_full"
+            iconIndex="0"
+            workingDirectory=""
+            type="Application"
+            encoding="UTF-8"
+            description="Rune uninstaller">
+        <createForPack name="Core"/>
+    </shortcut>
+
+</shortcuts>

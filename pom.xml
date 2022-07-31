@@ -80,6 +80,7 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
+<<<<<<< HEAD
                                 <property name="compile_classpath" refid="maven.compile.classpath"/>
                                 <property name="runtime_classpath" refid="maven.runtime.classpath"/>
                                 <property name="test_classpath" refid="maven.test.classpath"/>
@@ -92,6 +93,15 @@
                             <goal>run</goal>
                                 <ant antfile="${basedir}/build.xml"/>
    				<ant antfile="${basedir}/build.xml" target="izpack"/>
+=======
+                                <!--								<property name="compile_classpath" refid="maven.compile.classpath" />-->
+                                <!--								<property name="runtime_classpath" refid="maven.runtime.classpath" />-->
+                                <!--								<property name="test_classpath" refid="maven.test.classpath" />-->
+                                <!--								<property name="plugin_classpath" refid="maven.plugin.classpath" />-->
+                                <property name="local.maven.repo" value="${settings.localRepository}"/>
+                                <ant antfile="${basedir}/build.xml" target="dmg"/>
+                                <ant antfile="${basedir}/build.xml" target="izpack"/>
+>>>>>>> 5604f77 (IzPack config)
                             </target>
                         </configuration>
                         <goals>
@@ -129,17 +139,20 @@
 
     <dependencies>
 
+            <!-- Because izpack is going to be run by ant and the izpack jar
+                needs to be available. But it should not be included in the
+                jar-with-dependencies. -->
+            <dependency>
+                <groupId>org.codehaus.izpack</groupId>
+                <artifactId>izpack-standalone-compiler</artifactId>
+                <version>4.3.5</version>
+                <scope>provided</scope>
+            </dependency>
+
         <dependency>
             <groupId>net.java.linoleum</groupId>
             <artifactId>jlfgr</artifactId>
             <version>1_0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.codehaus.izpack/izpack-standalone-compiler -->
-        <dependency>
-            <groupId>org.codehaus.izpack</groupId>
-            <artifactId>izpack-standalone-compiler</artifactId>
-            <version>4.3.5</version>
         </dependency>
 
     </dependencies>

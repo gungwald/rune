@@ -20,6 +20,7 @@
 
 <project name="rune" default="dmg" basedir=".">
 
+<<<<<<< HEAD
     <property environment="env" />
     <property name="version" value="1.0" />
     <property name="build.dir" value="target" />
@@ -32,6 +33,27 @@
     <property name="zip" value="${build.dir}/Rune.zip" />
     <property name="dmg.setup.dir" value="${build.dir}/Rune" />
     <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts" />
+=======
+    <property environment="env"/>
+    <property name="version" value="1.0"/>
+    <property name="build.dir" value="target"/>
+    <property name="cls.dir" value="${build.dir}/classes"/>
+    <property name="main.class" value="Rune"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="jar" value="${build.dir}/rune-1.0-jar-with-dependencies.jar"/>
+    <property name="app" value="${build.dir}/Rune.app"/>
+    <property name="dmg" value="${build.dir}/Rune.dmg"/>
+    <property name="zip" value="${build.dir}/Rune.zip"/>
+    <property name="dmg.setup.dir" value="${build.dir}/Rune"/>
+    <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts"/>
+    <property name="izpack.setup.dir" value="${build.dir}/izpack"/>
+    <property name="izpack.app.dir" value="appfiles"/>
+
+    <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
+    <taskdef name="izpack"
+             classpath="${user.home}/.m2/repository/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/izpack-standalone-compiler-4.3.5.jar"
+             classname="com.izforge.izpack.ant.IzPackTask"/>
+>>>>>>> 5604f77 (IzPack config)
 
     <condition property="target.java.version" value="1.5" else="1.7">
         <or>
@@ -43,28 +65,33 @@
     </condition>
 
     <condition property="mac">
-        <os family="mac" />
+        <os family="mac"/>
     </condition>
 
     <condition property="linux">
-        <os name="linux" />
+        <os name="linux"/>
     </condition>
 
     <condition property="windows">
-        <os family="windows" />
+        <os family="windows"/>
     </condition>
 
     <target name="clean" description="Deletes all build artifacts">
-        <delete dir="${build.dir}" verbose="true" />
+        <delete dir="${build.dir}" verbose="true"/>
     </target>
 
     <target name="compile-setup" description="Sets up for compile">
         <mkdir dir="${cls.dir}"/>
     </target>
-    
+
     <target name="compile" depends="compile-setup" description="Compiles Java code">
+<<<<<<< HEAD
         <javac srcdir="src/main/java" source="${target.java.version}" target="${target.java.version}" destdir="${cls.dir}"
             includeantruntime="false" />
+=======
+        <javac srcdir="src/main/java" source="1.5" target="1.5" destdir="${cls.dir}"
+               includeantruntime="false"/>
+>>>>>>> 5604f77 (IzPack config)
     </target>
 
     <target name="jar" depends="compile" description="Builds a fat jar, rune.jar">
@@ -73,31 +100,39 @@
             <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
             <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
             <manifest>
-                <attribute name="Main-Class" value="${main.class}" />
+                <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
     </target>
 
+<<<<<<< HEAD
     <target name="mac-app" depends="jar" description="Builds Rune.app directory structure">
         <delete dir="${app}" />
         <mkdir dir="${app}/Contents/MacOS" />
         <mkdir dir="${app}/Contents/Resources/Java" />
+=======
+    <target name="app" description="Builds Rune.app directory structure">
+        <delete dir="${app}"/>
+        <mkdir dir="${app}/Contents/MacOS"/>
+        <mkdir dir="${app}/Contents/Resources/Java"/>
+>>>>>>> 5604f77 (IzPack config)
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true" verbose="true">
-            <fileset file="src/main/scripts/rune" />
-            <fileset file="src/main/scripts/rune-debug.sh" />
-            <fileset file="src/main/scripts/common-functions.sh" />
-            <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
+            <fileset file="src/main/scripts/rune"/>
+            <fileset file="src/main/scripts/rune-debug.sh"/>
+            <fileset file="src/main/scripts/common-functions.sh"/>
+            <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="ugo+rx" verbose="true">
-            <fileset file="${app}/Contents/MacOS/rune" />
-            <fileset file="${app}/Contents/MacOS/rune-debug.sh" />
-            <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh" />
-            <fileset file="${app}/Contents/MacOS/install-fonts.sh" />
+            <fileset file="${app}/Contents/MacOS/rune"/>
+            <fileset file="${app}/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${app}/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/rune.jar" preservelastmodified="true" verbose="true"/>
+        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/rune.jar" preservelastmodified="true"
+              verbose="true"/>
         <copy todir="${app}/Contents/Resources" preservelastmodified="true" verbose="true">
-            <fileset file="src/main/resources/icons/vegvisir.icns" />
+            <fileset file="src/main/resources/icons/vegvisir.icns"/>
         </copy>
         <copy todir="${app}/Contents" preservelastmodified="true" verbose="true">
             <fileset dir="src/main/resources/mac">
@@ -107,96 +142,152 @@
         </copy>
     </target>
 
+<<<<<<< HEAD
     <target name="mac-app-zip" depends="mac-app" description="Build a zip file containing the mac app">
         <echo message="A DMG is a Mac-only technology so building a Zip also" />
+=======
+    <target name="zip" depends="app" description="Build a zip file containing the mac app">
+        <echo message="A DMG is a Mac-only technology so building a Zip also"/>
+>>>>>>> 5604f77 (IzPack config)
         <zip destfile="${zip}">
-            <fileset file="${app}" />
+            <fileset file="${app}"/>
         </zip>
     </target>
 
+<<<<<<< HEAD
     <target name="dmg-on-mac-setup" depends="mac-app" description="Setup for building a dmg on a Mac" if="mac">
         <mkdir dir="${dmg.setup.dir}" />
+=======
+    <target name="dmg-on-mac-setup" depends="app" description="Setup for building a dmg on a Mac" if="mac">
+        <mkdir dir="${dmg.setup.dir}"/>
+>>>>>>> 5604f77 (IzPack config)
         <copy todir="${dmg.setup.dir}">
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="a+rx" verbose="true">
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune" />
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh" />
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh" />
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh" />
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune"/>
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh"/>
         </chmod>
         <copy file="src/main/scripts/install-fonts.sh" tofile="${font.install.script}"/>
         <chmod file="${font.install.script}" perm="a+rx"/>
-        <mkdir dir="${dmg.setup.dir}/Fonts" />
+        <mkdir dir="${dmg.setup.dir}/Fonts"/>
         <copy todir="${dmg.setup.dir}/Fonts">
-            <fileset dir="${basedir}/src/main/resources/fonts" includes="**" />
+            <fileset dir="${basedir}/src/main/resources/fonts" includes="**"/>
         </copy>
     </target>
 
     <target name="dmg-on-mac" depends="dmg-on-mac-setup" description="Builds a dmg on a Mac" if="mac">
         <exec dir="${build.dir}" executable="hdiutil">
-            <arg value="create" />
-            <arg value="-ov" />
+            <arg value="create"/>
+            <arg value="-ov"/>
             <!-- Overwrite any existing file -->
-            <arg value="-srcfolder" />
-            <arg value="Rune" />
-            <arg value="Rune.dmg" />
+            <arg value="-srcfolder"/>
+            <arg value="Rune"/>
+            <arg value="Rune.dmg"/>
         </exec>
         <!-- This should be "if mac os < catalina" -->
         <exec dir="${build.dir}" executable="hdiutil">
-            <arg value="internet-enable" />
-            <arg value="-yes" />
-            <arg value="Rune.dmg" />
+            <arg value="internet-enable"/>
+            <arg value="-yes"/>
+            <arg value="Rune.dmg"/>
         </exec>
     </target>
 
+<<<<<<< HEAD
     <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
         <touch file="${dmg}" />
+=======
+    <target name="dmg-on-linux" depends="app" if="linux" description="Builds a dmg on a Lignix">
+        <touch file="${dmg}"/>
+>>>>>>> 5604f77 (IzPack config)
         <exec dir="${basedir}" executable="dd" failonerror="true">
-            <arg value="if=/dev/zero" />
-            <arg value="of=${dmg}" />
-            <arg value="bs=1M" />
-            <arg value="count=10" />
+            <arg value="if=/dev/zero"/>
+            <arg value="of=${dmg}"/>
+            <arg value="bs=1M"/>
+            <arg value="count=10"/>
             <!-- Number of megabytes -->
-            <arg value="status=progress" />
+            <arg value="status=progress"/>
         </exec>
         <exec dir="${basedir}" executable="mkfs.hfsplus" failonerror="true">
-            <arg value="-v" />
-            <arg value="Rune" />
-            <arg value="${dmg}" />
+            <arg value="-v"/>
+            <arg value="Rune"/>
+            <arg value="${dmg}"/>
         </exec>
-        <mkdir dir="target/dmg-mount" />
+        <mkdir dir="target/dmg-mount"/>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
-            <arg value="mount" />
-            <arg value="--verbose" />
-            <arg value="-o" />
-            <arg value="loop" />
-            <arg value="${dmg}" />
-            <arg value="target/dmg-mount" />
+            <arg value="mount"/>
+            <arg value="--verbose"/>
+            <arg value="-o"/>
+            <arg value="loop"/>
+            <arg value="${dmg}"/>
+            <arg value="target/dmg-mount"/>
         </exec>
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
-            <arg value="chown" />
-            <arg value="-R" />
-            <arg value="${user.name}:${user.name}" />
-            <arg value="dmg-mount" />
+            <arg value="chown"/>
+            <arg value="-R"/>
+            <arg value="${user.name}:${user.name}"/>
+            <arg value="dmg-mount"/>
         </exec>
         <copy todir="${build.dir}/dmg-mount" verbose="true">
             <fileset dir="${build.dir}">
-                <include name="Rune.app/**" />
+                <include name="Rune.app/**"/>
             </fileset>
         </copy>
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
-            <arg value="umount" />
-            <arg value="--verbose" />
-            <arg value="dmg-mount" />
+            <arg value="umount"/>
+            <arg value="--verbose"/>
+            <arg value="dmg-mount"/>
         </exec>
     </target>
 
+<<<<<<< HEAD
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
+=======
+    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,zip" description="Builds a dmg"/>
+>>>>>>> 5604f77 (IzPack config)
 
-    <target name="izpack">
+    <target name="izpack-setup">
+        <mkdir dir="${izpack.setup.dir}"/>
+        <copy todir="${izpack.setup.dir}">
+            <fileset dir="src/main/izpack" includes="**"/>
+        </copy>
+        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/bin"/>
+        <copy todir="${izpack.setup.dir}/${izpack.app.dir}/bin">
+            <fileset dir="src/main/scripts">
+                <include name="rune*"/>
+                <include name="common-functions.sh"/>
+                <include name="dtksh-dialog"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/lib"/>
+        <copy tofile="${izpack.setup.dir}/${izpack.app.dir}/lib/rune.jar"
+              file="${build.dir}/rune-1.0-jar-with-dependencies.jar"/>
+        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}"/>
+        <copy todir="${izpack.setup.dir}/${izpack.app.dir}">
+            <fileset dir="${basedir}">
+                <include name="README.md"/>
+                <include name="LICENSE"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/share/icons"/>
+        <copy todir="${izpack.setup.dir}/${izpack.app.dir}/share/icons">
+            <fileset dir="src/main/resources/icons">
+                <include name="vegvisir.png"/>
+            </fileset>
+        </copy>
+    </target>
 
+    <target name="izpack" depends="izpack-setup">
+        <izpack input="src/main/izpack/install.xml"
+                output="${build.dir}/rune-install.jar"
+                installerType="standard"
+                inheritAll="true"
+                basedir="${izpack.setup.dir}"
+                compression="deflate"
+                compressionlevel="9"/>
     </target>
 </project>

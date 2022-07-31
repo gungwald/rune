@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+
+<installation version="1.0">
+	<!-- The Maven pom.xml is about building Rune, whereas this file is about installing Rune. -->
+	<info>
+		<appname>@{ant.project.name}</appname> <!-- The @ indicates a Maven property. -->
+		<appversion>@{version}</appversion>
+		<authors>
+			<author name="Bill Chatfield" email="bill_chatfield@yahoo.com" />
+		</authors>
+		<url>https://github.com/gungwald/rune</url>
+		<javaversion>@{ant.java.version}</javaversion>
+		<requiresjdk>no</requiresjdk>
+		<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />
+		<uninstaller write="yes" />
+		<readinstallationinformation>false</readinstallationinformation> <!-- Prevent izpack from stopping because old version is "incompatible". -->
+		<writeinstallationinformation>false</writeinstallationinformation> <!-- Prevent runtime error -->
+	</info>
+
+	<guiprefs width="640" height="480" resizable="yes">
+		<modifier key="labelFontSize" value="1.1" />
+		<modifier key="allYGap" value="10" />
+	</guiprefs>
+
+	<locale>
+		<langpack iso3="eng" />
+	</locale>
+
+	<resources>
+		<res id="InfoPanel.info" src="@{izpack.app.dir}/README.md" />
+		<res id="LicencePanel.licence" src="@{izpack.app.dir}/LICENSE" />
+		<res id="ProcessPanel.Spec.xml" src="process-panel-spec.xml" />
+		<res id="Win_shortcutSpec.xml" src="shortcut-spec-windows.xml"/>
+		<res id="Unix_shortcutSpec.xml" src="shortcut-spec-unix.xml"/>
+	</resources>
+
+	<panels>
+		<panel classname="HelloPanel" />
+		<panel classname="TargetPanel" />
+		<panel classname="LicencePanel" />
+		<panel classname="PacksPanel" />
+		<panel classname="InstallPanel" />
+		<panel classname="ShortcutPanel" />
+		<panel classname="ProcessPanel" />
+		<panel classname="FinishPanel" />
+	</panels>
+
+	<!-- To support the creation of desktop shortcuts on Windows -->
+	<native type="izpack" name="ShellLink.dll"/>
+
+	<packs>
+		<pack name="Core" required="yes">
+			<description>The core files needed for the application</description>
+			<fileset dir="@{izpack.app.dir}" targetdir="$INSTALL_PATH" override="true" />
+		</pack>
+	</packs>
+
+</installation>
