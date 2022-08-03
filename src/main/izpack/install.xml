@@ -3,13 +3,13 @@
 <installation version="1.0">
 	<!-- The Maven pom.xml is about building Rune, whereas this file is about installing Rune. -->
 	<info>
-		<appname>@{ant.project.name}</appname> <!-- The @ indicates a Maven property. -->
+		<appname>@{ant.project.name}</appname> <!-- The @ indicates a Maven/Ant property. -->
 		<appversion>@{version}</appversion>
 		<authors>
 			<author name="Bill Chatfield" email="bill_chatfield@yahoo.com" />
 		</authors>
 		<url>https://github.com/gungwald/rune</url>
-		<javaversion>@{ant.java.version}</javaversion>
+		<javaversion>@{target.java.version}</javaversion>
 		<requiresjdk>no</requiresjdk>
 		<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />
 		<uninstaller write="yes" />
@@ -27,16 +27,17 @@
 	</locale>
 
 	<resources>
-		<res id="InfoPanel.info" src="@{izpack.app.dir}/README.md" />
-		<res id="LicencePanel.licence" src="@{izpack.app.dir}/LICENSE" />
-		<res id="ProcessPanel.Spec.xml" src="process-panel-spec.xml" />
-		<res id="Win_shortcutSpec.xml" src="shortcut-spec-windows.xml"/>
-		<res id="Unix_shortcutSpec.xml" src="shortcut-spec-unix.xml"/>
+		<res id="InfoPanel.info" src="appfiles/README.md" />
+		<res id="TargetPanel.dir.unix" src="default-install-dir-unix.txt" />
+		<res id="LicencePanel.licence" src="appfiles/LICENSE" />
+		<res id="ProcessPanel.Spec.xml" src="panel-process.xml" />
+		<res id="Win_shortcutSpec.xml" src="panel-shortcut-windows.xml"/>
+		<res id="Unix_shortcutSpec.xml" src="panel-shortcut-unix.xml"/>
 	</resources>
 
 	<panels>
 		<panel classname="HelloPanel" />
-		<panel classname="TargetPanel" />
+		<panel classname="TargetPanel"/>
 		<panel classname="LicencePanel" />
 		<panel classname="PacksPanel" />
 		<panel classname="InstallPanel" />
@@ -51,7 +52,7 @@
 	<packs>
 		<pack name="Core" required="yes">
 			<description>The core files needed for the application</description>
-			<fileset dir="@{izpack.app.dir}" targetdir="$INSTALL_PATH" override="true" />
+			<fileset dir="appfiles" targetdir="$INSTALL_PATH" override="true" />
 		</pack>
 	</packs>
 

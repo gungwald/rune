@@ -18,7 +18,7 @@
 
 <!DOCTYPE project>
 
-<project name="rune" default="dmg" basedir=".">
+<project name="rune" default="all" basedir=".">
 
     <property environment="env"/>
     <property name="version" value="1.0"/>
@@ -26,7 +26,7 @@
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="Rune"/>
     <property name="lib.dir" value="lib"/>
-    <property name="jar" value="${build.dir}/rune-1.0-jar-with-dependencies.jar"/>
+    <property name="jar" value="${build.dir}/rune.jar"/>
     <property name="app" value="${build.dir}/Rune.app"/>
     <property name="dmg" value="${build.dir}/Rune.dmg"/>
     <property name="zip" value="${build.dir}/Rune.zip"/>
@@ -37,7 +37,7 @@
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
     <taskdef name="izpack"
-             classpath="${user.home}/.m2/repository/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/izpack-standalone-compiler-4.3.5.jar"
+             classpath="lib/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
     <condition property="target.java.version" value="1.5" else="1.7">
@@ -219,7 +219,7 @@
         </copy>
         <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/lib"/>
         <copy tofile="${izpack.setup.dir}/${izpack.app.dir}/lib/rune.jar"
-              file="${build.dir}/rune-1.0-jar-with-dependencies.jar"/>
+              file="${jar}"/>
         <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}"/>
         <copy todir="${izpack.setup.dir}/${izpack.app.dir}">
             <fileset dir="${basedir}">
@@ -243,5 +243,11 @@
                 basedir="${izpack.setup.dir}"
                 compression="deflate"
                 compressionlevel="9"/>
+    </target>
+
+    <target name="all"  depends="dmg,izpack"/>
+
+    <target name="test" depends="all">
+        <java jar="${build.dir}/rune-install.jar" fork="true"/>
     </target>
 </project>
