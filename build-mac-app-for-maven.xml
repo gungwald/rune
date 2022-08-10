@@ -76,7 +76,7 @@
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true" verbose="true">
             <fileset file="src/main/scripts/rune" />
             <fileset file="src/main/scripts/rune-debug.sh" />
-            <fileset file="src/main/scripts/common-functions.sh" />
+            <fileset file="src/main/scripts/rune-common-functions.sh" />
             <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh" />
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->

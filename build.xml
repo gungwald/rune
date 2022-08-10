@@ -92,7 +92,7 @@
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true" verbose="true">
             <fileset file="src/main/scripts/rune"/>
             <fileset file="src/main/scripts/rune-debug.sh"/>
-            <fileset file="src/main/scripts/common-functions.sh"/>
+            <fileset file="src/main/scripts/rune-common-functions.sh"/>
             <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
@@ -209,11 +209,13 @@
         <copy todir="${izpack.setup.dir}">
             <fileset dir="src/main/izpack" includes="**"/>
         </copy>
+
+        <!-- Copy scripts into izpack deployment directory. -->
         <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/bin"/>
         <copy todir="${izpack.setup.dir}/${izpack.app.dir}/bin">
             <fileset dir="src/main/scripts">
-                <include name="rune*"/>
-                <include name="common-functions.sh"/>
+                <include name="rune*"/> <!-- All files starting with rune -->
+                <include name="rune-common-functions.sh"/>
                 <include name="dtksh-dialog"/>
             </fileset>
         </copy>

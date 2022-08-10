@@ -23,7 +23,7 @@ PARENT_DIR=`dirname "$SCRIPT_DIR"`
 OS=`uname -s`
 ON_OUT_OF_MEM_ERR="$SCRIPT_DIR"/rune-out-of-mem-err-handler.sh
 
-. "$SCRIPT_DIR"/common-functions.sh
+. "$SCRIPT_DIR"/rune-common-functions.sh
 
 # Check if running from Mac Rune.app.
 if endsWith "$SCRIPT_DIR" Contents/MacOS; then
