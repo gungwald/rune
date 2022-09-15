@@ -35,6 +35,10 @@
 		<res id="Unix_shortcutSpec.xml" src="panel-shortcut-unix.xml"/>
 	</resources>
 
+	<listeners>
+		<listener installer="XdgDesktopMenu"/>
+	</listeners>
+
 	<panels>
 		<panel classname="HelloPanel" />
 		<panel classname="TargetPanel"/>

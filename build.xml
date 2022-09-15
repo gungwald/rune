@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Ant is used instead of Maven or Gradle becuase both Maven and Gradle
+<!-- Ant is used instead of Maven or Gradle because both Maven and Gradle
      are hideously slow on older machines like a Mac PowerBook G4 or Sun
      Ultra 5. Ant is more than 2X faster and the Ant code is more than 2X
      simpler, shorter and easier to understand. The only thing that Maven
@@ -32,8 +32,9 @@
     <property name="zip" value="${build.dir}/Rune.zip"/>
     <property name="dmg.setup.dir" value="${build.dir}/Rune"/>
     <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts"/>
-    <property name="izpack.setup.dir" value="${build.dir}/izpack"/>
+    <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
+    <property name="install-listener-jar" value="bin/customActions/XdgDesktopMenu.jar"/>
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
     <taskdef name="izpack"
@@ -70,13 +71,27 @@
     </target>
 
     <target name="compile" depends="compile-setup" description="Compiles Java code">
-        <javac srcdir="src/main/java" source="${target.java.version}" target="${target.java.version}" destdir="${cls.dir}"
-            includeantruntime="false" />
+        <javac srcdir="src/main/java"
+               source="${target.java.version}"
+               target="${target.java.version}"
+               destdir="${cls.dir}"
+               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               includeantruntime="false" />
+    </target>
+
+    <target name="jar-install-listener" depends="compile" description="Builds jar for custom install listener">
+        <jar destfile="${install-listener-jar}">
+            <fileset dir="${build.dir}/classes">
+                <include name="com/alteredmechanism/izpack/**"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="jar" depends="compile" description="Builds a fat jar, rune.jar">
         <jar destfile="${build.dir}/${ant.project.name}.jar">
-            <fileset dir="${build.dir}/classes"/>
+            <fileset dir="${build.dir}/classes">
+                <exclude name="com/alteredmechanism/izpack/**"/>
+            </fileset>
             <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
             <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
             <manifest>
@@ -205,44 +220,44 @@
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
 
     <target name="izpack-setup">
-        <mkdir dir="${izpack.setup.dir}"/>
-        <copy todir="${izpack.setup.dir}">
+        <mkdir dir="${izpack.root}"/>
+        <copy todir="${izpack.root}">
             <fileset dir="src/main/izpack" includes="**"/>
         </copy>
 
         <!-- Copy scripts into izpack deployment directory. -->
-        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/bin"/>
-        <copy todir="${izpack.setup.dir}/${izpack.app.dir}/bin">
+        <mkdir dir="${izpack.root}/${izpack.app.dir}/bin"/>
+        <copy todir="${izpack.root}/${izpack.app.dir}/bin">
             <fileset dir="src/main/scripts">
                 <include name="rune*"/> <!-- All files starting with rune -->
                 <include name="rune-common-functions.sh"/>
                 <include name="dtksh-dialog"/>
             </fileset>
         </copy>
-        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/lib"/>
-        <copy tofile="${izpack.setup.dir}/${izpack.app.dir}/lib/rune.jar"
+        <mkdir dir="${izpack.root}/${izpack.app.dir}/lib"/>
+        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/rune.jar"
               file="${jar}"/>
-        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}"/>
-        <copy todir="${izpack.setup.dir}/${izpack.app.dir}">
+        <mkdir dir="${izpack.root}/${izpack.app.dir}"/>
+        <copy todir="${izpack.root}/${izpack.app.dir}">
             <fileset dir="${basedir}">
                 <include name="README.md"/>
                 <include name="LICENSE"/>
             </fileset>
         </copy>
-        <mkdir dir="${izpack.setup.dir}/${izpack.app.dir}/share/icons"/>
-        <copy todir="${izpack.setup.dir}/${izpack.app.dir}/share/icons">
+        <mkdir dir="${izpack.root}/${izpack.app.dir}/share/icons"/>
+        <copy todir="${izpack.root}/${izpack.app.dir}/share/icons">
             <fileset dir="src/main/resources/icons">
                 <include name="vegvisir.png"/>
             </fileset>
         </copy>
     </target>
 
-    <target name="izpack" depends="izpack-setup">
+    <target name="izpack" depends="izpack-setup,jar-install-listener">
         <izpack input="src/main/izpack/install.xml"
                 output="${build.dir}/rune-install.jar"
                 installerType="standard"
                 inheritAll="true"
-                basedir="${izpack.setup.dir}"
+                basedir="${izpack.root}"
                 compression="deflate"
                 compressionlevel="9"/>
     </target>
