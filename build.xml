@@ -34,6 +34,7 @@
     <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts"/>
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
+    <!-- The location of this jar is very bad, but that is what izPack requires. -->
     <property name="install-listener-jar" value="bin/customActions/XdgDesktopMenu.jar"/>
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
