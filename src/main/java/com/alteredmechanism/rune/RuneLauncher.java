@@ -1,3 +1,5 @@
+package com.alteredmechanism.rune;
+
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.Arrays;
