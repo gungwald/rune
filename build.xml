@@ -84,6 +84,7 @@
         <jar destfile="${install-listener-jar}">
             <fileset dir="${build.dir}/classes">
                 <include name="com/alteredmechanism/izpack/**"/>
+                <include name="com/alteredmechanism/rune/Executor"/>
             </fileset>
         </jar>
     </target>
