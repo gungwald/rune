@@ -13,14 +13,14 @@ public class XdgDesktopMenu extends SimpleInstallerListener {
     @Override
     public void afterPacks(AutomatedInstallData automatedInstallData, AbstractUIProgressHandler abstractUIProgressHandler) throws Exception {
         super.afterPacks(automatedInstallData, abstractUIProgressHandler);
-        System.out.printf("Install variables: %s", automatedInstallData.getVariables().toString());
+        System.out.printf("Install variables: %s%n", automatedInstallData.getVariables().toString());
         File startScript = new File(automatedInstallData.getVariable("INSTALL_PATH") + "/bin/rune");
         File tmpFile = makeTempDesktopFile(startScript);
         Executor.exec(new String[] {"xdg-desktop-menu", "install", tmpFile.getAbsolutePath()});
     }
 
     private File makeTempDesktopFile(File startScript) throws IOException {
-        File tmp = File.createTempFile("rune", ".tmp");
+        File tmp = File.createTempFile("rune", ".desktop");
         PrintWriter out = new PrintWriter(tmp);
         out.println("[Desktop Entry]");
         out.println("Name=Rune");

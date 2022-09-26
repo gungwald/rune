@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<izpack:processing version="5.0"
-  xmlns:izpack="http://izpack.org/schema/processing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://izpack.org/schema/processing http://izpack.org/schema/5.0/izpack-processing-5.0.xsd">
-
+<processing>
     <logfiledir>$INSTALL_PATH/log</logfiledir>
-
     <job name="Create Registry Entries for BeanShell File Association">
         <os family="windows" />
         <executefile name="java" workingDir="$INSTALL_PATH">
@@ -15,7 +10,6 @@
             <arg>$INSTALL_PATH</arg> <!-- Install directory is a required argument -->
         </executefile>
     </job>
-
     <job name="Update Path to Include BeanShell bin Directory">
         <os family="windows" />
         <executefile name="java" workingDir="$INSTALL_PATH">
@@ -25,4 +19,4 @@
             <arg>$INSTALL_PATH\bin</arg> <!-- Path directory is a required argument -->
         </executefile>
     </job>
-</izpack:processing>
+</processing>

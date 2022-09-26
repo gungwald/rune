@@ -35,7 +35,9 @@
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
     <!-- The location of this jar is very bad, but that is what izPack requires. -->
-    <property name="install-listener-jar" value="bin/customActions/XdgDesktopMenu.jar"/>
+    <property name="listener.bin" value="bin"/>
+    <property name="listener.dir" value="${listener.bin}/customActions"/>
+    <property name="xdg.desktop.menu.jar" value="${listener.dir}/xdg-desktop-menu.jar"/>
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
     <taskdef name="izpack"
@@ -65,6 +67,7 @@
 
     <target name="clean" description="Deletes all build artifacts">
         <delete dir="${build.dir}" verbose="true"/>
+        <delete dir="${listener.bin}" verbose="true"/>
     </target>
 
     <target name="compile-setup" description="Sets up for compile">
@@ -81,10 +84,10 @@
     </target>
 
     <target name="jar-install-listener" depends="compile" description="Builds jar for custom install listener">
-        <jar destfile="${install-listener-jar}">
+        <jar destfile="${xdg.desktop.menu.jar}">
             <fileset dir="${build.dir}/classes">
                 <include name="com/alteredmechanism/izpack/**"/>
-                <include name="com/alteredmechanism/rune/Executor"/>
+                <include name="com/alteredmechanism/rune/Executor.class"/>
             </fileset>
         </jar>
     </target>
