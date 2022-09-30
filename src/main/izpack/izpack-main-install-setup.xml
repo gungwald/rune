@@ -32,12 +32,7 @@
 		<res id="LicencePanel.licence" src="appfiles/LICENSE" />
 		<res id="ProcessPanel.Spec.xml" src="panel-process.xml" />
 		<res id="Win_shortcutSpec.xml" src="panel-shortcut-windows.xml"/>
-		<res id="Unix_shortcutSpec.xml" src="panel-shortcut-unix.xml"/>
 	</resources>
-
-	<listeners>
-		<listener installer="XdgDesktopMenu"/>
-	</listeners>
 
 	<panels>
 		<panel classname="HelloPanel" />

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
+<!-- This is not being used because it doesn't work. The work is done in panel-process.xml. -->
+
 <shortcuts>
 
     <programGroup defaultName="Rune"

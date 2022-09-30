@@ -35,9 +35,7 @@
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
     <!-- The location of this jar is very bad, but that is what izPack requires. -->
-    <property name="listener.bin" value="bin"/>
-    <property name="listener.dir" value="${listener.bin}/customActions"/>
-    <property name="xdg.desktop.menu.jar" value="${listener.dir}/xdg-desktop-menu.jar"/>
+    <property name="xdg.desktop.menu.jar" value="${build.dir}/xdg-desktop-menu.jar"/>
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
     <taskdef name="izpack"
@@ -67,7 +65,6 @@
 
     <target name="clean" description="Deletes all build artifacts">
         <delete dir="${build.dir}" verbose="true"/>
-        <delete dir="${listener.bin}" verbose="true"/>
     </target>
 
     <target name="compile-setup" description="Sets up for compile">
@@ -83,7 +80,7 @@
                includeantruntime="false" />
     </target>
 
-    <target name="jar-install-listener" depends="compile" description="Builds jar for custom install listener">
+    <target name="jar-xdg-desktop-menu-setup" depends="compile" description="Builds jar for custom install listener">
         <jar destfile="${xdg.desktop.menu.jar}">
             <fileset dir="${build.dir}/classes">
                 <include name="com/alteredmechanism/izpack/**"/>
@@ -224,7 +221,7 @@
 
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
 
-    <target name="izpack-setup">
+    <target name="izpack-setup" depends="jar,jar-xdg-desktop-menu-setup">
         <mkdir dir="${izpack.root}"/>
         <copy todir="${izpack.root}">
             <fileset dir="src/main/izpack" includes="**"/>
@@ -240,8 +237,8 @@
             </fileset>
         </copy>
         <mkdir dir="${izpack.root}/${izpack.app.dir}/lib"/>
-        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/rune.jar"
-              file="${jar}"/>
+        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/rune.jar" file="${jar}"/>
+        <copy todir="${izpack.root}/${izpack.app.dir}/lib" file="${xdg.desktop.menu.jar}"/>
         <mkdir dir="${izpack.root}/${izpack.app.dir}"/>
         <copy todir="${izpack.root}/${izpack.app.dir}">
             <fileset dir="${basedir}">
@@ -257,8 +254,8 @@
         </copy>
     </target>
 
-    <target name="izpack" depends="izpack-setup,jar-install-listener">
-        <izpack input="src/main/izpack/install.xml"
+    <target name="izpack" depends="izpack-setup">
+        <izpack input="src/main/izpack/izpack-main-install-setup.xml"
                 output="${build.dir}/rune-install.jar"
                 installerType="standard"
                 inheritAll="true"
