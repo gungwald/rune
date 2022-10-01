@@ -256,7 +256,7 @@
 
     <target name="izpack" depends="izpack-setup">
         <izpack input="src/main/izpack/izpack-main-install-setup.xml"
-                output="${build.dir}/rune-install.jar"
+                output="${build.dir}/rune-installer.jar"
                 installerType="standard"
                 inheritAll="true"
                 basedir="${izpack.root}"

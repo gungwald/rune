@@ -39,4 +39,5 @@ public class XdgDesktopMenu extends SimpleInstallerListener {
         out.close();
         return tmp;
     }
+
 }

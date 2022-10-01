@@ -31,6 +31,7 @@
 		<res id="TargetPanel.dir.unix" src="default-install-dir-unix.txt" />
 		<res id="LicencePanel.licence" src="appfiles/LICENSE" />
 		<res id="ProcessPanel.Spec.xml" src="panel-process.xml" />
+		<res id="Unix_shortcutSpec.xml" src="panel-shortcut-unix.xml" />
 		<res id="Win_shortcutSpec.xml" src="panel-shortcut-windows.xml"/>
 	</resources>
 
