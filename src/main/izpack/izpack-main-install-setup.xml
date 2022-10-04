@@ -18,6 +18,12 @@
 	</info>
 
 	<guiprefs width="640" height="480" resizable="yes">
+		<laf name="GTK+">
+			<os family="unix" />
+		</laf>
+		<laf name="Windows">
+			<os family="Windows" />
+		</laf>
 		<modifier key="labelFontSize" value="1.1" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
