@@ -95,11 +95,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     public Rune() throws FontFormatException, IOException {
         super(USER_FACING_APP_NAME);
-        this.setSize(600, 400);
+
+        // Can't call setSize because it requires Java 6 and Java 5 is being supported.
+        Dimension size = new Dimension(600, 400);
+        this.setPreferredSize(size);
+
         int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
         this.getContentPane().setLayout(new BorderLayout());
 
         getContentPane().add(statusBar, BorderLayout.SOUTH);

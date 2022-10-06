@@ -187,7 +187,9 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <exec dir="${basedir}" executable="mkfs.hfsplus" failonerror="true">
+        <exec dir="${basedir}" executable="mkfs" failonerror="true">
+            <arg value="-t"/>
+            <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
@@ -255,13 +257,15 @@
     </target>
 
     <target name="izpack" depends="izpack-setup">
+        <!-- Setting compression="deflate" causes
+        ClassNotFoundException: java.util.jar.Pack200 with some versions
+        of Java (8, 14, etc) which do not have that class. -->
         <izpack input="src/main/izpack/izpack-main-install-setup.xml"
                 output="${build.dir}/rune-installer.jar"
                 installerType="standard"
                 inheritAll="true"
                 basedir="${izpack.root}"
-                compression="deflate"
-                compressionlevel="9"/>
+                compression="default"/>
     </target>
 
     <target name="all"  depends="dmg,izpack"/>
