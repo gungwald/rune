@@ -18,13 +18,18 @@
 	</info>
 
 	<guiprefs width="640" height="480" resizable="yes">
-		<laf name="GTK+">
+		<!-- GTk+ can't be specified because the build will fail on Mac and Windows.
+		     It can't be left unspecified because on platforms like OpenIndiana
+		     we get Motif and the buttons are unreadable. A laf that is included
+		     in IzPack must be specified so that it compiles on all platforms. -->
+		<laf name="substance">
 			<os family="unix" />
 		</laf>
-		<laf name="Windows">
-			<os family="Windows" />
+		<laf name="looks"> <!-- JGoodies Looks -->
+			<os family="windows" />
+			<param name="variant" value="extwin" /> <!-- or just windows -->
 		</laf>
-		<modifier key="labelFontSize" value="1.1" />
+		<modifier key="labelFontSize" value="1.5" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
 
