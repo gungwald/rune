@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <processing>
-    <logfiledir>$INSTALL_PATH/log</logfiledir>
+    <logfiledir>$INSTALL_PATH</logfiledir>
     <job name="Setup shortcuts and run scripts">
         <os family="unix" />
         <executefile name="java" workingDir="$INSTALL_PATH">
-            <arg>-classpath</arg>
+            <arg>-jar</arg>
             <arg>$INSTALL_PATH/lib/xdg-desktop-menu.jar</arg>
-            <arg>com.alteredmechanism.izpack.XdgDesktopMenu</arg>
         </executefile>
     </job>
 </processing>

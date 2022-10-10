@@ -77,7 +77,8 @@
                target="${target.java.version}"
                destdir="${cls.dir}"
                classpath="lib/izpack-standalone-compiler-4.3.5.jar"
-               includeantruntime="false" />
+               includeantruntime="false"
+               debug="true"/>
     </target>
 
     <target name="jar-xdg-desktop-menu-setup" depends="compile" description="Builds jar for custom install listener">
@@ -86,6 +87,9 @@
                 <include name="com/alteredmechanism/izpack/**"/>
                 <include name="com/alteredmechanism/rune/Executor.class"/>
             </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="com.alteredmechanism.izpack.XdgDesktopMenu"/>
+            </manifest>
         </jar>
     </target>
 

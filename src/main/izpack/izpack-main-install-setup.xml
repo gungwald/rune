@@ -29,7 +29,7 @@
 			<os family="windows" />
 			<param name="variant" value="extwin" /> <!-- or just windows -->
 		</laf>
-		<modifier key="labelFontSize" value="1.5" />
+		<modifier key="labelFontSize" value="1.0" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
 
