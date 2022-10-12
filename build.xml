@@ -191,6 +191,13 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
+        <echo message="${env.PATH}"/>
+        <echo message="${basedir}: mkfs -t hfsplus -v Rune ${dmg}"/>
+        <!-- sudo dnf install hfsplus-tools -->
+        <!-- The following will not work inside Intellij if it is
+             installed with snap or flatpak because they are sandboxed
+             and are therefore utterly stupid since they can't access
+             the /usr/sbin/mkfs command. -->
         <exec dir="${basedir}" executable="mkfs" failonerror="true">
             <arg value="-t"/>
             <arg value="hfsplus"/>
