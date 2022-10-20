@@ -20,7 +20,7 @@
     - Solaris 8 UltraSparc 64-bit
     - OpenIndiana 2021.10
     - OS/2 Warp 4
-- Themeable, but the default theme is consistent with your operating system
+- Theme-able, but the default theme is consistent with your operating system
 - Multiple files can be open at the same time in different tabs
 - Start-up time is reasonably fast: about 3 seconds on a modern machine
 - Anti-aliased (smooth) text
@@ -29,16 +29,19 @@
 
 ## Planned Features
 
+- Search
 - Syntax highlighting
-- Ability to save state
+- Ability to save state across process restarts
 - Project files
 - Vim emulation
-- Haiku support
-- Raspberry Pi
-- RiscOS? I don't think it supports Java but not sure.
-- Amiga with [JAmiga](http://os4depot.net/?function=showfile&file=development/language/jamiga.lha)
-- Atari?
-- ReactOS
+- New platforms
+  - Haiku
+  - Raspberry Pi
+  - RiscOS? I don't think it supports Java but not sure.
+  - Amiga with [JAmiga](http://os4depot.net/?function=showfile&file=development/language/jamiga.lha)
+  - Atari
+  - ReactOS
+  - MorphOS (Amiga)
 
 ## Downloads
 

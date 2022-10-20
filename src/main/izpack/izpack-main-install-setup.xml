@@ -11,7 +11,7 @@
 		<url>https://github.com/gungwald/rune</url>
 		<javaversion>@{target.java.version}</javaversion>
 		<requiresjdk>no</requiresjdk>
-		<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />
+		<!--<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />-->
 		<uninstaller write="yes" />
 		<readinstallationinformation>false</readinstallationinformation> <!-- Prevent izpack from stopping because old version is "incompatible". -->
 		<writeinstallationinformation>false</writeinstallationinformation> <!-- Prevent runtime error -->
@@ -29,7 +29,7 @@
 			<os family="windows" />
 			<param name="variant" value="extwin" /> <!-- or just windows -->
 		</laf>
-		<modifier key="labelFontSize" value="1.0" />
+		<modifier key="labelFontSize" value="1.2" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
 
@@ -58,7 +58,12 @@
 	</panels>
 
 	<!-- To support the creation of desktop shortcuts on Windows -->
-	<native type="izpack" name="ShellLink.dll"/>
+	<native type="izpack" name="ShellLink.dll">
+		<os family="windows"/>
+	</native>
+	<native type="izpack" name="ShellLink_x64.dll">
+		<os family="windows"/>
+	</native>
 
 	<packs>
 		<pack name="Core" required="yes">
