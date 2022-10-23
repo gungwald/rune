@@ -11,7 +11,7 @@
 		<url>https://github.com/gungwald/rune</url>
 		<javaversion>@{target.java.version}</javaversion>
 		<requiresjdk>no</requiresjdk>
-		<!--<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />-->
+		<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />
 		<uninstaller write="yes" />
 		<readinstallationinformation>false</readinstallationinformation> <!-- Prevent izpack from stopping because old version is "incompatible". -->
 		<writeinstallationinformation>false</writeinstallationinformation> <!-- Prevent runtime error -->
@@ -25,11 +25,12 @@
 		<laf name="substance">
 			<os family="unix" />
 		</laf>
+		<!-- The default Windows theme doesn't look that good. -->
 		<laf name="looks"> <!-- JGoodies Looks -->
 			<os family="windows" />
 			<param name="variant" value="extwin" /> <!-- or just windows -->
 		</laf>
-		<modifier key="labelFontSize" value="1.2" />
+		<modifier key="labelFontSize" value="1.1" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
 
