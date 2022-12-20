@@ -86,7 +86,7 @@ Not everything works right. For example, only one file can be opened. I'm not su
 
     1. Install any available version of openjdk from HaikuDepot.
     2. Add the Java install directory to your PATH. It will be
-       something like /system/lib/openjdk
+       something like /system/lib/openjdk/bin
     3. You may need to restart
     4. Run this from the command line: java -jar rune.jar
 
