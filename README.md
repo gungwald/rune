@@ -76,7 +76,7 @@ I am still working on the installer.
 ### OS/2
 
     1. Install Java 6 from https://trac.netlabs.org/java
-    2. Add the Java install directory to your PATH
+    2. Add the Java bin directory to your PATH
     3. You may need to restart
     4. Run this from the command line: java -jar rune.jar
 
