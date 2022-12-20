@@ -55,9 +55,9 @@ Any hardware and operating system that offers Java 5 and up, so it works on old 
 
 ### Mac (10.4 and up)
 
-    Mount .dmg file.
-    Copy Rune.app to Application folder.
-    Double-click Rune.app
+    1. Mount .dmg file.
+    2. Copy Rune.app to Application folder.
+    3. Double-click Rune.app
 
 ### Windows
 
@@ -70,18 +70,23 @@ I am still working on the installer.
 
 ### Linux, BSD, Solaris, OpenIndiana
 
-    Install some version of openjdk. Any version available will work.
-    Run this from the command line: java -jar rune.jar
+    1. Install a version of openjdk greater than or equal to 5.
+    2. Run this from the command line: java -jar rune.jar
 
 ### OS/2
 
-    Install Java 6 from https://trac.netlabs.org/java
-    Run Rune from the command line: java -jar rune.jarchines and new machines.
+    1. Install Java 6 from https://trac.netlabs.org/java
+    2. Add the Java install directory to your PATH
+    3. You may need to restart
+    4. Run this from the command line: java -jar rune.jar
 
 ### Haiku
 
 Not everything works right. For example, only one file can be opened. I'm not sure it this is caused by bugs in the Haiku Java port, or bugs in Rune that can't be seen on other platforms. I will try to look into it when I have time. There are also issues with memory that require some extra parameters on the Java command line. So it is necessary to create a script to start up Rune.
 
-    Install any available version of openjdk from HaikuDepot.
-    Create a script like the following, replacing the value of JAVA_HOME with your version of Java:
+    1. Install any available version of openjdk from HaikuDepot.
+    2. Add the Java install directory to your PATH. It will be
+       something like /system/lib/openjdk
+    3. You may need to restart
+    4. Run this from the command line: java -jar rune.jar
 
