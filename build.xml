@@ -183,6 +183,7 @@
 
     <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
         <touch file="${dmg}" />
+	<echo message="Zeroing out ${dmg} file"/>
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -191,21 +192,31 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <echo message="${env.PATH}"/>
-        <echo message="${basedir}: mkfs -t hfsplus -v Rune ${dmg}"/>
-        <!-- sudo dnf install hfsplus-tools -->
-        <!-- The following will not work inside Intellij if it is
-             installed with snap or flatpak because they are sandboxed
-             and are therefore utterly stupid since they can't access
-             the /usr/sbin/mkfs command. -->
-        <exec dir="${basedir}" executable="mkfs" failonerror="true">
+	<!-- echo message="${env.PATH}"-->
+        <exec dir="${basedir}" executable="mkfs" resultproperty="mkfs.hfsplus.result">
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
         </exec>
+	<fail>
+            <condition>
+                <not>
+			<equals arg1="${mkfs.hfsplus.result}" arg2="0"/>
+		</not>
+	    </condition>
+Failed to create hfs+ file system for dmg.
+
+You may need to install the appropriate hfs+ file system package:
+	Fedora: sudo dnf install hfsplus-tools
+	Ubuntu: sudo apt install hfsprogs
+	    
+This will also fail if it is running inside a snap or flatpak Intellij
+because they are sandboxed and therefore can't access /usr/bin/mkfs.
+	</fail>
         <mkdir dir="target/dmg-mount"/>
+	<echo>Super user privileges will be required to mount/unmount the dmg file</echo>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
             <arg value="mount"/>
             <arg value="--verbose"/>
