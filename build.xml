@@ -236,6 +236,13 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
                 <include name="Rune.app/**"/>
             </fileset>
         </copy>
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <chmod perm="a+rx" verbose="true">
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+        </chmod>
+
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
             <arg value="umount"/>
             <arg value="--verbose"/>
@@ -287,10 +294,10 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
                 installerType="standard"
                 inheritAll="true"
                 basedir="${izpack.root}"
-                compression="default"/>
+        />
     </target>
 
-    <target name="all"  depends="dmg,izpack"/>
+    <target name="all"  depends="dmg"/>
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>
