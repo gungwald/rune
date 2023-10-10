@@ -31,4 +31,9 @@ target/
 
 # Silly Mac stuff - this will remove them from all directories.
 .DS_Store
-/bin/customActions/XdgDesktopMenu.jar
+
+# Built stuff
+bin/customActions/XdgDesktopMenu.jar
+bin/customActions/
+
+lib/META-INF
