@@ -42,6 +42,9 @@
   - Atari
   - ReactOS
   - MorphOS (Amiga)
+  - IRIX
+  - HP-UX
+  - SerenityOS
 
 ## Downloads
 
