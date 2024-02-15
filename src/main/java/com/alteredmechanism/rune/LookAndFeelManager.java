@@ -37,6 +37,19 @@ public class LookAndFeelManager implements ActionListener {
     public static final String MOTIF_THEME_NAME = "CDE/Motif";
     public static final String GTK_LAF_CLASS_NAME = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
+    public static final String[][] EXTERNAL_PLAFS = {
+            {"Kunststoff", "com.incors.plaf.kunststoff.KunststoffLookAndFeel"},
+            {"Liquid", "com.birosoft.liquid.LiquidLookAndFeel"},
+            {"Plastic3D", "com.jgoodies.looks.plastic.Plastic3DLookAndFeel"},
+            {"Plastic", "com.jgoodies.looks.plastic.PlasticLookAndFeel"},
+            {"PlasticXP", "com.jgoodies.looks.plastic.PlasticXPLookAndFeel"},
+            {"PlasticXP", "com.jgoodies.looks.plastic.PlasticXPLookAndFeel"},
+            {"JGoodiesWindows", "com.jgoodies.looks.windows.WindowsLookAndFeel"},
+            {"Metouia", "net.sourceforge.mlf.metouia.MetouiaLookAndFeel"},
+            {"Substance", "org.jvnet.substance.SubstanceLookAndFeel"},
+            {"Open Look", "net.sourceforge.openlook_plaf.OpenLookLookAndFeel"}
+    };
+
     protected ButtonGroup buttonGroup = new ButtonGroup();
     private final Messenger messenger;
     private final Map<String, LookAndFeelInfo> lookMap = new TreeMap<String, LookAndFeelInfo>();
@@ -78,7 +91,7 @@ public class LookAndFeelManager implements ActionListener {
     }
 
     public void initChooserMenuItems(JMenu lafMenu) {
-        installOpenLookLookAndFeel();
+        installExternalPlafs();
         LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
         for (LookAndFeelInfo laf : lafs) {
             if (laf.getName().equals(METAL_LAF_NAME)) {
@@ -139,12 +152,14 @@ public class LookAndFeelManager implements ActionListener {
      * Installs the Open Look look and feel, if it can be found in the
      * class path. Otherwise, it does nothing.
      */
-    protected void installOpenLookLookAndFeel() {
+    protected void installExternalPlafs() {
         try {
-            Class.forName("net.sourceforge.openlook_plaf.OpenLookLookAndFeel");
-            UIManager.installLookAndFeel("Open Look", "net.sourceforge.openlook_plaf.OpenLookLookAndFeel");
+            for (String[] plaf : EXTERNAL_PLAFS) {
+                Class.forName(plaf[1]);
+                UIManager.installLookAndFeel(plaf[0], plaf[1]);
+            }
         } catch (ClassNotFoundException e) {
-            // If Open Look is not available, just do nothing.
+            e.printStackTrace();
         }
     }
 

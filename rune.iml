@@ -15,5 +15,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jlfgr-1_0" level="project" />
     <orderEntry type="library" name="izpack-standalone-compiler-4.3.5" level="project" />
+    <orderEntry type="library" name="kunststoff" level="project" />
+    <orderEntry type="library" name="liquidlnf" level="project" />
+    <orderEntry type="library" name="looks" level="project" />
+    <orderEntry type="library" name="metouia" level="project" />
+    <orderEntry type="library" name="substance" level="project" />
   </component>
 </module>

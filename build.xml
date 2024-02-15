@@ -100,6 +100,11 @@
             </fileset>
             <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
             <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/kunststoff.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/liquidlnf.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/looks.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/metouia.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/substance.jar" excludes="META-INF/*.SF"/>
             <manifest>
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
