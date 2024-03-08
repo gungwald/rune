@@ -42,12 +42,15 @@
              classpath="lib/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
-    <condition property="target.java.version" value="1.5" else="1.7">
+    <!-- If the version is between 1.5 and 1.8, then compile for 1.5, so it
+         works on old machines. If not, then just use the runtime java
+         version because newer versions can't compile for 1.5. -->
+    <condition property="target.java.version" value="1.5" else="${java.specification.version}">
         <or>
-            <equals arg1="5" arg2="${java.specification.version}"/>
-            <equals arg1="6" arg2="${java.specification.version}"/>
-            <equals arg1="7" arg2="${java.specification.version}"/>
-            <equals arg1="8" arg2="${java.specification.version}"/>
+            <equals arg1="1.5" arg2="${java.specification.version}"/>
+            <equals arg1="1.6" arg2="${java.specification.version}"/>
+            <equals arg1="1.7" arg2="${java.specification.version}"/>
+            <equals arg1="1.8" arg2="${java.specification.version}"/>
         </or>
     </condition>
 
