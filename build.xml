@@ -42,8 +42,14 @@
              classpath="lib/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
-    <condition property="target.java.version" value="1.5" else="1.7">
+    <!-- I'm not sure how to make this work right now because it looks at the property
+         of the JVM running Ant, not the one used for compiling. -->
+    <condition property="target.java.version" value="1.5" else="${java.specification.version}">
         <or>
+            <equals arg1="1.5" arg2="${java.specification.version}"/>
+            <equals arg1="1.6" arg2="${java.specification.version}"/>
+            <equals arg1="1.7" arg2="${java.specification.version}"/>
+            <equals arg1="1.8" arg2="${java.specification.version}"/>
             <equals arg1="5" arg2="${java.specification.version}"/>
             <equals arg1="6" arg2="${java.specification.version}"/>
             <equals arg1="7" arg2="${java.specification.version}"/>
@@ -72,9 +78,11 @@
     </target>
 
     <target name="compile" depends="compile-setup" description="Compiles Java code">
-        <javac srcdir="src/main/java"
-               source="${target.java.version}"
-               target="${target.java.version}"
+        <javac fork="yes"
+               executable="/usr/bin/javac"
+               srcdir="src/main/java"
+               source="1.5"
+               target="1.5"
                destdir="${cls.dir}"
                classpath="lib/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
