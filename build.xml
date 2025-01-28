@@ -42,8 +42,9 @@
              classpath="lib/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
-    <!-- I'm not sure how to make this work right now because it looks at the property
-         of the JVM running Ant, not the one used for compiling. -->
+    <!-- If the version is between 1.5 and 1.8, then compile for 1.5, so it
+         works on old machines. If not, then just use the runtime java
+         version because newer versions can't compile for 1.5. -->
     <condition property="target.java.version" value="1.5" else="${java.specification.version}">
         <or>
             <equals arg1="1.5" arg2="${java.specification.version}"/>
@@ -108,6 +109,11 @@
             </fileset>
             <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
             <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/kunststoff.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/liquidlnf.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/looks.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/metouia.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/substance.jar" excludes="META-INF/*.SF"/>
             <manifest>
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
@@ -191,6 +197,7 @@
 
     <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
         <touch file="${dmg}" />
+	<echo message="Zeroing out ${dmg} file"/>
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -199,21 +206,31 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <echo message="${env.PATH}"/>
-        <echo message="${basedir}: mkfs -t hfsplus -v Rune ${dmg}"/>
-        <!-- sudo dnf install hfsplus-tools -->
-        <!-- The following will not work inside Intellij if it is
-             installed with snap or flatpak because they are sandboxed
-             and are therefore utterly stupid since they can't access
-             the /usr/sbin/mkfs command. -->
-        <exec dir="${basedir}" executable="mkfs" failonerror="true">
+	<!-- echo message="${env.PATH}"-->
+        <exec dir="${basedir}" executable="mkfs" resultproperty="mkfs.hfsplus.result">
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
         </exec>
+	<fail>
+            <condition>
+                <not>
+			<equals arg1="${mkfs.hfsplus.result}" arg2="0"/>
+		</not>
+	    </condition>
+Failed to create hfs+ file system for dmg.
+
+You may need to install the appropriate hfs+ file system package:
+	Fedora: sudo dnf install hfsplus-tools
+	Ubuntu: sudo apt install hfsprogs
+	    
+This will also fail if it is running inside a snap or flatpak Intellij
+because they are sandboxed and therefore can't access /usr/bin/mkfs.
+	</fail>
         <mkdir dir="target/dmg-mount"/>
+	<echo>Super user privileges will be required to mount/unmount the dmg file</echo>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
             <arg value="mount"/>
             <arg value="--verbose"/>
@@ -233,6 +250,13 @@
                 <include name="Rune.app/**"/>
             </fileset>
         </copy>
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <chmod perm="a+rx" verbose="true">
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+        </chmod>
+
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
             <arg value="umount"/>
             <arg value="--verbose"/>
@@ -284,10 +308,10 @@
                 installerType="standard"
                 inheritAll="true"
                 basedir="${izpack.root}"
-                compression="default"/>
+        />
     </target>
 
-    <target name="all"  depends="dmg,izpack"/>
+    <target name="all"  depends="dmg"/>
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>

@@ -25,11 +25,12 @@
 		<laf name="substance">
 			<os family="unix" />
 		</laf>
+		<!-- The default Windows theme doesn't look that good. -->
 		<laf name="looks"> <!-- JGoodies Looks -->
 			<os family="windows" />
 			<param name="variant" value="extwin" /> <!-- or just windows -->
 		</laf>
-		<modifier key="labelFontSize" value="1.0" />
+		<modifier key="labelFontSize" value="1.1" />
 		<modifier key="allYGap" value="10" />
 	</guiprefs>
 
@@ -58,7 +59,12 @@
 	</panels>
 
 	<!-- To support the creation of desktop shortcuts on Windows -->
-	<native type="izpack" name="ShellLink.dll"/>
+	<native type="izpack" name="ShellLink.dll">
+		<os family="windows"/>
+	</native>
+	<native type="izpack" name="ShellLink_x64.dll">
+		<os family="windows"/>
+	</native>
 
 	<packs>
 		<pack name="Core" required="yes">

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="looks">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/looks.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
