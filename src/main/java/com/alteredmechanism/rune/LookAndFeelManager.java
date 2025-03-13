@@ -1,5 +1,6 @@
 package com.alteredmechanism.rune;
 
+import java.lang.reflect.Constructor;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -19,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.LookAndFeel;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -28,6 +30,7 @@ public class LookAndFeelManager implements ActionListener {
 
     private static final String CLASS_NAME = LookAndFeelManager.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
+    private static String systemLafClassName;
 
     public static final String OCEAN_THEME_CLASS_NAME = "javax.swing.plaf.metal.OceanTheme";
     public static final String DEFAULT_METAL_THEME_CLASS_NAME = "javax.swing.plaf.metal.DefaultMetalTheme";
@@ -37,17 +40,16 @@ public class LookAndFeelManager implements ActionListener {
     public static final String MOTIF_THEME_NAME = "CDE/Motif";
     public static final String GTK_LAF_CLASS_NAME = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
-    public static final String[][] EXTERNAL_PLAFS = {
-            {"Kunststoff", "com.incors.plaf.kunststoff.KunststoffLookAndFeel"},
-            {"Liquid", "com.birosoft.liquid.LiquidLookAndFeel"},
-            {"Plastic3D", "com.jgoodies.looks.plastic.Plastic3DLookAndFeel"},
-            {"Plastic", "com.jgoodies.looks.plastic.PlasticLookAndFeel"},
-            {"PlasticXP", "com.jgoodies.looks.plastic.PlasticXPLookAndFeel"},
-            {"PlasticXP", "com.jgoodies.looks.plastic.PlasticXPLookAndFeel"},
-            {"JGoodiesWindows", "com.jgoodies.looks.windows.WindowsLookAndFeel"},
-            {"Metouia", "net.sourceforge.mlf.metouia.MetouiaLookAndFeel"},
-            {"Substance", "org.jvnet.substance.SubstanceLookAndFeel"},
-            {"Open Look", "net.sourceforge.openlook_plaf.OpenLookLookAndFeel"}
+    public static final String[] EXTERNAL_PLAFS = {
+            "com.incors.plaf.kunststoff.KunststoffLookAndFeel",
+            "com.birosoft.liquid.LiquidLookAndFeel",
+            "com.jgoodies.looks.plastic.Plastic3DLookAndFeel",
+            "com.jgoodies.looks.plastic.PlasticLookAndFeel",
+            "com.jgoodies.looks.plastic.PlasticXPLookAndFeel",
+            "com.jgoodies.looks.windows.WindowsLookAndFeel",
+            "net.sourceforge.mlf.metouia.MetouiaLookAndFeel",
+            "org.jvnet.substance.SubstanceLookAndFeel",
+            "net.sourceforge.openlook_plaf.OpenLookLookAndFeel"
     };
 
     protected ButtonGroup buttonGroup = new ButtonGroup();
@@ -57,10 +59,19 @@ public class LookAndFeelManager implements ActionListener {
     protected LookAndFeelInfo metalPlaf = null;
     private Class<?> oceanThemeClass;
 
+    static {
+        try {
+            installExternalPlafs();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.out.println("That shouldn't have happened");
+        }
+    }
+
     public static void setSystemLookAndFeel() {
         // Default to the operating system's native look and feel. Duh...
         try {
-            String systemLafClassName = UIManager.getSystemLookAndFeelClassName();
+            systemLafClassName = UIManager.getSystemLookAndFeelClassName();
             logger.log(Level.INFO, "SystemLookAndFeel={0}", systemLafClassName);
             // OpenJDK on OpenIndiana Mate desktop incorrectly returns Motif instead of GTK.
             if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isMateDesktop()) {
@@ -91,7 +102,6 @@ public class LookAndFeelManager implements ActionListener {
     }
 
     public void initChooserMenuItems(JMenu lafMenu) {
-        installExternalPlafs();
         LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
         for (LookAndFeelInfo laf : lafs) {
             if (laf.getName().equals(METAL_LAF_NAME)) {
@@ -109,7 +119,7 @@ public class LookAndFeelManager implements ActionListener {
             oceanThemeClass = Class.forName(OCEAN_THEME_CLASS_NAME);
             isAvailable = true;
         } catch (ClassNotFoundException e) {
-            System.out.println("Ocean theme for Metal look-and-feel was not found");
+            logger.log(Level.WARNING, "Ocean theme for Metal look-and-feel was not found");
             isAvailable = false;
         }
         return isAvailable;
@@ -152,14 +162,21 @@ public class LookAndFeelManager implements ActionListener {
      * Installs the Open Look look and feel, if it can be found in the
      * class path. Otherwise, it does nothing.
      */
-    protected void installExternalPlafs() {
-        try {
-            for (String[] plaf : EXTERNAL_PLAFS) {
-                Class.forName(plaf[1]);
-                UIManager.installLookAndFeel(plaf[0], plaf[1]);
+    protected static void installExternalPlafs() {
+        for (String lafClassName : EXTERNAL_PLAFS) {
+            try {
+                // The Java 5 way
+                Class<?> lafClazz = Class.forName(lafClassName);
+                Constructor<?> cons = lafClazz.getConstructor();
+                LookAndFeel laf = (LookAndFeel) cons.newInstance();
+                // The Java 5 way
+
+                String lafName = laf.getName();
+                logger.log(Level.INFO, "Trying {0} PLAF with class {1}", new String[]{lafName,lafClassName});
+                UIManager.installLookAndFeel(lafName, lafClassName);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
     }
 
@@ -185,7 +202,7 @@ public class LookAndFeelManager implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-        System.out.println(event.paramString());
+        logger.entering(CLASS_NAME, "actionPerformed", event.paramString());
         try {
             // The theme must be set before setting the look and feel to Metal.
             if (METAL_WITH_STEEL_THEME.equals(event.getActionCommand())) {
@@ -207,7 +224,7 @@ public class LookAndFeelManager implements ActionListener {
     }
 
     public void setAllBackgrounds() {
-        System.out.println("Setting Motif Blue");
+        logger.log(Level.INFO, "Setting Motif Blue");
         Color motifBlue = new ColorUIResource(124, 155, 255);
         UIDefaults defaults = UIManager.getDefaults();
         Enumeration keys = defaults.keys();
@@ -219,7 +236,7 @@ public class LookAndFeelManager implements ActionListener {
                     UIManager.put(key, motifBlue);
                 }
             }
-            System.out.println(key + "(" + key.getClass().getName() + ")=" + defaults.get(key));
+            logger.info(key + "(" + key.getClass().getName() + ")=" + defaults.get(key));
         }
     }
 }

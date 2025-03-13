@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="kunststoff">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/kunststoff.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/look-and-feel/kunststoff.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

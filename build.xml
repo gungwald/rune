@@ -45,6 +45,7 @@
     <!-- If the version is between 1.5 and 1.8, then compile for 1.5, so it
          works on old machines. If not, then just use the runtime java
          version because newer versions can't compile for 1.5. -->
+    <!--
     <condition property="target.java.version" value="1.5" else="${java.specification.version}">
         <or>
             <equals arg1="1.5" arg2="${java.specification.version}"/>
@@ -57,6 +58,7 @@
             <equals arg1="8" arg2="${java.specification.version}"/>
         </or>
     </condition>
+    -->
 
     <condition property="mac">
         <os family="mac"/>
@@ -80,14 +82,16 @@
 
     <target name="compile" depends="compile-setup" description="Compiles Java code">
         <javac fork="yes"
-               executable="/usr/bin/javac"
+               executable="/home/bill/Dropbox/opt/jdk1.5.0/jdk1.5.0_22/bin/javac"
                srcdir="src/main/java"
                source="1.5"
                target="1.5"
                destdir="${cls.dir}"
                classpath="lib/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
-               debug="true"/>
+               debug="true">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
     </target>
 
     <target name="jar-xdg-desktop-menu-setup" depends="compile" description="Builds jar for custom install listener">
@@ -109,11 +113,11 @@
             </fileset>
             <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
             <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/kunststoff.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/liquidlnf.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/looks.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/metouia.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/substance.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/look-and-feel/kunststoff.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/look-and-feel/liquidlnf.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/look-and-feel/looks.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/look-and-feel/metouia.jar" excludes="META-INF/*.SF"/>
+            <zipfileset src="lib/look-and-feel/substance.jar" excludes="META-INF/*.SF"/>
             <manifest>
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>

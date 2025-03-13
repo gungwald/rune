@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="liquidlnf">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/liquidlnf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/look-and-feel/liquidlnf.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

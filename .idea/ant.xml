@@ -5,6 +5,7 @@
       <additionalClassPath>
         <entry path="file://$PROJECT_DIR$/lib/izpack-standalone-compiler-4.3.5.jar" />
       </additionalClassPath>
+      <antCommandLine value="-v" />
     </buildFile>
   </component>
 </project>
