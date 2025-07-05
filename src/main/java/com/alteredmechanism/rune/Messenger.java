@@ -3,43 +3,45 @@ package com.alteredmechanism.rune;
 import java.awt.Component;
 import java.awt.Frame;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class Messenger {
 
     private Component parent;
     private String applicationName;
 
-    public Messenger(Frame parent) {
+    /**
+     * It needs to be volatile to prevent cache incoherence issues.
+     * I don't know what that means, but
+     * <a href="https://www.baeldung.com/java-singleton-double-checked-locking">Baeldung</a>
+     * says so.
+     */
+    private static volatile Messenger instance;
+
+    /**
+     * Double-checked locking implementation of a singleton
+     * @return That bitch
+     */
+    public static Messenger getInstance() {
+        if (instance == null) {
+            synchronized (Messenger.class) {
+                if (instance == null) {
+                    instance = new Messenger();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private Messenger() {
+        super();
+        applicationName = Rune.USER_FACING_APP_NAME;
+        parent = new Frame();
+    }
+
+    public Messenger setParent(Frame parent) {
         this.parent = parent;
-        String className = parent.getClass().getName();
-        int startOfBaseName = 0;
-        int lastPeriod = className.lastIndexOf('.');
-        if (lastPeriod >= 0) {
-            startOfBaseName = lastPeriod + 1;
-        }
-        applicationName = className.substring(startOfBaseName);
-    }
-
-    public Messenger(String applicationName) {
-        parent = new JFrame();
-        this.applicationName = applicationName;
-    }
-
-    public Messenger(Frame frame, String applicationName) {
-        this.parent = frame;
-        this.applicationName = applicationName;
-    }
-
-    public Messenger(Class applicationClass) {
-        String className = applicationClass.getName();
-        int startOfBaseName = 0;
-        int lastPeriod = className.lastIndexOf('.');
-        if (lastPeriod >= 0) {
-            startOfBaseName = lastPeriod + 1;
-        }
-        applicationName = className.substring(startOfBaseName);
+        return this;
     }
 
     protected void showErrorDialog(String message) {
@@ -77,5 +79,4 @@ public class Messenger {
         showErrorDialog(message + ": " + exceptionMessage);
         e.printStackTrace();
     }
-
 }

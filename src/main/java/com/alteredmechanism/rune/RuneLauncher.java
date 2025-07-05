@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.alteredmechanism.rune.Rune;
-
 public class RuneLauncher {
 
 	// The problem with this is that the output of the attempt to run Java can't

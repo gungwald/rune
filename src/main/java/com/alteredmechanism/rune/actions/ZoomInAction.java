@@ -9,8 +9,6 @@ import java.awt.event.KeyEvent;
 import java.io.FileNotFoundException;
 import java.util.logging.Logger;
 
-import static com.alteredmechanism.rune.Rune.UNTITLED;
-
 public class ZoomInAction extends ZoomAction implements Action {
 
     private static final String CLASS_NAME = ZoomInAction.class.getName();

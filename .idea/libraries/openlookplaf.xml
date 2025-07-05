@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="openlookplaf">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/look-and-feel/openlookplaf.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

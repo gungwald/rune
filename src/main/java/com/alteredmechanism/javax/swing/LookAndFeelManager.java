@@ -1,36 +1,45 @@
-package com.alteredmechanism.rune;
+package com.alteredmechanism.javax.swing;
 
-import java.lang.reflect.Constructor;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.alteredmechanism.rune.Messenger;
+import com.alteredmechanism.rune.SystemPropertyConfigurator;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.LookAndFeel;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.MetalTheme;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import static com.alteredmechanism.rune.SystemPropertyConfigurator.isGnomeDesktop;
+import static com.alteredmechanism.rune.SystemPropertyConfigurator.isMateDesktop;
+
+/**
+ * Responsibilities:
+ * <ul>
+ *     <li>Find "external" LAFs</li>
+ *     <li>Add "external" LAFs</li>
+ *     <li>Remove external LAFs with duplicate classes</li>
+ *     <li>Rename LAFs with duplicate names but different classes</li>
+ *     <li>Build user-selectable Swing list menu items</li>
+ *     <li>Map LAF/theme combos to user-selectable items</li>
+ *     <li>Map selected items to LAF/theme combos</li>
+ *     <li>Determine if there are multiple themes available for Metal LAF</li>
+ * </ul>
+ */
+@SuppressWarnings({"UnusedReturnValue"}) // For pseudo-builder pattern
 public class LookAndFeelManager implements ActionListener {
 
     private static final String CLASS_NAME = LookAndFeelManager.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
-    private static String systemLafClassName;
 
     public static final String OCEAN_THEME_CLASS_NAME = "javax.swing.plaf.metal.OceanTheme";
     public static final String DEFAULT_METAL_THEME_CLASS_NAME = "javax.swing.plaf.metal.DefaultMetalTheme";
@@ -40,65 +49,75 @@ public class LookAndFeelManager implements ActionListener {
     public static final String MOTIF_THEME_NAME = "CDE/Motif";
     public static final String GTK_LAF_CLASS_NAME = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
-    public static final String[] EXTERNAL_PLAFS = {
-            "com.incors.plaf.kunststoff.KunststoffLookAndFeel",
-            "com.birosoft.liquid.LiquidLookAndFeel",
-            "com.jgoodies.looks.plastic.Plastic3DLookAndFeel",
-            "com.jgoodies.looks.plastic.PlasticLookAndFeel",
-            "com.jgoodies.looks.plastic.PlasticXPLookAndFeel",
-            "com.jgoodies.looks.windows.WindowsLookAndFeel",
-            "net.sourceforge.mlf.metouia.MetouiaLookAndFeel",
-            "org.jvnet.substance.SubstanceLookAndFeel",
-            "net.sourceforge.openlook_plaf.OpenLookLookAndFeel"
-    };
-
-    protected ButtonGroup buttonGroup = new ButtonGroup();
-    private final Messenger messenger;
-    private final Map<String, LookAndFeelInfo> lookMap = new TreeMap<String, LookAndFeelInfo>();
-    private final List<Component> componentsToUpdate = new ArrayList<Component>();
-    protected LookAndFeelInfo metalPlaf = null;
+    private ButtonGroup buttonGroup = new ButtonGroup();
+    private Messenger messenger;
+    private List<Component> componentsToUpdate = new ArrayList<Component>();
+    private LookAndFeelInfo metalPlaf = null;
     private Class<?> oceanThemeClass;
+    private LookAndFeelIndex lafIndex = LookAndFeelIndex.getInstance();
 
-    static {
-        try {
-            installExternalPlafs();
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.out.println("That shouldn't have happened");
+    /**
+     * It needs to be volatile to prevent cache incoherence issues.
+     * I don't know what that means, but
+     * <a href="https://www.baeldung.com/java-singleton-double-checked-locking">Baeldung</a>
+     * says so.
+     */
+    private static volatile LookAndFeelManager instance;
+
+    /**
+     * Double-checked locking implementation of a singleton
+     * @return That bitch
+     */
+    public static LookAndFeelManager getInstance() {
+        if (instance == null) {
+            synchronized (LookAndFeelManager.class) {
+                if (instance == null) {
+                    instance = new LookAndFeelManager();
+                }
+            }
         }
+        return instance;
     }
 
-    public static void setSystemLookAndFeel() {
-        // Default to the operating system's native look and feel. Duh...
-        try {
-            systemLafClassName = UIManager.getSystemLookAndFeelClassName();
-            logger.log(Level.INFO, "SystemLookAndFeel={0}", systemLafClassName);
-            // OpenJDK on OpenIndiana Mate desktop incorrectly returns Motif instead of GTK.
-            if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isMateDesktop()) {
-                logger.log(Level.WARNING, "Overriding system look and feel {0} with {1} for Mate desktop",
-                        new Object[]{systemLafClassName, GTK_LAF_CLASS_NAME});
-                systemLafClassName = GTK_LAF_CLASS_NAME;
-            }
-            if (systemLafClassName.indexOf("GTK") == -1 && SystemPropertyConfigurator.isGnomeDesktop()) {
-                logger.log(Level.WARNING, "Overriding system look and feel {0} with {1} for Gnome desktop",
-                        new Object[] {systemLafClassName, GTK_LAF_CLASS_NAME});
-                systemLafClassName = GTK_LAF_CLASS_NAME;
-            }
-            UIManager.setLookAndFeel(systemLafClassName);
-        } catch (Exception e) {
-            new Messenger(LookAndFeelManager.class.getName()).showError(e);
-        }
+    private LookAndFeelManager() {
+        super();
+        lafIndex.add(UIManager.getInstalledLookAndFeels());
     }
 
-    public static void setOptimalLookAndFeel() {
+    public LookAndFeelManager setOptimalLookAndFeel() {
         if (System.getProperty("java.specification.version").compareToIgnoreCase("1.4") > 0) {
             setSystemLookAndFeel();
         }
+        if (System.getProperty("java.specification.version").compareToIgnoreCase("1.4") >= 0) {
+            JFrame.setDefaultLookAndFeelDecorated(true);
+            JDialog.setDefaultLookAndFeelDecorated(true);
+        }
+        return this;
     }
 
-    public LookAndFeelManager(Messenger messenger) {
-        super();
+    public LookAndFeelManager setSystemLookAndFeel() {
+        // Default to the operating system's native look and feel. Duh...
+        try {
+            String claimedSystemLaf = UIManager.getSystemLookAndFeelClassName();
+            String correctSystemLaf;
+            logger.log(Level.INFO, "SystemLookAndFeel={0}", claimedSystemLaf);
+            // OpenJDK on OpenIndiana incorrectly returns Motif instead of GTK.
+            if (!claimedSystemLaf.contains("GTK") && (isMateDesktop() || isGnomeDesktop())) {
+                logger.log(Level.WARNING, "Overriding incorrect system look and feel {0} with {1}", new Object[]{claimedSystemLaf, GTK_LAF_CLASS_NAME});
+                correctSystemLaf = GTK_LAF_CLASS_NAME;
+            } else {
+                correctSystemLaf = claimedSystemLaf;
+            }
+            UIManager.setLookAndFeel(correctSystemLaf);
+        } catch (Exception e) {
+            messenger.showError(e);
+        }
+        return this;
+    }
+
+    public LookAndFeelManager setMessenger(Messenger messenger) {
         this.messenger = messenger;
+        return this;
     }
 
     public void initChooserMenuItems(JMenu lafMenu) {
@@ -107,20 +126,18 @@ public class LookAndFeelManager implements ActionListener {
             if (laf.getName().equals(METAL_LAF_NAME)) {
                 addMenuItemsForMetalThemes(lafMenu, laf);
             } else {
-                lookMap.put(laf.getName(), laf);
                 addMenuItem(lafMenu, laf);
             }
         }
     }
 
     protected boolean isOceanThemeAvailable() {
-        boolean isAvailable;
+        boolean isAvailable = false;
         try {
             oceanThemeClass = Class.forName(OCEAN_THEME_CLASS_NAME);
             isAvailable = true;
         } catch (ClassNotFoundException e) {
             logger.log(Level.WARNING, "Ocean theme for Metal look-and-feel was not found");
-            isAvailable = false;
         }
         return isAvailable;
     }
@@ -129,13 +146,13 @@ public class LookAndFeelManager implements ActionListener {
         if (isOceanThemeAvailable()) {
             // Add the Ocean theme and the default metal theme.
             // They both have the same laf. The theme will be determined by the name.
-            lookMap.put(METAL_WITH_OCEAN_THEME, metal);
-            lookMap.put(METAL_WITH_STEEL_THEME, metal);
+            lafIndex.add(METAL_WITH_OCEAN_THEME, metal.getClassName(), metal);
+            lafIndex.add(METAL_WITH_STEEL_THEME, metal.getClassName(), metal);
             addMenuItem(METAL_WITH_OCEAN_THEME, lafMenu, metal);
             addMenuItem(METAL_WITH_STEEL_THEME, lafMenu, metal);
         } else {
             // Just add the default Metal theme.
-            lookMap.put(metal.getName(), metal);
+            lafIndex.add(metal.getName(), metal.getClassName(), metal);
             addMenuItem(lafMenu, metal);
         }
     }
@@ -158,28 +175,6 @@ public class LookAndFeelManager implements ActionListener {
         componentsToUpdate.add(c);
     }
 
-    /**
-     * Installs the Open Look look and feel, if it can be found in the
-     * class path. Otherwise, it does nothing.
-     */
-    protected static void installExternalPlafs() {
-        for (String lafClassName : EXTERNAL_PLAFS) {
-            try {
-                // The Java 5 way
-                Class<?> lafClazz = Class.forName(lafClassName);
-                Constructor<?> cons = lafClazz.getConstructor();
-                LookAndFeel laf = (LookAndFeel) cons.newInstance();
-                // The Java 5 way
-
-                String lafName = laf.getName();
-                logger.log(Level.INFO, "Trying {0} PLAF with class {1}", new String[]{lafName,lafClassName});
-                UIManager.installLookAndFeel(lafName, lafClassName);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private MetalTheme steelTheme = null;
     protected MetalTheme getSteelTheme() {
         if (steelTheme == null) {
@@ -194,7 +189,7 @@ public class LookAndFeelManager implements ActionListener {
             try {
                 oceanTheme = (MetalTheme) oceanThemeClass.newInstance();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Failed to get ocean theme", e);
                 oceanTheme = getSteelTheme();
             }
         }
@@ -210,7 +205,7 @@ public class LookAndFeelManager implements ActionListener {
             } else if (METAL_WITH_OCEAN_THEME.equals(event.getActionCommand())) {
                 MetalLookAndFeel.setCurrentTheme(getOceanTheme());
             }
-            UIManager.setLookAndFeel((lookMap.get(event.getActionCommand())).getClassName());
+            UIManager.setLookAndFeel((lafIndex.lookupByName(event.getActionCommand())).getClassName());
             // Must be done after setting LAF.
 //            if (MOTIF_THEME_NAME.equals(event.getActionCommand())) {
 //                setAllBackgrounds();
@@ -227,7 +222,7 @@ public class LookAndFeelManager implements ActionListener {
         logger.log(Level.INFO, "Setting Motif Blue");
         Color motifBlue = new ColorUIResource(124, 155, 255);
         UIDefaults defaults = UIManager.getDefaults();
-        Enumeration keys = defaults.keys();
+        Enumeration<Object> keys = defaults.keys();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
             if (key instanceof String) {

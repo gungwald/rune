@@ -1,6 +1,7 @@
 package com.alteredmechanism.rune;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
+import com.alteredmechanism.javax.swing.LookAndFeelManager;
 import com.alteredmechanism.rune.actions.SaveAction;
 import com.alteredmechanism.rune.actions.ZoomInAction;
 import com.alteredmechanism.rune.actions.ZoomOutAction;
@@ -47,8 +48,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private int nextEmptyTabNumber = 1;
 
-    private JMenuBar menuBar = new JMenuBar();
-    private JMenu file = new JMenu("File");
+    private final JMenuBar menuBar = new JMenuBar();
+    private final JMenu file = new JMenu("File");
     private JMenu editMenu = new JMenu("Edit");
     private JMenu viewMenu = new JMenu("View");
     private JMenu helpMenu = new JMenu("Help");
@@ -76,11 +77,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private JFontChooser fontChooser = null;
     private FileDialog fileChooser = null;
-    private Messenger messenger = null;
+    private static Messenger messenger = Messenger.getInstance();
     private AboutDialog aboutDialog = null;
     private LookAndFeelManager lafManager = null;
     public final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
-    private StatusBar statusBar = new StatusBar(this);
+    private final StatusBar statusBar = new StatusBar(this);
 
     private Font bufferFont = null;
     private ImageIconLoader loader = null;
@@ -88,13 +89,20 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     protected ZoomInAction zoomIn = new ZoomInAction(this);
     protected ZoomOutAction zoomOut = new ZoomOutAction(this);
 
-    public Rune(File f) throws FontFormatException, IOException {
-        this();
+    /**
+     * A constructor that does nothing is needed so that the switch from
+     * static to object context can be made before configuration starts.
+     */
+    public Rune() {
+
+    }
+    public void init(File f) throws FontFormatException, IOException {
+        init();
         open(f);
     }
 
-    public Rune() throws FontFormatException, IOException {
-        super(USER_FACING_APP_NAME);
+    public void init() throws FontFormatException, IOException {
+        this.setTitle(USER_FACING_APP_NAME);
 
         int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -106,7 +114,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
         loader = new ImageIconLoader(getMessenger());
         List<Image> icons = loader.loadAll("vegvisir");
-        if (icons.size() > 0) {
+        if (!icons.isEmpty()) {
             this.setIconImage(icons.get(0));
         }
 
@@ -272,7 +280,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return loader;
     }
 
-    public void open(File f) throws IOException {
+    public void open(File f) {
         if (bufferTabs.getTabCount() == 0
                 || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex())
                         .startsWith(UNTITLED)
@@ -458,7 +466,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
             IOException {
         if (fontChooser == null) {
             fontChooser = new JFontChooser(getMessenger());
-            getLafManager().addComponentToUpdate(fontChooser);
+            LookAndFeelManager.getInstance().addComponentToUpdate(fontChooser);
         }
         return fontChooser;
     }
@@ -467,14 +475,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         if (fileChooser == null) {
             fileChooser = new FileDialog(this);
             // fileChooser.setMultiSelectionEnabled(true);
-            getLafManager().addComponentToUpdate(fileChooser);
+            LookAndFeelManager.getInstance().addComponentToUpdate(fileChooser);
         }
         return fileChooser;
     }
 
     public Messenger getMessenger() {
         if (messenger == null) {
-            messenger = new Messenger(this);
+            messenger = Messenger.getInstance();
         }
         return messenger;
     }
@@ -482,16 +490,9 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private AboutDialog getAboutDialog() {
         if (aboutDialog == null) {
             aboutDialog = new AboutDialog(this);
-            getLafManager().addComponentToUpdate(aboutDialog);
+            LookAndFeelManager.getInstance().addComponentToUpdate(aboutDialog);
         }
         return aboutDialog;
-    }
-
-    private LookAndFeelManager getLafManager() {
-        if (lafManager == null) {
-            lafManager = new LookAndFeelManager(getMessenger());
-        }
-        return lafManager;
     }
 
     public void saveAs() {
@@ -579,22 +580,27 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     public static void main(String[] args) {
+        // TODO - Don't override properties the user put on the command line.
+        // This does not work here. Only in the REAL main.
+        System.setProperty("sun.java2d.uiScale", "2");
         try {
-            SystemPropertyConfigurator.autoConfigure();
+            SystemPropertyConfigurator.autoConfigure(); // System properties should be set first.
+            LookAndFeelManager.getInstance().setMessenger(messenger);//.setOptimalLookAndFeel();
+
             Rune n = new Rune();
+            n.getMessenger().setParent(n);
+            n.init();
             for (String arg : args) {
                 if (!isMacCarbonProcessSerialNumber(arg)) {
                     try {
                         n.open(new File(arg));
                     } catch (Exception e) {
-                        n.getMessenger().showError(
-                                "Failed to open file specified on command line: "
-                                        + arg, e);
+                        n.getMessenger().showError( "Failed to open file specified on command line: " + arg, e);
                     }
                 }
             }
         } catch (Exception e) {
-            new Messenger(Rune.class).showError(e);
+            Messenger.getInstance().showError(e);
             System.exit(EXIT_FAILURE);
         }
     }
@@ -622,8 +628,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     public void mouseEntered(MouseEvent e) {
         if (e.getSource() == this.selectLookAndFeelMenu) {
             if (this.selectLookAndFeelMenu.getMenuComponentCount() == 0) {
-                getLafManager().initChooserMenuItems(selectLookAndFeelMenu);
-                getLafManager().addComponentToUpdate(this);
+                LookAndFeelManager.getInstance().initChooserMenuItems(selectLookAndFeelMenu);
+                LookAndFeelManager.getInstance().addComponentToUpdate(this);
             }
         }
     }

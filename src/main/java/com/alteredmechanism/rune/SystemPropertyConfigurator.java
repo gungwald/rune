@@ -10,7 +10,7 @@ public class SystemPropertyConfigurator {
 	public SystemPropertyConfigurator() {
 	}
 
-	protected static boolean isGnomeDesktop() {
+	public static boolean isGnomeDesktop() {
 		return "gnome".equalsIgnoreCase(System.getenv("XDG_CURRENT_DESKTOP"));
 	}
 
@@ -19,6 +19,8 @@ public class SystemPropertyConfigurator {
 	}
 
 	public static void autoConfigure() {
+//		System.setProperty("sun.java2d.uiScale.enabled", "true");
+		System.setProperty("sun.java2d.uiScale", "2");
 		// Enable anti-aliased text: http://mindprod.com/jgloss/antialiasing.html#JAVA15
 		// This property is used by Java 1.5.
 		System.setProperty("swing.aatext", "true");
@@ -50,7 +52,7 @@ public class SystemPropertyConfigurator {
 			System.setProperty("com.apple.mrj.application.live-resize", "true"); // Default is false
 
 			// Java 1.4
-			// Put the main menu at the top on a Mac because that where is should be.
+			// Put the main menu at the top on a Mac because that where it should be.
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("apple.awt.showGrowBox", "true");
 
@@ -67,8 +69,6 @@ public class SystemPropertyConfigurator {
 			System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
 		}
 
-		// The above system properties should be set first.
-		LookAndFeelManager.setOptimalLookAndFeel();
 	}
 
 }
