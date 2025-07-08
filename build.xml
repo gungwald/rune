@@ -22,6 +22,7 @@
 
     <property environment="env"/>
     <property name="version" value="1.0"/>
+    <property name="src.dir" value="src/main/java"/>
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="Rune"/>
@@ -80,12 +81,54 @@
         <mkdir dir="${cls.dir}"/>
     </target>
 
-    <target name="compile" depends="compile-setup" description="Compiles Java code">
+    <target name="compile5" depends="compile-setup" 
+    	description="Compiles Java code with Java 1.5">
         <javac fork="yes"
                executable="/home/bill/Dropbox/opt/jdk1.5.0/jdk1.5.0_22/bin/javac"
-               srcdir="src/main/java"
+               srcdir="${src.dir}"
                source="1.5"
                target="1.5"
+               destdir="${cls.dir}"
+               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               includeantruntime="false"
+               debug="true">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="compile8" depends="compile-setup" 
+    	description="Compiles Java code with default Java">
+        <javac fork="yes"
+               executable="/usr/lib/jvm/java-1.8.0/bin/javac"
+               srcdir="${src.dir}"
+               source="1.5"
+               target="1.5"
+               destdir="${cls.dir}"
+               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               includeantruntime="false"
+               debug="true">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="compile" depends="compile-setup" 
+    	description="Compiles Java code with default Java">
+        <javac fork="yes"
+               executable="${env.RUNE_COMPILER}"
+               srcdir="${src.dir}"
+               source="1.5"
+               target="1.5"
+               destdir="${cls.dir}"
+               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               includeantruntime="false"
+               debug="true">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="compile-default" depends="compile-setup" 
+    	description="Compiles Java code with default Java">
+        <javac srcdir="${src.dir}"
                destdir="${cls.dir}"
                classpath="lib/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
