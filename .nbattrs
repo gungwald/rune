@@ -1,5 +1,0 @@
-<attributes version="1.0">
-   <fileobject name="pom.xml">
-      <attr name="org.apache.tools.ant.module.AntProjectDataLoader.KNOWN_ANT_FILE" boolvalue="true"/>
-   </fileobject>
-</attributes>

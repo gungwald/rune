@@ -39,7 +39,7 @@ bin/customActions/
 lib/META-INF
 
 # Intellij info specific to each user and machine
-/.idea/
+.idea/
 
 # NetBeans attributes specific to each user and machine
 .nbattrs
