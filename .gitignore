@@ -37,3 +37,6 @@ bin/customActions/XdgDesktopMenu.jar
 bin/customActions/
 
 lib/META-INF
+
+# Intellij info specific to each user and machine
+/.idea/
