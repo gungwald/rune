@@ -37,7 +37,7 @@ import javax.swing.table.DefaultTableModel;
 public class AboutDialog extends JDialog implements ActionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final String SOURCE_URL = "http://github.com/gungwald/notepad";
+    private static final String SOURCE_URL = "http://github.com/gungwald/rune";
     private final JPanel contentPanel = new JPanel();
     private JTable table;
     private JButton okButton;
@@ -62,7 +62,7 @@ public class AboutDialog extends JDialog implements ActionListener {
      */
     public AboutDialog(JFrame owner) {
         super(owner);
-        setTitle("About Notepad");
+        setTitle("About Rune");
         setSize(550, 500);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -76,7 +76,7 @@ public class AboutDialog extends JDialog implements ActionListener {
                 tabbedPane.addTab("Info", null, infoPanel, null);
                 infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
                 {
-                    JLabel lblNotepadVersion = new JLabel("Notepad - Version 1.0");
+                    JLabel lblNotepadVersion = new JLabel("Rune - Version 1.0");
                     infoPanel.add(lblNotepadVersion);
                     lblNotepadVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
                     lblNotepadVersion.setHorizontalAlignment(SwingConstants.CENTER);
