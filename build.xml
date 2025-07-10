@@ -62,8 +62,10 @@
              wallpaper-switcher~slim.jar            - opposite of fat
              wallpaper-switcher~simple.jar          - opposite of uber, kind of
              -->
-    <property name="dependent-jar"
-              value="${build.dir}/${ant.project.name}~dependent.jar"/>
+    <property name="dependent.jar.basename"
+              value="${ant.project.name}~dependent.jar"/>
+    <property name="dependent.jar"
+              value="${build.dir}/${dependent.jar.basename}"/>
 
     <!-- A better description than "uber", or "fat" or "executable" would be
          self-contained. But it is very long. Also, "autonomous" would be good,
@@ -210,10 +212,6 @@
                debug="true">
             <compilerarg value="-Xlint:unchecked"/>
         </javac>
-        <!-- TODO: Create env var for target/source version:
-                   source="1.5"
-                   target="1.5"
-        -->
     </target>
 
     <target name="compile"
@@ -241,11 +239,11 @@
 
         <!-- Converts a Path into a property whose value is appropriate for a
         Manifest's Class-Path attribute. -->
-        <manifestclasspath property="jar.runtime.classpath" jarfile="${dependent-jar}">
+        <manifestclasspath property="jar.runtime.classpath" jarfile="${dependent.jar}">
             <classpath refid="dependency.jars"/>
         </manifestclasspath>
 
-        <jar destfile="${dependent-jar}">
+        <jar destfile="${dependent.jar}">
             <manifest>
                 <attribute name="Implementation-Title"
                            value="${ant.project.name}"/>
