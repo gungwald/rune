@@ -22,26 +22,101 @@
 
     <property environment="env"/>
     <property name="version" value="1.0"/>
+    <property name="vendor" value="Altered Mechanism"/>
     <property name="src.dir" value="src/main/java"/>
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
-    <property name="main.class" value="Rune"/>
+    <property name="main.class" value="com.alteredmechanism.rune.Rune"/>
     <property name="lib.dir" value="lib"/>
-    <property name="jar" value="${build.dir}/rune.jar"/>
     <property name="app" value="${build.dir}/Rune.app"/>
     <property name="dmg" value="${build.dir}/Rune.dmg"/>
     <property name="zip" value="${build.dir}/Rune.zip"/>
     <property name="dmg.setup.dir" value="${build.dir}/Rune"/>
-    <property name="font.install.script" value="${dmg.setup.dir}/Install Free Programming Fonts"/>
+    <property name="font.install.script"
+              value="${dmg.setup.dir}/Install Free Programming Fonts"/>
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
+
+    <!-- One jar -->
+    <property name="one-jar.jar" value="${lib.dir}/one-jar-ant-task-0.97.jar"/>
+
+    <!-- The following naming proposal should only affect executable jars, not
+         regular library jars. It is to differentiate between a self-contained
+         executable jar and an executable jar that still has its dependencies
+         outside itself. A jar without a ~something appended to the name can
+         be assumed to be a library jar that is not executable and has
+         no dependencies included, like those uploaded to Maven Central.
+         -->
+
+    <!-- The tilde is necessary so you can tell that the following word is not
+         part of the application name. Dashes separate words in the application
+         name. So those cannot be used. It is the best separator. A dot would
+         indicate a file type, which it is not. It is just an adjective. Other
+         symbols either look terrible or are not allowed in UN*X or Windows
+         file names.
+
+         Nonautonomous jar name possibilities:
+             wallpaper-switcher~nonautonomous.jar   - way too long and hard to pronounce
+             wallpaper-switcher~dependent.jar       - because it has dependencies
+             wallpaper-switcher~isolated.jar        - isolated from its dependencies
+             wallpaper-switcher~slim.jar            - opposite of fat
+             wallpaper-switcher~simple.jar          - opposite of uber, kind of
+             -->
+    <property name="dependent-jar"
+              value="${build.dir}/${ant.project.name}~dependent.jar"/>
+
+    <!-- A better description than "uber", or "fat" or "executable" would be
+         self-contained. But it is very long. Also, "autonomous" would be good,
+         except that it is long:
+             wallpaper-switcher~autonomous.jar      - best captures function and data
+             wallpaper-switcher~self-contained.jar  - doesn't describe exec
+             wallpaper-switcher~uber.jar            - doesn't describe exec or autonomous
+             wallpaper-switcher~fat.jar             - doesn't describe exec or autonomous
+             wallpaper-switcher~exe.jar             - same as exec below
+             wallpaper-switcher~exec.jar            - good but misses autonomous meaning
+                                                      because exec jar could have dependent
+                                                      jars outside itself
+             -->
+    <property name="jar.basename"
+              value="${ant.project.name}~exec.jar"/>
+    <property name="jar"
+              value="${build.dir}/${jar.basename}"/>
     <!-- The location of this jar is very bad, but that is what izPack requires. -->
-    <property name="xdg.desktop.menu.jar" value="${build.dir}/xdg-desktop-menu.jar"/>
+    <property name="xdg.desktop.menu.jar"
+              value="${build.dir}/xdg-desktop-menu.jar"/>
 
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
     <taskdef name="izpack"
-             classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+             classpath="${lib.dir}/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
+
+    <!-- It is better to put the taskdef directly here instead of using the
+         include file as the documentation suggests. The include file is
+         contained inside the jar file. So, then it is necessary to extract
+         the jar file to get to the include file. So now you need both the
+         extracted include file and the jar file, or the extracted jar
+         contents.
+         This gets messy. Just keep the jar file jarred and use the taskdef
+         here. Intellij is then able to file the classname at least, which
+         it couldn't do with everything extracted. But, it still can't
+         recognize the one-jar task...doh!
+         -->
+    <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"
+             classpath="${one-jar.jar}" onerror="report"/>
+
+    <fileset id="dependency.jar.set" dir="${lib.dir}">
+        <include name="look-and-feel/kunststoff.jar"/>
+        <include name="look-and-feel/liquidlnf.jar"/>
+        <include name="look-and-feel/looks.jar"/>
+        <include name="look-and-feel/metouia.jar"/>
+        <include name="look-and-feel/openlookplaf.jar"/>
+        <include name="look-and-feel/substance.jar"/>
+        <include name="jlfgr-1_0.jar"/> <!-- Standard icons -->
+    </fileset>
+
+    <path id="dependency.jars">
+        <fileset refid="dependency.jar.set"/>
+    </path>
 
     <!-- If the version is between 1.5 and 1.8, then compile for 1.5, so it
          works on old machines. If not, then just use the runtime java
@@ -81,8 +156,8 @@
         <mkdir dir="${cls.dir}"/>
     </target>
 
-    <target name="compile5" depends="compile-setup" 
-    	description="Compiles Java code with Java 1.5">
+    <target name="compile5" depends="compile-setup"
+            description="Compiles Java code with Java 1.5">
         <javac fork="yes"
                executable="/home/bill/Dropbox/opt/jdk1.5.0/jdk1.5.0_22/bin/javac"
                srcdir="${src.dir}"
@@ -96,15 +171,26 @@
         </javac>
     </target>
 
-    <target name="compile8" depends="compile-setup" 
-    	description="Compiles Java code with default Java">
+    <target name="compile8" depends="compile-setup"
+            description="Compiles Java code with default Java">
         <javac fork="yes"
                executable="/usr/lib/jvm/java-1.8.0/bin/javac"
                srcdir="${src.dir}"
                source="1.5"
                target="1.5"
                destdir="${cls.dir}"
-               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               includeantruntime="false"
+               debug="true">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="compile-default-compiler"
+            depends="compile-setup"
+            unless="env.RUNE_COMPILER"
+            description="Compiles Java code with default Java">
+        <javac srcdir="${src.dir}"
+               destdir="${cls.dir}"
                includeantruntime="false"
                debug="true">
             <compilerarg value="-Xlint:unchecked"/>
@@ -112,9 +198,9 @@
     </target>
 
     <target name="compile-rune-compiler"
-    	if="env.RUNE_COMPILER"
-    	depends="compile-setup" 
-    	description="Compiles with compiler defined by RUNE_COMPILER env var">
+            if="env.RUNE_COMPILER"
+            depends="compile-setup"
+            description="Compiles with compiler defined by RUNE_COMPILER env var">
         <javac fork="yes"
                executable="${env.RUNE_COMPILER}"
                srcdir="${src.dir}"
@@ -124,58 +210,84 @@
                debug="true">
             <compilerarg value="-Xlint:unchecked"/>
         </javac>
-	<!-- TODO: Create env var for target/source version:
-               source="1.5"
-               target="1.5"
-	-->
+        <!-- TODO: Create env var for target/source version:
+                   source="1.5"
+                   target="1.5"
+        -->
     </target>
 
-    <target name="compile" depends="compile-setup,compile-rune-compiler,compile-default" 
-    	description="Compiles Java code with default Java">
-        <javac srcdir="${src.dir}"
-               destdir="${cls.dir}"
-               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
-               includeantruntime="false"
-               debug="true">
-            <compilerarg value="-Xlint:unchecked"/>
-        </javac>
+    <target name="compile"
+            depends="compile-setup,compile-rune-compiler,compile-default-compiler"
+            description="Triggers the requested compiler based on the RUNE_COMPILER env var">
     </target>
 
-    <target name="jar-xdg-desktop-menu-setup" depends="compile" description="Builds jar for custom install listener">
+    <target name="jar-xdg-desktop-menu-setup"
+            depends="compile"
+            description="Builds jar for custom install listener">
         <jar destfile="${xdg.desktop.menu.jar}">
-            <fileset dir="${build.dir}/classes">
+            <fileset dir="${cls.dir}">
                 <include name="com/alteredmechanism/izpack/**"/>
                 <include name="com/alteredmechanism/rune/Executor.class"/>
             </fileset>
             <manifest>
-                <attribute name="Main-Class" value="com.alteredmechanism.izpack.XdgDesktopMenu"/>
+                <attribute name="Main-Class"
+                           value="com.alteredmechanism.izpack.XdgDesktopMenu"/>
             </manifest>
         </jar>
     </target>
 
-    <target name="jar" depends="compile" description="Builds a fat jar, rune.jar">
-        <jar destfile="${build.dir}/${ant.project.name}.jar">
-            <fileset dir="${build.dir}/classes">
+    <target name="dependent-jar" depends="compile"
+            description="Builds a dependent jar, rune.jar">
+
+        <!-- Converts a Path into a property whose value is appropriate for a
+        Manifest's Class-Path attribute. -->
+        <manifestclasspath property="jar.runtime.classpath" jarfile="${dependent-jar}">
+            <classpath refid="dependency.jars"/>
+        </manifestclasspath>
+
+        <jar destfile="${dependent-jar}">
+            <manifest>
+                <attribute name="Implementation-Title"
+                           value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+                <attribute name="Implementation-Vendor" value="${vendor}"/>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="${jar.runtime.classpath}"/>
+            </manifest>
+            <fileset dir="${cls.dir}">
+                <include name="**"/>
+                <!-- No custom izpack classes in the application jar. -->
                 <exclude name="com/alteredmechanism/izpack/**"/>
             </fileset>
-            <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
-            <zipfileset src="lib/jlfgr-1_0.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/look-and-feel/kunststoff.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/look-and-feel/liquidlnf.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/look-and-feel/looks.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/look-and-feel/metouia.jar" excludes="META-INF/*.SF"/>
-            <zipfileset src="lib/look-and-feel/substance.jar" excludes="META-INF/*.SF"/>
-            <manifest>
-                <attribute name="Main-Class" value="${main.class}"/>
-            </manifest>
+            <fileset dir="src/main/resources" includes="icons/**"
+                     excludes="mac"/>
         </jar>
     </target>
 
-    <target name="mac-app" depends="jar" description="Builds Rune.app directory structure">
-        <delete dir="${app}" />
-        <mkdir dir="${app}/Contents/MacOS" />
-        <mkdir dir="${app}/Contents/Resources/Java" />
-        <copy todir="${app}/Contents/MacOS" preservelastmodified="true" verbose="true">
+    <target name="jar" depends="compile" description="Builds an executable/fat/uber jar file">
+        <one-jar destfile="${jar}">
+            <manifest>
+                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${version}"/>
+                <attribute name="Implementation-Vendor" value="${vendor}"/>
+                <attribute name="One-Jar-Main-Class" value="${main.class}"/>
+            </manifest>
+            <main>
+                <fileset dir="${cls.dir}"/>
+            </main>
+            <lib>
+                <fileset refid="dependency.jar.set"/>
+            </lib>
+        </one-jar>
+    </target>
+
+    <target name="mac-app" depends="jar"
+            description="Builds Rune.app directory structure">
+        <delete dir="${app}"/>
+        <mkdir dir="${app}/Contents/MacOS"/>
+        <mkdir dir="${app}/Contents/Resources/Java"/>
+        <copy todir="${app}/Contents/MacOS" preservelastmodified="true"
+              verbose="true">
             <fileset file="src/main/scripts/rune"/>
             <fileset file="src/main/scripts/rune-debug.sh"/>
             <fileset file="src/main/scripts/rune-common-functions.sh"/>
@@ -185,15 +297,19 @@
         <chmod perm="ugo+rx" verbose="true">
             <fileset file="${app}/Contents/MacOS/rune"/>
             <fileset file="${app}/Contents/MacOS/rune-debug.sh"/>
-            <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset
+                    file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
             <fileset file="${app}/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/rune.jar" preservelastmodified="true"
+        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/${jar.basename}"
+              preservelastmodified="true"
               verbose="true"/>
-        <copy todir="${app}/Contents/Resources" preservelastmodified="true" verbose="true">
+        <copy todir="${app}/Contents/Resources" preservelastmodified="true"
+              verbose="true">
             <fileset file="src/main/resources/icons/vegvisir.icns"/>
         </copy>
-        <copy todir="${app}/Contents" preservelastmodified="true" verbose="true">
+        <copy todir="${app}/Contents" preservelastmodified="true"
+              verbose="true">
             <fileset dir="src/main/resources/mac">
                 <include name="Info.plist"/>
                 <include name="PkgInfo"/>
@@ -201,14 +317,16 @@
         </copy>
     </target>
 
-    <target name="mac-app-zip" depends="mac-app" description="Build a zip file containing the mac app">
-        <echo message="A DMG is a Mac-only technology so building a Zip also" />
+    <target name="mac-app-zip" depends="mac-app"
+            description="Build a zip file containing the mac app">
+        <echo message="A DMG is a Mac-only technology so building a Zip also"/>
         <zip destfile="${zip}">
             <fileset file="${app}"/>
         </zip>
     </target>
 
-    <target name="dmg-on-mac-setup" depends="mac-app" description="Setup for building a dmg on a Mac" if="mac">
+    <target name="dmg-on-mac-setup" depends="mac-app"
+            description="Setup for building a dmg on a Mac" if="mac">
         <mkdir dir="${dmg.setup.dir}"/>
         <copy todir="${dmg.setup.dir}">
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
@@ -217,11 +335,15 @@
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="a+rx" verbose="true">
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune"/>
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh"/>
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
-            <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh"/>
+            <fileset
+                    file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset
+                    file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset
+                    file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="src/main/scripts/install-fonts.sh" tofile="${font.install.script}"/>
+        <copy file="src/main/scripts/install-fonts.sh"
+              tofile="${font.install.script}"/>
         <chmod file="${font.install.script}" perm="a+rx"/>
         <mkdir dir="${dmg.setup.dir}/Fonts"/>
         <copy todir="${dmg.setup.dir}/Fonts">
@@ -229,7 +351,8 @@
         </copy>
     </target>
 
-    <target name="dmg-on-mac" depends="dmg-on-mac-setup" description="Builds a dmg on a Mac" if="mac">
+    <target name="dmg-on-mac" depends="dmg-on-mac-setup"
+            description="Builds a dmg on a Mac" if="mac">
         <exec dir="${build.dir}" executable="hdiutil">
             <arg value="create"/>
             <arg value="-ov"/>
@@ -246,9 +369,10 @@
         </exec>
     </target>
 
-    <target name="dmg-on-linux" depends="mac-app" if="linux" description="Builds a dmg on a Lignix">
-        <touch file="${dmg}" />
-	<echo message="Zeroing out ${dmg} file"/>
+    <target name="dmg-on-linux" depends="mac-app" if="linux"
+            description="Builds a dmg on a Lignix">
+        <touch file="${dmg}"/>
+        <echo message="Zeroing out ${dmg} file"/>
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -257,31 +381,35 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-	<!-- echo message="${env.PATH}"-->
-        <exec dir="${basedir}" executable="mkfs" resultproperty="mkfs.hfsplus.result">
+        <!-- echo message="${env.PATH}"-->
+        <exec dir="${basedir}" executable="mkfs"
+              resultproperty="mkfs.hfsplus.result">
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
         </exec>
-	<fail>
+        <fail>
             <condition>
                 <not>
-			<equals arg1="${mkfs.hfsplus.result}" arg2="0"/>
-		</not>
-	    </condition>
-Failed to create hfs+ file system for dmg.
+                    <equals arg1="${mkfs.hfsplus.result}" arg2="0"/>
+                </not>
+            </condition>
+            Failed to create hfs+ file system for dmg.
 
-You may need to install the appropriate hfs+ file system package:
-	Fedora: sudo dnf install hfsplus-tools
-	Ubuntu: sudo apt install hfsprogs
-	    
-This will also fail if it is running inside a snap or flatpak Intellij
-because they are sandboxed and therefore can't access /usr/bin/mkfs.
-	</fail>
+            You may need to install the appropriate hfs+ file system package:
+            Fedora: sudo dnf install hfsplus-tools
+            Ubuntu: sudo apt install hfsprogs
+
+            This will also fail if it is running inside a snap or flatpak
+            Intellij
+            because they are sandboxed and therefore can't access /usr/bin/mkfs.
+        </fail>
         <mkdir dir="target/dmg-mount"/>
-	<echo>Super user privileges will be required to mount/unmount the dmg file</echo>
+        <echo>Super user privileges will be required to mount/unmount the dmg
+            file
+        </echo>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
             <arg value="mount"/>
             <arg value="--verbose"/>
@@ -303,9 +431,12 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="a+rx" verbose="true">
-            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
-            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
-            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset
+                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
+            <fileset
+                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset
+                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
         </chmod>
 
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
@@ -315,7 +446,8 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
         </exec>
     </target>
 
-    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip" description="Builds a dmg" />
+    <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip"
+            description="Builds a dmg"/>
 
     <target name="izpack-setup" depends="jar,jar-xdg-desktop-menu-setup">
         <mkdir dir="${izpack.root}"/>
@@ -333,8 +465,10 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
             </fileset>
         </copy>
         <mkdir dir="${izpack.root}/${izpack.app.dir}/lib"/>
-        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/rune.jar" file="${jar}"/>
-        <copy todir="${izpack.root}/${izpack.app.dir}/lib" file="${xdg.desktop.menu.jar}"/>
+        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/${jar.basename}"
+              file="${jar}"/>
+        <copy todir="${izpack.root}/${izpack.app.dir}/lib"
+              file="${xdg.desktop.menu.jar}"/>
         <mkdir dir="${izpack.root}/${izpack.app.dir}"/>
         <copy todir="${izpack.root}/${izpack.app.dir}">
             <fileset dir="${basedir}">
@@ -362,7 +496,7 @@ because they are sandboxed and therefore can't access /usr/bin/mkfs.
         />
     </target>
 
-    <target name="all"  depends="dmg"/>
+    <target name="all" depends="dmg"/>
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>
