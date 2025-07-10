@@ -111,22 +111,26 @@
         </javac>
     </target>
 
-    <target name="compile" depends="compile-setup" 
-    	description="Compiles Java code with default Java">
+    <target name="compile-rune-compiler"
+    	if="env.RUNE_COMPILER"
+    	depends="compile-setup" 
+    	description="Compiles with compiler defined by RUNE_COMPILER env var">
         <javac fork="yes"
                executable="${env.RUNE_COMPILER}"
                srcdir="${src.dir}"
-               source="1.5"
-               target="1.5"
                destdir="${cls.dir}"
                classpath="lib/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
                debug="true">
             <compilerarg value="-Xlint:unchecked"/>
         </javac>
+	<!-- TODO: Create env var for target/source version:
+               source="1.5"
+               target="1.5"
+	-->
     </target>
 
-    <target name="compile-default" depends="compile-setup" 
+    <target name="compile" depends="compile-setup,compile-rune-compiler,compile-default" 
     	description="Compiles Java code with default Java">
         <javac srcdir="${src.dir}"
                destdir="${cls.dir}"
