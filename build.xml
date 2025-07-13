@@ -27,7 +27,8 @@
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="com.alteredmechanism.rune.Rune"/>
-    <property name="lib.dir" value="lib"/>
+    <property name="app.lib.dir" value="lib/app"/>
+    <property name="build.lib.dir" value="lib/build"/>
     <property name="app" value="${build.dir}/Rune.app"/>
     <property name="dmg" value="${build.dir}/Rune.dmg"/>
     <property name="zip" value="${build.dir}/Rune.zip"/>
@@ -38,7 +39,8 @@
     <property name="izpack.app.dir" value="appfiles"/>
 
     <!-- One jar -->
-    <property name="one-jar.jar" value="${lib.dir}/one-jar-ant-task-0.97.jar"/>
+    <property name="one-jar.jar" 
+              value="${build.lib.dir}/one-jar-ant-task-0.97.jar"/>
 
     <!-- The following naming proposal should only affect executable jars, not
          regular library jars. It is to differentiate between a self-contained
@@ -56,40 +58,48 @@
          file names.
 
          Nonautonomous jar name possibilities:
-             wallpaper-switcher~nonautonomous.jar   - way too long and hard to pronounce
-             wallpaper-switcher~dependent.jar       - because it has dependencies
-             wallpaper-switcher~isolated.jar        - isolated from its dependencies
-             wallpaper-switcher~slim.jar            - opposite of fat
-             wallpaper-switcher~simple.jar          - opposite of uber, kind of
-             -->
+
+         wallpaper-switcher~nonautonomous.jar - way too long and hard to pronounce
+         wallpaper-switcher~dependent.jar - because it has dependencies
+         wallpaper-switcher~isolated.jar  - isolated from its dependencies
+         wallpaper-switcher~slim.jar      - opposite of fat
+         wallpaper-switcher~simple.jar    - opposite of uber, kind of
+         -->
     <property name="dependent.jar.basename"
-              value="${ant.project.name}~dependent.jar"/>
+              value="${ant.project.name}~exec.jar"/>
     <property name="dependent.jar"
               value="${build.dir}/${dependent.jar.basename}"/>
 
     <!-- A better description than "uber", or "fat" or "executable" would be
          self-contained. But it is very long. Also, "autonomous" would be good,
          except that it is long:
-             wallpaper-switcher~autonomous.jar      - best captures function and data
-             wallpaper-switcher~self-contained.jar  - doesn't describe exec
-             wallpaper-switcher~uber.jar            - doesn't describe exec or autonomous
-             wallpaper-switcher~fat.jar             - doesn't describe exec or autonomous
-             wallpaper-switcher~exe.jar             - same as exec below
-             wallpaper-switcher~exec.jar            - good but misses autonomous meaning
-                                                      because exec jar could have dependent
-                                                      jars outside itself
-             -->
+
+         wallpaper-switcher~autonomous.jar     - best captures function and data
+         wallpaper-switcher~self-contained.jar - doesn't describe exec
+         wallpaper-switcher~uber.jar           - doesn't describe exec or
+                                                 autonomous
+         wallpaper-switcher~fat.jar            - doesn't describe exec or
+                                                 autonomous
+         wallpaper-switcher~exe.jar            - same as exec below
+         wallpaper-switcher~exec.jar           - good but misses autonomous
+                                                 meaning
+                                                 because exec jar could have
+                                                 dependent jars outside itself -->
     <property name="jar.basename"
-              value="${ant.project.name}~exec.jar"/>
+              value="${ant.project.name}~uber.jar"/>
     <property name="jar"
               value="${build.dir}/${jar.basename}"/>
-    <!-- The location of this jar is very bad, but that is what izPack requires. -->
+
+    <!-- The location of this jar is very bad, but that is what izPack 
+         requires.  -->
     <property name="xdg.desktop.menu.jar"
               value="${build.dir}/xdg-desktop-menu.jar"/>
 
-    <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib -->
+    <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added
+         to Ant lib
+         -->
     <taskdef name="izpack"
-             classpath="${lib.dir}/izpack-standalone-compiler-4.3.5.jar"
+             classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
     <!-- It is better to put the taskdef directly here instead of using the
@@ -99,23 +109,23 @@
          extracted include file and the jar file, or the extracted jar
          contents.
          This gets messy. Just keep the jar file jarred and use the taskdef
-         here. Intellij is then able to file the classname at least, which
+         here. Intellij is then able to find the classname at least, which
          it couldn't do with everything extracted. But, it still can't
          recognize the one-jar task...doh!
          -->
     <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"
              classpath="${one-jar.jar}" onerror="report"/>
 
-    <fileset id="dependency.jar.set" dir="${lib.dir}">
-        <include name="look-and-feel/kunststoff.jar"/>
-        <include name="look-and-feel/liquidlnf.jar"/>
-        <include name="look-and-feel/looks.jar"/>
-        <include name="look-and-feel/metouia.jar"/>
-        <include name="look-and-feel/openlookplaf.jar"/>
-        <include name="look-and-feel/substance.jar"/>
-        <include name="jlfgr-1_0.jar"/> <!-- Standard icons -->
+    <fileset id="dependency.jar.set" dir="${app.lib.dir}">
+        <include name="**/*"/>
     </fileset>
 
+    <path id="jar.runtime.classpath">
+        <fileset dir="${app.lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
     <path id="dependency.jars">
         <fileset refid="dependency.jar.set"/>
     </path>
@@ -124,7 +134,8 @@
          works on old machines. If not, then just use the runtime java
          version because newer versions can't compile for 1.5. -->
     <!--
-    <condition property="target.java.version" value="1.5" else="${java.specification.version}">
+    <condition property="target.java.version" value="1.5" 
+               else="${java.specification.version}">
         <or>
             <equals arg1="1.5" arg2="${java.specification.version}"/>
             <equals arg1="1.6" arg2="${java.specification.version}"/>
@@ -207,7 +218,7 @@
                executable="${env.RUNE_COMPILER}"
                srcdir="${src.dir}"
                destdir="${cls.dir}"
-               classpath="lib/izpack-standalone-compiler-4.3.5.jar"
+               classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
                debug="true">
             <compilerarg value="-Xlint:unchecked"/>
@@ -216,7 +227,7 @@
 
     <target name="compile"
             depends="compile-setup,compile-rune-compiler,compile-default-compiler"
-            description="Triggers the requested compiler based on the RUNE_COMPILER env var">
+            description="Triggers the compiler set by the RUNE_COMPILER env var">
     </target>
 
     <target name="jar-xdg-desktop-menu-setup"
@@ -237,10 +248,25 @@
     <target name="dependent-jar" depends="compile"
             description="Builds a dependent jar, rune.jar">
 
-        <!-- Converts a Path into a property whose value is appropriate for a
-        Manifest's Class-Path attribute. -->
-        <manifestclasspath property="jar.runtime.classpath" jarfile="${dependent.jar}">
-            <classpath refid="dependency.jars"/>
+        <script language="BeanShell" classpath="${build.lib.dir}/bsh-2.0b6.jar">
+            if (self.getProject().hasReference("jar.runtime.classpath")) {
+                System.out.println("Suga");
+            } else {
+                System.out.println("Bitch");
+            }
+        </script>
+
+        <!-- Converts a classpath element (dependency.jars) into a property
+             (manifest.classpath) whose value is appropriate for a
+             Manifest's Class-Path attribute. The jarfile is the name of the
+             jar file that will be created. That should really not be needed.
+             The property should be enough.
+             -->
+        <manifestclasspath property="manifest.classpath" 
+                           jarfile="${dependent.jar}">
+            <classpath refid="jar.runtime.classpath"/>
+            <!-- It'd be nice if this worked... -->
+            <!-- <mapper type="flatten"/> -->
         </manifestclasspath>
 
         <jar destfile="${dependent.jar}">
@@ -250,11 +276,11 @@
                 <attribute name="Implementation-Version" value="${version}"/>
                 <attribute name="Implementation-Vendor" value="${vendor}"/>
                 <attribute name="Main-Class" value="${main.class}"/>
-                <attribute name="Class-Path" value="${jar.runtime.classpath}"/>
+                <attribute name="Class-Path" value="${manifest.classpath}"/>
             </manifest>
             <fileset dir="${cls.dir}">
                 <include name="**"/>
-                <!-- No custom izpack classes in the application jar. -->
+                <!-- No custom izpack classes in application jar. -->
                 <exclude name="com/alteredmechanism/izpack/**"/>
             </fileset>
             <fileset dir="src/main/resources" includes="icons/**"
@@ -262,10 +288,11 @@
         </jar>
     </target>
 
-    <target name="jar" depends="compile" description="Builds an executable/fat/uber jar file">
+    <target name="jar" depends="compile" 
+            description="Builds an executable/fat/uber jar file">
         <one-jar destfile="${jar}">
             <manifest>
-                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Title" value="Rune"/>
                 <attribute name="Implementation-Version" value="${version}"/>
                 <attribute name="Implementation-Vendor" value="${vendor}"/>
                 <attribute name="One-Jar-Main-Class" value="${main.class}"/>
@@ -274,7 +301,7 @@
                 <fileset dir="${cls.dir}"/>
             </main>
             <lib>
-                <fileset refid="dependency.jar.set"/>
+                <fileset dir="${app.lib.dir}"/>
             </lib>
         </one-jar>
     </target>
