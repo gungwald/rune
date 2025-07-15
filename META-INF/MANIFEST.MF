@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.14
+Created-By: 21.0.7+6 (Red Hat, Inc.)
+Implementation-Title: rune
+Implementation-Version: 1.0
+Implementation-Vendor: Altered Mechanism
+Main-Class: com.alteredmechanism.rune.Rune
+Class-Path: ../lib/app/jlfgr-1_0.jar ../lib/app/look-and-feel/kunststo
+ ff.jar ../lib/app/look-and-feel/liquidlnf.jar ../lib/app/look-and-fee
+ l/looks.jar ../lib/app/look-and-feel/metouia.jar ../lib/app/look-and-
+ feel/openlookplaf.jar ../lib/app/look-and-feel/substance.jar
+

@@ -245,16 +245,37 @@
         </jar>
     </target>
 
-    <target name="dependent-jar" depends="compile"
-            description="Builds a dependent jar, rune.jar">
-
-        <script language="BeanShell" classpath="${build.lib.dir}/bsh-2.0b6.jar">
+    <target name="functioning-script">
+        <!-- Fix the damn dependency fileset so that the dependent jars can
+             be put into the same directory as the app jar.
+             -->
+        <script language="beanshell">
+            <classpath>
+                <fileset dir="${build.lib.dir}">
+                    <!-- The bsf jar provides the javax.script (JSR-223) 
+                         implementation for Java less than 6. This app targets
+                         Java 5, so bsf is good to have. -->
+                    <include name="bsf-api-3.1.jar"/>
+                    <!-- This is the beanshell interpreter. -->
+                    <include name="bsh-2.0b6.jar"/>
+                </fileset>
+            </classpath>
             if (self.getProject().hasReference("jar.runtime.classpath")) {
                 System.out.println("Suga");
             } else {
                 System.out.println("Bitch");
             }
         </script>
+    </target>
+
+    <target name="dependent-jar" depends="compile"
+            description="Builds a dependent jar, rune.jar">
+
+        <!-- Another solution: Use pathconvert with flatten mapper to convert
+             path to a string and then use <classpath path="${string}"/> to
+             specify the dependency fileset for the runtime path.
+             -->
+
 
         <!-- Converts a classpath element (dependency.jars) into a property
              (manifest.classpath) whose value is appropriate for a
