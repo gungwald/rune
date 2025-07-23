@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- This file is a masterpiece, build over many years. Every part has a
+     carefully thought-out reason for existing with the exact names and
+     parameters, as given. If you try to "fix" it or "simplify" it, you
+     will likely break something. -->
+
 <!-- Ant is used instead of Maven or Gradle because both Maven and Gradle
      are hideously slow on older machines like a Mac PowerBook G4 or Sun
      Ultra 5. Ant is more than 2X faster and the Ant code is more than 2X
@@ -21,7 +26,19 @@
 <project name="rune" default="all" basedir=".">
 
     <property environment="env"/>
-    <property name="version" value="1.0"/>
+
+    <!--
+    **************************************************************************
+    *                                                                        *
+    *               Increment release.version before releasing               *
+    *        Match it will the github version in the github release          *
+    *                                                                        *
+    **************************************************************************
+    -->
+    <property name="release.version" value="2.0.0"/> <!-- Match Github version -->
+
+    <property name="app.formal.name" value="Rune"/>
+    <property name="app.technical.name" value="${ant.project.name}"/>
     <property name="vendor" value="Altered Mechanism"/>
     <property name="src.dir" value="src/main/java"/>
     <property name="build.dir" value="target"/>
@@ -37,10 +54,17 @@
               value="${dmg.setup.dir}/Install Free Programming Fonts"/>
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
+    <property name="common.manifest" value="${build.dir}/common-manifest.txt"/>
+    <property name="dependent.manifest" value="${build.dir}/dependent-manifest.txt"/>
+    <property name="uber.manifest" value="${build.dir}/uber-manifest.txt"/>
+    <!-- Might need a better location, but the name is corrected from the Ant default.
+         It automatically populates the property build.number -->
+    <property name="build.number.file" value="src/build-number.txt"/> 
+    <property name="portable.zip" value="${build.dir}/rune-portable.zip"/> 
+    <property name="portable.zip.dir" value="${build.dir}/rune-portable"/> 
 
-    <!-- One jar -->
-    <property name="one-jar.jar" 
-              value="${build.lib.dir}/one-jar-ant-task-0.97.jar"/>
+    <!-- Define One-Jar JAR location which is used to load the one-jar tastdef. -->
+    <property name="one-jar.jar" value="${build.lib.dir}/one-jar-ant-task-0.97.jar"/>
 
     <!-- The following naming proposal should only affect executable jars, not
          regular library jars. It is to differentiate between a self-contained
@@ -65,10 +89,10 @@
          wallpaper-switcher~slim.jar      - opposite of fat
          wallpaper-switcher~simple.jar    - opposite of uber, kind of
          -->
-    <property name="dependent.jar.basename"
-              value="${ant.project.name}~exec.jar"/>
+    <property name="dependent.jar.shortname"
+              value="${ant.project.name}~dependent.jar"/>
     <property name="dependent.jar"
-              value="${build.dir}/${dependent.jar.basename}"/>
+              value="${build.dir}/${dependent.jar.shortname}"/>
 
     <!-- A better description than "uber", or "fat" or "executable" would be
          self-contained. But it is very long. Also, "autonomous" would be good,
@@ -85,10 +109,12 @@
                                                  meaning
                                                  because exec jar could have
                                                  dependent jars outside itself -->
-    <property name="jar.basename"
-              value="${ant.project.name}~uber.jar"/>
+
+    <!-- This is the uber jar. Consider changing the name. -->
+    <property name="jar.shortname"
+              value="${ant.project.name}.jar"/>
     <property name="jar"
-              value="${build.dir}/${jar.basename}"/>
+              value="${build.dir}/${jar.shortname}"/>
 
     <!-- The location of this jar is very bad, but that is what izPack 
          requires.  -->
@@ -130,6 +156,12 @@
         <fileset refid="dependency.jar.set"/>
     </path>
 
+    <!-- I've abandoned the following technique for the RUNE_COMPILER and
+         RUNE_JAVA_VERSION environment variables. But, always considering
+         better, easier, more consistent with other build methods. This
+         is included for thought material. 
+         -->
+
     <!-- If the version is between 1.5 and 1.8, then compile for 1.5, so it
          works on old machines. If not, then just use the runtime java
          version because newer versions can't compile for 1.5. -->
@@ -167,10 +199,23 @@
 
     <target name="compile-setup" description="Sets up for compile">
         <mkdir dir="${cls.dir}"/>
+        <buildnumber file="${build.number.file}"/>
+        <!-- Build the basic manifest only once so that there are no duplicate
+             locations that have to be set for the same values. -->
+        <manifest file="${common.manifest}">
+            <attribute name="Specification-Title" value="${app.formal.name}"/>
+            <attribute name="Specification-Version" value="${release.version}"/>
+            <attribute name="Specification-Vendor" value="${vendor}"/>
+            <attribute name="Implementation-Title" value="${app.technical.name}"/>
+            <attribute name="Implementation-Version" value="build.${build.number}"/>
+            <attribute name="Implementation-Vendor" value="${vendor}"/>
+        </manifest>
     </target>
 
+    <!-- Hard-coded location of my Java 5 compiler. No longer tested, but could
+         be brought back as a legitimate option. -->
     <target name="compile5" depends="compile-setup"
-            description="Compiles Java code with Java 1.5">
+            description="Compiles Java code with hardcoded Java 1.5">
         <javac fork="yes"
                executable="/home/bill/Dropbox/opt/jdk1.5.0/jdk1.5.0_22/bin/javac"
                srcdir="${src.dir}"
@@ -184,8 +229,10 @@
         </javac>
     </target>
 
+    <!-- Hard-coded location of Fedora Linux Java 8 compiler. No longer tested, 
+         but could be brought back as a legitimate option. -->
     <target name="compile8" depends="compile-setup"
-            description="Compiles Java code with default Java">
+            description="Compiles with hardcoded Java 1.8, but for 1.5 target">
         <javac fork="yes"
                executable="/usr/lib/jvm/java-1.8.0/bin/javac"
                srcdir="${src.dir}"
@@ -198,10 +245,11 @@
         </javac>
     </target>
 
+    <!-- See the description attribute below -->
     <target name="compile-default-compiler"
             depends="compile-setup"
             unless="env.RUNE_COMPILER"
-            description="Compiles Java code with default Java">
+            description="Compiles with javac found in the PATH (not preferred)">
         <javac srcdir="${src.dir}"
                destdir="${cls.dir}"
                includeantruntime="false"
@@ -210,13 +258,15 @@
         </javac>
     </target>
 
+    <!-- See the description attribute below -->
     <target name="compile-rune-compiler"
             if="env.RUNE_COMPILER"
             depends="compile-setup"
-            description="Compiles with compiler defined by RUNE_COMPILER env var">
+            description="Compiles with RUNE_COMPILER, RUNE_JAVA_VERSION vars (preferred)">
         <javac fork="yes"
                executable="${env.RUNE_COMPILER}"
-               srcdir="${src.dir}"
+               source="${env.RUNE_JAVA_VERSION}"
+               target="${env.RUNE_JAVA_VERSION}"
                destdir="${cls.dir}"
                classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
                includeantruntime="false"
@@ -227,12 +277,12 @@
 
     <target name="compile"
             depends="compile-setup,compile-rune-compiler,compile-default-compiler"
-            description="Triggers the compiler set by the RUNE_COMPILER env var">
+            description="Chooses either default or rune-compiler targets">
     </target>
 
     <target name="jar-xdg-desktop-menu-setup"
             depends="compile"
-            description="Builds jar for custom install listener">
+            description="Builds jar for izpack custom install listener">
         <jar destfile="${xdg.desktop.menu.jar}">
             <fileset dir="${cls.dir}">
                 <include name="com/alteredmechanism/izpack/**"/>
@@ -245,10 +295,12 @@
         </jar>
     </target>
 
-    <target name="functioning-script">
-        <!-- Fix the damn dependency fileset so that the dependent jars can
-             be put into the same directory as the app jar.
-             -->
+    <!-- This is not used but kept here because it took a lot of work to
+         figure out how to run a custom script as part of the build. If you
+         delete it because it's stored in git, then no one will remember it is
+         there and it will become useless, wasted work. -->
+    <target name="run-a-script" description="Demonstrates how to run a script :-)">
+        <!-- The language has to be lower case or it won't be found. -->
         <script language="beanshell">
             <classpath>
                 <fileset dir="${build.lib.dir}">
@@ -260,6 +312,7 @@
                     <include name="bsh-2.0b6.jar"/>
                 </fileset>
             </classpath>
+            // This is the actual script. It's just a demo.
             if (self.getProject().hasReference("jar.runtime.classpath")) {
                 System.out.println("Suga");
             } else {
@@ -269,66 +322,83 @@
     </target>
 
     <target name="dependent-jar" depends="compile"
-            description="Builds a dependent jar, rune.jar">
+            description="Builds an executable jar that references external jar dependencies">
 
-        <!-- Another solution: Use pathconvert with flatten mapper to convert
-             path to a string and then use <classpath path="${string}"/> to
-             specify the dependency fileset for the runtime path.
+        <!-- Take the path given by refid as input, send it through the
+             flatten mapper to remove any directory prefixes from the jar
+             file names, form it into a path string and put the result in
+             the given property as output. This allows the property to be 
+             used in a "<classpath path=" attribute. Aunt auto-converts the
+             slashes and colons/semicolons to the current operating system.
              -->
+        <pathconvert refid="jar.runtime.classpath" property="jar.classpath.string">
+            <mapper type="flatten"/>
+        </pathconvert>
 
-
-        <!-- Converts a classpath element (dependency.jars) into a property
-             (manifest.classpath) whose value is appropriate for a
-             Manifest's Class-Path attribute. The jarfile is the name of the
-             jar file that will be created. That should really not be needed.
-             The property should be enough.
+        <!-- Converts a classpath element into a property whose value is 
+             appropriate for a Manifest's Class-Path attribute. The jarfile
+             is the name of the jar file that will be created. That should
+             really not be needed. The property should be enough.
              -->
         <manifestclasspath property="manifest.classpath" 
                            jarfile="${dependent.jar}">
-            <classpath refid="jar.runtime.classpath"/>
-            <!-- It'd be nice if this worked... -->
-            <!-- <mapper type="flatten"/> -->
+            <classpath path="${jar.classpath.string}"/>
         </manifestclasspath>
 
-        <jar destfile="${dependent.jar}">
-            <manifest>
-                <attribute name="Implementation-Title"
-                           value="${ant.project.name}"/>
-                <attribute name="Implementation-Version" value="${version}"/>
-                <attribute name="Implementation-Vendor" value="${vendor}"/>
-                <attribute name="Main-Class" value="${main.class}"/>
-                <attribute name="Class-Path" value="${manifest.classpath}"/>
-            </manifest>
+        <!-- Start with the common manifest file and then add attributes
+             just for this dependent jar.
+             -->
+        <copy file="${common.manifest}" tofile="${dependent.manifest}" 
+              preservelastmodified="true"/>
+
+        <!-- Add attributes for dependent jar -->
+        <manifest file="${dependent.manifest}" mode="update">
+            <attribute name="Main-Class" value="${main.class}"/>
+            <attribute name="Class-Path" value="${manifest.classpath}"/>
+        </manifest>
+
+        <jar destfile="${dependent.jar}" manifest="${dependent.manifest}">
             <fileset dir="${cls.dir}">
                 <include name="**"/>
                 <!-- No custom izpack classes in application jar. -->
                 <exclude name="com/alteredmechanism/izpack/**"/>
             </fileset>
-            <fileset dir="src/main/resources" includes="icons/**"
-                     excludes="mac"/>
+            <fileset dir="src/main/resources" includes="icons/**" excludes="mac"/>
         </jar>
     </target>
 
-    <target name="jar" depends="compile" 
-            description="Builds an executable/fat/uber jar file">
-        <one-jar destfile="${jar}">
-            <manifest>
-                <attribute name="Implementation-Title" value="Rune"/>
-                <attribute name="Implementation-Version" value="${version}"/>
-                <attribute name="Implementation-Vendor" value="${vendor}"/>
-                <attribute name="One-Jar-Main-Class" value="${main.class}"/>
-            </manifest>
-            <main>
-                <fileset dir="${cls.dir}"/>
-            </main>
+    <target name="jar" depends="dependent-jar" description="Builds an uber jar">
+        <copy file="${common.manifest}" tofile="${uber.manifest}" 
+              preservelastmodified="true"/>
+
+        <manifest file="${uber.manifest}" mode="update">
+            <attribute name="One-Jar-Main-Class" value="${main.class}"/>
+        </manifest>
+
+        <one-jar destfile="${jar}" manifest="${uber.manifest}">
+            <main jar="${dependent.jar}"/>
             <lib>
                 <fileset dir="${app.lib.dir}"/>
             </lib>
         </one-jar>
     </target>
 
+    <target name="portable-zip" depends="jar" 
+            description="Builds zip that requires no installation, for all platforms">
+        <mkdir dir="${portable.zip.dir}"/>
+        <mkdir dir="${portable.zip.dir}/bin"/>
+        <mkdir dir="${portable.zip.dir}/lib"/>
+        <copy todir="${portable.zip.dir}/bin" flatten="true" 
+              preservelastmodified="true" verbose="true">
+            <fileset dir="src/main/scripts" includes="**/*"/>
+        </copy>
+        <copy file="${jar}" todir="${portable.zip.dir}/lib" flatten="true"
+              preservelastmodified="true" verbose="true"/>
+        <zip basedir="${portable.zip.dir}" destfile="${portable.zip}"/>
+    </target>
+
     <target name="mac-app" depends="jar"
-            description="Builds Rune.app directory structure">
+            description="Builds Rune.app directory structure for Mac">
         <delete dir="${app}"/>
         <mkdir dir="${app}/Contents/MacOS"/>
         <mkdir dir="${app}/Contents/Resources/Java"/>
@@ -339,15 +409,15 @@
             <fileset file="src/main/scripts/rune-common-functions.sh"/>
             <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
         </copy>
-        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset
+             after each copy. -->
         <chmod perm="ugo+rx" verbose="true">
             <fileset file="${app}/Contents/MacOS/rune"/>
             <fileset file="${app}/Contents/MacOS/rune-debug.sh"/>
-            <fileset
-                    file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${app}/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
             <fileset file="${app}/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/${jar.basename}"
+        <copy file="${jar}" tofile="${app}/Contents/Resources/Java/${jar.shortname}"
               preservelastmodified="true"
               verbose="true"/>
         <copy todir="${app}/Contents/Resources" preservelastmodified="true"
@@ -493,7 +563,7 @@
     </target>
 
     <target name="dmg" depends="dmg-on-mac,dmg-on-linux,mac-app-zip"
-            description="Builds a dmg"/>
+            description="Builds a dmg, a Mac install file"/>
 
     <target name="izpack-setup" depends="jar,jar-xdg-desktop-menu-setup">
         <mkdir dir="${izpack.root}"/>
@@ -511,7 +581,7 @@
             </fileset>
         </copy>
         <mkdir dir="${izpack.root}/${izpack.app.dir}/lib"/>
-        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/${jar.basename}"
+        <copy tofile="${izpack.root}/${izpack.app.dir}/lib/${jar.shortname}"
               file="${jar}"/>
         <copy todir="${izpack.root}/${izpack.app.dir}/lib"
               file="${xdg.desktop.menu.jar}"/>
@@ -542,7 +612,7 @@
         />
     </target>
 
-    <target name="all" depends="dmg"/>
+    <target name="all" depends="dmg,portable-zip,izpack"/>
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>

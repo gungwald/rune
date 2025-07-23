@@ -1,4 +1,9 @@
-#!/usr/dt/bin/dtksh 
+#!/usr/bin/env dtksh
+
+# Solaris 8? - /usr/dt/bin/dtksh 
+
+# This is not my script but it's pretty amazing. I should have it attributed
+# here but I forget where I got it.
 
 function usage 
 { 
@@ -76,6 +81,8 @@ fi
 if [ -z "$message" ]; then 
     usage 
 fi 
+# End of processing of command line options
+
 XtCreateManagedWidget FORM form XmForm $TOPLEVEL \
     marginHeight:15 \
     marginWidth:15 

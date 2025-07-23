@@ -1,4 +1,4 @@
-// Runs Java notepad application without a flashing Command Prompt window.
+// Runs Rune without a flashing Command Prompt window.
 
 /**
  * Java doesn't expand wildcards in file names on the command line.
@@ -6,8 +6,8 @@
  * don't do dat. So it has to be done manually so the expected
  * behavior of a Windows app is maintained.
  * 
- * @param {String} globulet - A string containing wildcards (a.k.a. a glob)
- * @returns {Array} - The file names specified by the glob/wildcards
+ * @param   {String} globulet - A string containing wildcards (a.k.a. a glob)
+ * @returns {Array}           - The file names specified by the glob/wildcards
  */
 function expandGlob(globulet)
 {
@@ -80,18 +80,18 @@ function findJava(fs, env)
     	javaProgramToFind = "javaw.exe";
     }
 
-	var javaHomeEnvVars = [ 'RUNE_JAVA_HOME', 'JAVA_HOME' ];
-	for (var i=0; i < javaHomeEnvVars.length; i++) {
-		var javaHome = env(javaHomeEnvVars[i]);
-		if (javaHome) {
-			var javaBinDir = fs.BuildPath(javaHome, "bin");
-			var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
-			if (fs.FileExists(testJava)) {
-				java = testJava;
-				break;
-			}
-		}
-	}
+    var javaHomeEnvVars = [ 'RUNE_JAVA_HOME', 'JAVA_HOME' ];
+    for (var i=0; i < javaHomeEnvVars.length; i++) {
+        var javaHome = env(javaHomeEnvVars[i]);
+        if (javaHome) {
+            var javaBinDir = fs.BuildPath(javaHome, "bin");
+            var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
+            if (fs.FileExists(testJava)) {
+                java = testJava;
+                break;
+            }
+        }
+    }
     if (java == null) {
     	java = javaProgramToFind;
     }
@@ -120,14 +120,11 @@ function copyAll(inputStream, outputStream)
  */
 function passThroughOutput(process)
 {
-    copyAll(javaProcess.StdOut, WScript.StdOut);
-    copyAll(javaProcess.StdErr, WScript.StdErr);
+    copyAll(process.StdOut, WScript.StdOut);
+    copyAll(process.StdErr, WScript.StdErr);
 }
 
-/**
- * fs is assigned an object of type FileSystemObject 
- * @global
- */
+/** fs is assigned an object of type FileSystemObject */
 var fs = new ActiveXObject("Scripting.FileSystemObject");
 /** shell is assigned an object of type WshShell */
 var shell = new ActiveXObject("WScript.Shell");
@@ -156,7 +153,7 @@ if (isRunningWithCScript()) {
     var javaProcess = shell.Exec(javerCommand);	// Returns a WshScriptExec object
     passThroughOutput(javaProcess);
     while (javaProcess.Status == 0) {
-    	// It's still running, so wait for it.
+    	// It's still running, so wait for it to exit.
     	WScript.Sleep(3000);
     }
     exitCode = javaProcess.ExitCode;
