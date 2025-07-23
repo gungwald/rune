@@ -140,7 +140,7 @@ var topDir = fs.GetParentFolderName(srcDir);			// returns a String object
 var libDir = fs.BuildPath(distDir, "lib");			// returns a String object
 var scriptFile = fs.GetFile(WScript.ScriptFullName);		// returns a File object
 var scriptNameWithoutExtension = scriptFile.Name.replace("." + fs.GetExtensionName(scriptFile.Name), "");
-var jar = fs.BuildPath(libDir, scriptNameWithoutExtension + "-1.0.jar");
+var jar = fs.BuildPath(libDir, scriptNameWithoutExtension + ".jar");
 
 // Find javer
 var java = findJava(fs, env);
