@@ -9,8 +9,10 @@ getSystemFontDir()
     OS=`uname -s`
     if [ "$OS" = 'darwin' ]; then
         SYSTEM_FONT_DIR='/Library/Fonts'
+    elif [ "$OS" = 'Linux' ]; then
+        SYSTEM_FONT_DIR="$HOME/.fonts"
     else
-        echo Unknown system $OS
+        echo Unknown operating system $OS. Cannot determine font directory. 1>&2
         exit 1
     fi
     echo $SYSTEM_FONT_DIR
@@ -34,8 +36,14 @@ getAbsolutePath()
 SELF=`getAbsolutePath "$0"`
 # shellcheck disable=SC2006
 MY_DIR=`dirname "$SELF"`
+FONT_SRC_DIR=`dirname "$MY_DIR"`/resources/fonts
+FONT_DEST_DIR=`getSystemFontDir`
+
+if [ ! -d "$FONT_DEST_DIR" ]; then
+    mkdir -p "$FONT_DEST_DIR"
+fi
 
 # Find and install any TrueType fonts.
 # shellcheck disable=SC2006
-find "$MY_DIR" -name '*.ttf' -exec cp -ipv '{}' "`getSystemFontDir`" ';'
+find "$FONT_SRC_DIR" -name '*.ttf' -exec cp -ipv '{}' "$FONT_DEST_DIR" ';'
 
