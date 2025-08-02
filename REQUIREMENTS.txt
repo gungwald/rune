@@ -1,0 +1,25 @@
+REQUIREMENTS FOR START COMPONENT ON WINDOWS
+1. Find Java and cache the location, starting from cached location if there is one.
+2. If Java is not found, ask if user wants to download and install latest version.
+3. Download, install latest version.
+4. Start Rune
+
+. It should be able to stand on its own, the java -jar process, so that if the user
+  wants to put it on the desktop or lock it to the taskbar, Hesh can do that.
+  Maybe that is done with a shortcut that points to java -jar with the same icon
+  as is included in rune.jar. 
+. How is the case dealt with where Java is uninstalled and the shortcut fails?
+	o A repair tool that finds Java again?
+	o But how does the user know to run that?
+
+ALGORITHM
+1. Check for cached Java location
+2. Run with cached Java, this output can be hidden
+3. If that fails
+	a. Start a visible window. All following info should be visible.
+	b. Run sub to find first Java, displaying search info.
+	c. Other option would be to find highest version
+4. If no Java, determine location of download based on Arm versus Amd
+5. Download, install, cache
+6. Start Rune
+7. If there is a terminal failure, pause so that the command windows does not disappear
