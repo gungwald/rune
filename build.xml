@@ -44,7 +44,7 @@
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="com.alteredmechanism.rune.Rune"/>
-    <property name="app.lib.dir" value="lib/app"/>
+    <property name="run.lib.dir" value="lib/run"/>
     <property name="build.lib.dir" value="lib/build"/>
     <property name="app" value="${build.dir}/Rune.app"/>
     <property name="dmg" value="${build.dir}/Rune.dmg"/>
@@ -142,12 +142,12 @@
     <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"
              classpath="${one-jar.jar}" onerror="report"/>
 
-    <fileset id="dependency.jar.set" dir="${app.lib.dir}">
+    <fileset id="dependency.jar.set" dir="${run.lib.dir}">
         <include name="**/*"/>
     </fileset>
 
     <path id="jar.runtime.classpath">
-        <fileset dir="${app.lib.dir}">
+        <fileset dir="${run.lib.dir}">
             <include name="**/*.jar"/>
         </fileset>
     </path>
@@ -378,7 +378,7 @@
         <one-jar destfile="${jar}" manifest="${uber.manifest}">
             <main jar="${dependent.jar}"/>
             <lib>
-                <fileset dir="${app.lib.dir}"/>
+                <fileset dir="${run.lib.dir}"/>
             </lib>
         </one-jar>
     </target>
