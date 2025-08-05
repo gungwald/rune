@@ -1,0 +1,23 @@
+LOOK AND FEELS
+
+Material-UI-Swing
+https://github.com/atarw/material-ui-swing
+https://github.com/vincenzopalazzo/material-ui-swing/wiki/Screenshots
+material-ui-swing-1.1.2-with-dependencies.jar
+Java 8
+
+Radiance
+Lots of good light and dark themes
+https://github.com/kirill-grouchnikov/radiance/blob/sunshine/docs/theming/skins/light-skins.md
+Not Swing?
+Can't understand how to get a single jar for Swing
+Java version not determined because no single jar
+
+Blue Motif
+In my code.
+Java 5
+
+FlatLAF
+Awesome
+Requires native libraries like SWT
+Java 9
