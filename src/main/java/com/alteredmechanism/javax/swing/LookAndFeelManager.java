@@ -207,9 +207,9 @@ public class LookAndFeelManager implements ActionListener {
             }
             UIManager.setLookAndFeel((lafIndex.lookupByName(event.getActionCommand())).getClassName());
             // Must be done after setting LAF.
-//            if (MOTIF_THEME_NAME.equals(event.getActionCommand())) {
-//                setAllBackgrounds();
-//            }
+            if (MOTIF_THEME_NAME.equals(event.getActionCommand())) {
+                setAllBackgrounds();
+            }
             for (Component c : componentsToUpdate) {
                 SwingUtilities.updateComponentTreeUI(c);
             }

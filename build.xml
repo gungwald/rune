@@ -498,8 +498,25 @@
             <arg value="status=progress"/>
         </exec>
         <!-- echo message="${env.PATH}"-->
+        <exec dir="${basedir}" executable="which" failonerror="false"
+              searchpath="true"
+              outputproperty="which.mkfs.output">
+            <arg value="mkfs"/>
+        </exec>
+        <!-- Fail if which mkfs produced no output -->
+        <fail>
+            <condition>
+                <equals arg1="${which.mkfs.output}" arg2=""/>
+            </condition>
+            Failed to find mkfs.
+
+            Can't build dmg file system because mkfs is missing from 
+            the PATH. To find it, try: whereis mkfs. And then update
+            the PATH with the directory that mkfs is in.
+        </fail>
         <exec dir="${basedir}" executable="mkfs"
-              resultproperty="mkfs.hfsplus.result">
+              searchpath="true"
+              resultproperty="mkfs.hfsplus.result" failonerror="false">
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
@@ -514,13 +531,25 @@
             </condition>
             Failed to create hfs+ file system for dmg.
 
-            You may need to install the appropriate hfs+ file system package:
-            Fedora: sudo dnf install hfsplus-tools
-            Ubuntu: sudo apt install hfsprogs
+            You may need to install the appropriate hfs+ file system 
+            package:
+            
+                Fedora:
+
+                    sudo dnf install hfsplus-tools
+
+                Ubuntu:
+
+                    sudo apt install hfsprogs
+
+                Debian:
+                    
+                    # First enable non-free repos in /etc/sources.list.
+                    sudo apt install hfsplus
 
             This will also fail if it is running inside a snap or flatpak
-            Intellij
-            because they are sandboxed and therefore can't access /usr/bin/mkfs.
+            Intellij because they are sandboxed and therefore can't access
+            /sbin/mkfs or /usr/bin/mkfs.
         </fail>
         <mkdir dir="target/dmg-mount"/>
         <echo>Super user privileges will be required to mount/unmount the dmg
@@ -602,8 +631,10 @@
 
     <target name="izpack" depends="izpack-setup">
         <!-- Setting compression="deflate" causes
-        ClassNotFoundException: java.util.jar.Pack200 with some versions
-        of Java (8, 14, etc) which do not have that class. -->
+             ClassNotFoundException: java.util.jar.Pack200 
+             with some versions of Java (8, 14, etc) which do not have
+             that class. 
+             -->
         <izpack input="src/main/izpack/izpack-main-install-setup.xml"
                 output="${build.dir}/rune-installer.jar"
                 installerType="standard"
