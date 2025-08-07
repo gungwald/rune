@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This was rewritten in Java to work with the Izpack installer. The Java version should
+# also be runnable from the command line. This file could call the Java version.
+
 VENDOR_PREFIX=alteredmechanism
 APP_NAME=Rune
 START_SCRIPT="$1"
