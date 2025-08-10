@@ -52,6 +52,7 @@
     <property name="dmg.setup.dir" value="${build.dir}/Rune"/>
     <property name="font.install.script"
               value="${dmg.setup.dir}/Install Free Programming Fonts"/>
+    <property name="fonts.dir" value="src/periphery/fonts"/>
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
     <property name="common.manifest" value="${build.dir}/common-manifest.txt"/>
@@ -61,7 +62,8 @@
          It automatically populates the property build.number -->
     <property name="build.number.file" value="src/build-number.txt"/> 
     <property name="portable.zip" value="${build.dir}/rune-portable.zip"/> 
-    <property name="portable.zip.dir" value="${build.dir}/rune-portable"/> 
+    <property name="portable.zip.dir" value="${build.dir}/rune-portable"/>
+    <property name="periphery.scripts.dir" value="src/periphery/scripts"/>
 
     <!-- Define One-Jar JAR location which is used to load the one-jar tastdef. -->
     <property name="one-jar.jar" value="${build.lib.dir}/one-jar-ant-task-0.97.jar"/>
@@ -383,16 +385,19 @@
         </one-jar>
     </target>
 
-    <target name="portable-zip" depends="jar" 
+    <target name="portable-zip" depends="jar,jar-xdg-desktop-menu-setup" 
             description="Builds zip that requires no installation, for all platforms">
         <mkdir dir="${portable.zip.dir}"/>
         <mkdir dir="${portable.zip.dir}/bin"/>
         <mkdir dir="${portable.zip.dir}/lib"/>
         <copy todir="${portable.zip.dir}/bin" flatten="true" 
               preservelastmodified="true" verbose="true">
-            <fileset dir="src/main/scripts" includes="**/*"/>
+            <fileset dir="${periphery.scripts.dir}" includes="**/*"/>
         </copy>
         <copy file="${jar}" todir="${portable.zip.dir}/lib" flatten="true"
+              preservelastmodified="true" verbose="true"/>
+        <copy file="${xdg.desktop.menu.jar}" 
+              todir="${portable.zip.dir}/lib"
               preservelastmodified="true" verbose="true"/>
         <zip basedir="${portable.zip.dir}" destfile="${portable.zip}"/>
     </target>
@@ -404,10 +409,10 @@
         <mkdir dir="${app}/Contents/Resources/Java"/>
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true"
               verbose="true">
-            <fileset file="src/main/scripts/rune"/>
-            <fileset file="src/main/scripts/rune-debug.sh"/>
-            <fileset file="src/main/scripts/rune-common-functions.sh"/>
-            <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune"/>
+            <fileset file="${periphery.scripts.dir}/rune-debug.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune-common-functions.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune-out-of-mem-err-handler.sh"/>
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset
              after each copy. -->
@@ -448,7 +453,8 @@
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
         </copy>
-        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each 
+             copy. -->
         <chmod perm="a+rx" verbose="true">
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune"/>
             <fileset
@@ -458,12 +464,12 @@
             <fileset
                     file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="src/main/scripts/install-fonts.sh"
+        <copy file="${periphery.scripts.dir}/install-fonts.sh"
               tofile="${font.install.script}"/>
         <chmod file="${font.install.script}" perm="a+rx"/>
         <mkdir dir="${dmg.setup.dir}/Fonts"/>
         <copy todir="${dmg.setup.dir}/Fonts">
-            <fileset dir="${basedir}/src/main/resources/fonts" includes="**"/>
+            <fileset dir="${fonts.dir}" includes="**"/>
         </copy>
     </target>
 
@@ -603,7 +609,7 @@
         <!-- Copy scripts into izpack deployment directory. -->
         <mkdir dir="${izpack.root}/${izpack.app.dir}/bin"/>
         <copy todir="${izpack.root}/${izpack.app.dir}/bin">
-            <fileset dir="src/main/scripts">
+            <fileset dir="${periphery.scripts.dir}">
                 <include name="rune*"/> <!-- All files starting with rune -->
                 <include name="rune-common-functions.sh"/>
                 <include name="dtksh-dialog"/>
