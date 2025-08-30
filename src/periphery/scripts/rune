@@ -55,6 +55,7 @@ duplicateStdErr() {
 
 JAVA=`findJava`
 
+
 # Java versions less than 1.6 don't have the OnOutOfMemoryError switch.
 if isJavaLessThan_1_6 "$JAVA"; then
   unset ON_OUT_OF_MEM_ERR_SWITCH

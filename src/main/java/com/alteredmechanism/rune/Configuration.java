@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -13,12 +14,12 @@ public class Configuration {
 	public static final File CONFIG_DIR = new File(HOME, ".rune");
 	public static final File CONFIG_FILE = new File(CONFIG_DIR, "config.properties");
 
-	private Properties props = new Properties();
+	private final Properties props = new Properties();
 
 	private Boolean replaceTabsWithSpaces = null;
 	private Integer replacedTabWidth = null;
 	private Integer displayedTabWidth = null;
-	private List openFiles = null;
+	private List<File> openFiles = null;
 
 	private static Configuration singleton = null;
 
@@ -39,6 +40,7 @@ public class Configuration {
 			try {
 				input = new FileInputStream(CONFIG_FILE);
 				props.load(input);
+                openFiles = csvToFileList(props.getProperty("open.files"));
 			} finally {
 				if (input != null) {
 					try {
@@ -51,14 +53,23 @@ public class Configuration {
 		}
 	}
 
-	public void save() throws IOException {
+    protected List<File> csvToFileList(String csv) {
+        List<File> files = new ArrayList<File>();
+        for (String name : csv.split(":")) {
+            files.add(new File(name));
+        }
+        return files;
+    }
+
+    public void save() throws IOException {
 		if (!CONFIG_DIR.exists()) {
 			CONFIG_DIR.mkdir();
 		}
+        props.setProperty("open.files", fileListToCsv(openFiles));
 		FileOutputStream output = null;
 		try {
 			output = new FileOutputStream(CONFIG_FILE);
-			props.store(output, "blah");
+			props.store(output, "Auto-generated from last editor state");
 		} finally {
 			if (output != null) {
 				try {
@@ -70,6 +81,18 @@ public class Configuration {
 
 		}
 	}
+
+    protected String fileListToCsv(List<File> files) {
+        StringBuilder csv = new StringBuilder();
+        for (File file : files) {
+            csv.append(file.getAbsolutePath());
+            csv.append(':');
+        }
+        if (csv.length() > 0) {
+            csv.setLength(csv.length() - 1); // Remove trailing colon
+        }
+        return csv.toString();
+    }
     
 	public Boolean getBoolean(String name) {
 		String value = props.getProperty(name);
@@ -97,11 +120,11 @@ public class Configuration {
 		this.displayedTabWidth = displayedTabWidth;
 	}
 
-	public List getOpenFiles() {
+	public List<File> getOpenFiles() {
 		return openFiles;
 	}
 
-	public void setOpenFiles(List openFiles) {
+	public void setOpenFiles(List<File> openFiles) {
 		this.openFiles = openFiles;
 	}
 

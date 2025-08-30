@@ -126,8 +126,12 @@
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added
          to Ant lib
          -->
+<!--    <taskdef name="izpack"-->
+<!--             classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"-->
+<!--             classname="com.izforge.izpack.ant.IzPackTask"/>-->
+
     <taskdef name="izpack"
-             classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
+             classpath="${user.home}/opt/IzPack-4.3.5/lib/standalone-compiler.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
     <!-- It is better to put the taskdef directly here instead of using the
@@ -156,6 +160,17 @@
     
     <path id="dependency.jars">
         <fileset refid="dependency.jar.set"/>
+    </path>
+
+    <path id="beanshell.classpath">
+        <fileset dir="${build.lib.dir}">
+            <!-- The bsf jar provides the javax.script (JSR-223)
+                 implementation for Java less than 6. This app targets
+                 Java 5, so bsf is good to have. -->
+            <include name="bsf-api-3.1.jar"/>
+            <!-- This is the beanshell interpreter. -->
+            <include name="bsh-2.0b6.jar"/>
+        </fileset>
     </path>
 
     <!-- I've abandoned the following technique for the RUNE_COMPILER and
@@ -301,19 +316,9 @@
          figure out how to run a custom script as part of the build. If you
          delete it because it's stored in git, then no one will remember it is
          there and it will become useless, wasted work. -->
-    <target name="run-a-script" description="Demonstrates how to run a script :-)">
+    <target name="run-a-script" description="Demonstrates how to run a script.">
         <!-- The language has to be lower case or it won't be found. -->
-        <script language="beanshell">
-            <classpath>
-                <fileset dir="${build.lib.dir}">
-                    <!-- The bsf jar provides the javax.script (JSR-223) 
-                         implementation for Java less than 6. This app targets
-                         Java 5, so bsf is good to have. -->
-                    <include name="bsf-api-3.1.jar"/>
-                    <!-- This is the beanshell interpreter. -->
-                    <include name="bsh-2.0b6.jar"/>
-                </fileset>
-            </classpath>
+        <script language="beanshell" classpathref="beanshell.classpath">
             // This is the actual script. It's just a demo.
             if (self.getProject().hasReference("jar.runtime.classpath")) {
                 System.out.println("Suga");
@@ -399,6 +404,9 @@
         <copy file="${xdg.desktop.menu.jar}" 
               todir="${portable.zip.dir}/lib"
               preservelastmodified="true" verbose="true"/>
+        <copy todir="${portable.zip.dir}/fonts" preservelastmodified="true" verbose="true">
+            <fileset dir="${fonts.dir}" includes="**/*"/>
+        </copy>
         <zip basedir="${portable.zip.dir}" destfile="${portable.zip}"/>
     </target>
 
@@ -645,6 +653,7 @@
                 output="${build.dir}/rune-installer.jar"
                 installerType="standard"
                 inheritAll="true"
+                compression="xz"
                 basedir="${izpack.root}"
         />
     </target>

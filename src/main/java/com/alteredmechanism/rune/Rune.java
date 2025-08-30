@@ -791,4 +791,5 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         statusBar.setCursorPosition(textArea.getLineAtCaret(),
                 textArea.getColumnAtCaret());
     }
+
 }
