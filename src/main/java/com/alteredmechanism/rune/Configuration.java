@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -16,9 +17,9 @@ public class Configuration extends PropertiesFileDataStore {
 
 	private final Properties props = new Properties();
 
-	private Boolean replaceTabsWithSpaces = null;
-	private Integer replacedTabWidth = null;
-	private Integer displayedTabWidth = null;
+	private boolean replaceTabsWithSpaces = true;
+	private int replacedTabWidth = 4;
+	private int displayedTabWidth = 4;
 	private List<File> openFiles = null;
 
 	private static Configuration singleton = null;
@@ -50,11 +51,11 @@ public class Configuration extends PropertiesFileDataStore {
 	}
 
 	public List<File> getOpenFiles() {
-		return openFiles;
+		return getFileList("open.files");
 	}
 
 	public void setOpenFiles(List<File> openFiles) {
-		this.openFiles = openFiles;
+		setFileList("open.files", openFiles);
 	}
 
 	public Integer getReplacedTabWidth() {

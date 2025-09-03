@@ -43,3 +43,4 @@ lib/META-INF
 
 # NetBeans attributes specific to each user and machine
 .nbattrs
+/.idea/

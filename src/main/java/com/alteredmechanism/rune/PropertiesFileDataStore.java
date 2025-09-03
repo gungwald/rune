@@ -1,84 +1,112 @@
 package com.alteredmechanism.rune;
 
+import com.alteredmechanism.rune.actions.SaveAction;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class PropertiesFileDataStore {
+public class PropertiesFileDataStore extends Properties {
 
+    private static final String CLASS_NAME = PropertiesFileDataStore.class.getName();
+    private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
-    private void load() throws IOException {
-        if (CONFIG_FILE.exists()) {
-            FileInputStream input = null;
-            try {
-                input = new FileInputStream(CONFIG_FILE);
-                props.load(input);
-                openFiles = csvToFileList(props.getProperty("open.files"));
-            } finally {
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+    protected File file;
+
+    public PropertiesFileDataStore(String fileName) throws IOException, FileCreationException {
+        file = new File(fileName);
+        File configDir = file.getParentFile();
+        if (!configDir.exists()) {
+            if (!configDir.mkdir()) {
+                throw new FileCreationException("Failed to create directory", configDir);
             }
+        }
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                throw new FileCreationException("Failed to create file", file);
+            }
+        }
+        load();
+    }
+
+    /**
+     * Must remain a private method because it is called from the constructor.
+     * @throws IOException If something bad happens
+     */
+    private void load() throws IOException {
+        FileInputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            load(input);
+        } finally {
+            close(input, file);
         }
     }
 
     public void save() throws IOException {
-        if (!CONFIG_DIR.exists()) {
-            CONFIG_DIR.mkdir();
-        }
-        props.setProperty("open.files", fileListToCsv(openFiles));
         FileOutputStream output = null;
         try {
-            output = new FileOutputStream(CONFIG_FILE);
-            props.store(output, "Auto-generated from last editor state");
+            output = new FileOutputStream(file);
+            store(output, "Auto-generated from last editor state");
         } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
+            close(output, file);
         }
     }
 
-    protected List<File> csvToFileList(String csv) {
+    public List<File> getFileList(String key) {
         List<File> files = new ArrayList<File>();
-        for (String name : csv.split(":")) {
+        for (String name : getProperty(key).split(":")) {
             files.add(new File(name));
         }
         return files;
     }
 
-    protected String fileListToCsv(List<File> files) {
-        StringBuilder csv = new StringBuilder();
+    protected void setFileList(String key, List<File> files) {
+        StringBuilder value = new StringBuilder();
         for (File file : files) {
-            csv.append(file.getAbsolutePath());
-            csv.append(':');
+            value.append(file.getAbsolutePath());
+            value.append(':');
         }
-        if (csv.length() > 0) {
-            csv.setLength(csv.length() - 1); // Remove trailing colon
+        if (value.length() > 0) {
+            value.setLength(value.length() - 1); // Remove trailing colon
         }
-        return csv.toString();
+        setProperty(key, value.toString());
     }
 
-    public Boolean getBoolean(String name) {
-        String value = props.getProperty(name);
+    public boolean getBoolean(String name) {
+        String value = getProperty(name);
         if (value == null) {
             System.err.println("Missing property: " + name);
         }
         else {
             System.out.println("Loaded property: " + name + "=" + value);
         }
-        return Boolean.valueOf(value);
+        return Boolean.parseBoolean(value);
     }
 
+    public void close(FileInputStream s, File f) {
+        if (s != null) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Failed to close file: " + f.getAbsolutePath() , e);
+            }
+        }
+    }
+
+    public void close(FileOutputStream s, File f) {
+        if (s != null) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Failed to close file: " + f.getAbsolutePath() , e);
+            }
+        }
+    }
 }
