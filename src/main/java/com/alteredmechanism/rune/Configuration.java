@@ -15,31 +15,29 @@ public class Configuration extends PropertiesFileDataStore {
 	public static final File CONFIG_DIR = new File(HOME, ".rune");
 	public static final File CONFIG_FILE = new File(CONFIG_DIR, "config.properties");
 
-	private final Properties props = new Properties();
-
-	private boolean replaceTabsWithSpaces = true;
-	private int replacedTabWidth = 4;
-	private int displayedTabWidth = 4;
+	private Boolean replaceTabsWithSpaces = null;
+	private Integer replacedTabWidth = null;
+	private Integer displayedTabWidth = null;
 	private List<File> openFiles = null;
 
 	private static Configuration singleton = null;
 
-	public static Configuration getInstance() throws IOException {
+	public static Configuration getInstance() throws IOException, FileCreationException {
 		if (singleton == null) {
 			singleton = new Configuration();
 		}
 		return singleton;
 	}
 
-	private Configuration() throws IOException {
-		load();
+	private Configuration() throws IOException, FileCreationException {
+		super(CONFIG_FILE);
 	}
 
 	public boolean isReplaceTabsWithSpacesEnabled() {
 		if (replaceTabsWithSpaces == null) {
 			replaceTabsWithSpaces = getBoolean("replace.tabs.with.spaces");
 		}
-		return replaceTabsWithSpaces.booleanValue();
+		return replaceTabsWithSpaces;
 	}
 
 	public Integer getDisplayedTabWidth() {

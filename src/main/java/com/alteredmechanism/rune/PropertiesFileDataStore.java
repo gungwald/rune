@@ -19,8 +19,8 @@ public class PropertiesFileDataStore extends Properties {
 
     protected File file;
 
-    public PropertiesFileDataStore(String fileName) throws IOException, FileCreationException {
-        file = new File(fileName);
+    public PropertiesFileDataStore(File f) throws IOException, FileCreationException {
+        file = f;
         File configDir = file.getParentFile();
         if (!configDir.exists()) {
             if (!configDir.mkdir()) {
@@ -79,15 +79,16 @@ public class PropertiesFileDataStore extends Properties {
         setProperty(key, value.toString());
     }
 
-    public boolean getBoolean(String name) {
+    public Boolean getBoolean(String name) {
         String value = getProperty(name);
+        Boolean boolValue;
         if (value == null) {
-            System.err.println("Missing property: " + name);
+            boolValue = null;
         }
         else {
-            System.out.println("Loaded property: " + name + "=" + value);
+            boolValue = Boolean.valueOf(value);
         }
-        return Boolean.parseBoolean(value);
+        return boolValue;
     }
 
     public void close(FileInputStream s, File f) {
