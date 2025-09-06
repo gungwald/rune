@@ -40,9 +40,8 @@ public class PropertiesFileDataStore extends Properties {
      * @throws IOException If something bad happens
      */
     private void load() throws IOException {
-        FileInputStream input = null;
+        FileInputStream input = new FileInputStream(file);
         try {
-            input = new FileInputStream(file);
             load(input);
         } finally {
             close(input, file);
@@ -59,10 +58,21 @@ public class PropertiesFileDataStore extends Properties {
         }
     }
 
+    /**
+     * The list of files from the file store.
+     * @param key The name of the identifier of the file list
+     * @return The list of files or null if it does not exist
+     */
     public List<File> getFileList(String key) {
-        List<File> files = new ArrayList<File>();
-        for (String name : getProperty(key).split(":")) {
-            files.add(new File(name));
+        String value = getProperty(key);
+        List<File> files;
+        if (value == null) {
+            files = null;
+        } else {
+            files = new ArrayList<File>();
+            for (String name : value.split(":")) {
+                files.add(new File(name));
+            }
         }
         return files;
     }
@@ -79,6 +89,24 @@ public class PropertiesFileDataStore extends Properties {
         setProperty(key, value.toString());
     }
 
+    public Integer getInteger(String name) {
+        String value = getProperty(name);
+        Integer intValue;
+        if (value == null) {
+            intValue = null;
+        }
+        else {
+            intValue = Integer.valueOf(value);
+        }
+        return intValue;
+    }
+
+    public void setInteger(String name, Integer value) {
+        if (value != null) {
+            setProperty(name, value.toString());
+        }
+    }
+
     public Boolean getBoolean(String name) {
         String value = getProperty(name);
         Boolean boolValue;
@@ -89,6 +117,12 @@ public class PropertiesFileDataStore extends Properties {
             boolValue = Boolean.valueOf(value);
         }
         return boolValue;
+    }
+
+    public void setBoolean(String name, Boolean value) {
+        if (value != null) {
+            setProperty(name, value.toString());
+        }
     }
 
     public void close(FileInputStream s, File f) {
