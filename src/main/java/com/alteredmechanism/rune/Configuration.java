@@ -8,19 +8,21 @@ import java.util.Properties;
 public class Configuration extends PropertiesFileDataStore {
 
     protected static final String REPLACE_TABS_WITH_SPACES_KEY = "replace.tabs.with.spaces";
+    protected static final String DISPLAYED_TAB_WIDTH_KEY = "displayed.tab.width";
+    protected static final String REPLACED_TAB_WIDTH_KEY = "replaced.tab.width";
 
-    public static final boolean DEFAULT_REPLACE_TABS_WITH_SPACES=true;
-    public static final int DEFAULT_DISPLAYED_TAB_WIDTH=4;
-    public static final int DEFAULT_REPLACED_TAB_WIDTH=4;
 	public static final File home = new File(System.getProperty("user.home"));
 	public static final File configDir = new File(home, ".rune");
 	public static final File configFile = new File(configDir, "config.properties");
 
     protected static final Properties defaults = new Properties() {{
         put(REPLACE_TABS_WITH_SPACES_KEY, "true");
+        put(DISPLAYED_TAB_WIDTH_KEY, "4");
+        put(REPLACED_TAB_WIDTH_KEY, "4");
     }};
 
     private static Configuration singleton = null;
+
 	public static Configuration getInstance() throws IOException, FileCreationException {
 		if (singleton == null) {
 			singleton = new Configuration();
@@ -33,7 +35,6 @@ public class Configuration extends PropertiesFileDataStore {
 	}
 
 	public boolean isReplaceTabsWithSpacesSet() {
-        final boolean defaultValue = true;
 		Boolean storedValue = getBoolean(REPLACE_TABS_WITH_SPACES_KEY);
         boolean valueToReturn;
         if (storedValue == null) {
