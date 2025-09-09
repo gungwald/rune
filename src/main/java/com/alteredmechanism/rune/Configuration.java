@@ -10,29 +10,37 @@ public class Configuration extends PropertiesFileDataStore {
     protected static final String REPLACE_TABS_WITH_SPACES_KEY = "replace.tabs.with.spaces";
     protected static final String DISPLAYED_TAB_WIDTH_KEY = "displayed.tab.width";
     protected static final String REPLACED_TAB_WIDTH_KEY = "replaced.tab.width";
+	protected static final String LIST_OF_OPEN_FILES_KEY = "list.of.open.files";
+
+	/**
+	 * It is required to provide a default value for each property in the configuration.
+	 * This avoids a bunch of code to manage missing properties.
+	 */
+    protected static final Properties defaults = new Properties() {{
+        put(REPLACE_TABS_WITH_SPACES_KEY, "true");
+        put(DISPLAYED_TAB_WIDTH_KEY, "4");
+        put(REPLACED_TAB_WIDTH_KEY, "4");
+		put(LIST_OF_OPEN_FILES_KEY, "");
+    }};
 
 	public static final File home = new File(System.getProperty("user.home"));
 	public static final File configDir = new File(home, ".rune");
 	public static final File configFile = new File(configDir, "config.properties");
 
-    protected static final Properties defaults = new Properties() {{
-        put(REPLACE_TABS_WITH_SPACES_KEY, "true");
-        put(DISPLAYED_TAB_WIDTH_KEY, "4");
-        put(REPLACED_TAB_WIDTH_KEY, "4");
-    }};
-
-    private static Configuration singleton = null;
-
+	// **************************** Singleton setup **********************************
+	private static Configuration singleton = null;
+	/** The static method to retrieve the one and only instance. */
 	public static Configuration getInstance() throws IOException, FileCreationException {
 		if (singleton == null) {
 			singleton = new Configuration();
 		}
 		return singleton;
 	}
-
+	/** A singleton requires a private constructor. */
 	private Configuration() throws IOException, FileCreationException {
 		super(configFile);
 	}
+	// **************************** Singleton setup **********************************
 
 	public boolean isReplaceTabsWithSpacesSet() {
 		Boolean storedValue = getBoolean(REPLACE_TABS_WITH_SPACES_KEY);
