@@ -43,42 +43,34 @@ public class Configuration extends PropertiesFileDataStore {
 	// **************************** Singleton setup **********************************
 
 	public boolean isReplaceTabsWithSpacesSet() {
-		Boolean storedValue = getBoolean(REPLACE_TABS_WITH_SPACES_KEY);
-        boolean valueToReturn;
-        if (storedValue == null) {
-            valueToReturn = defaultValue;
-            setReplaceTabsWithSpaces(defaultValue);
-        } else {
-            valueToReturn = storedValue;
-        }
-        return valueToReturn;
+		return getBoolean(REPLACE_TABS_WITH_SPACES_KEY);
 	}
 
     private void setReplaceTabsWithSpaces(boolean value) {
         setBoolean(REPLACE_TABS_WITH_SPACES_KEY, value);
     }
 
-    public Integer getDisplayedTabWidth() {
-		return displayedTabWidth;
+    public int getDisplayedTabWidth() {
+		return getInteger(DISPLAYED_TAB_WIDTH_KEY);
 	}
 
-	public void setDisplayedTabWidth(Integer displayedTabWidth) {
-		this.displayedTabWidth = displayedTabWidth;
+	public void setDisplayedTabWidth(int value) {
+		setInteger(DISPLAYED_TAB_WIDTH_KEY, value);
 	}
 
-	public List<File> getOpenFiles() {
-		return getFileList("open.files");
+	public List<File> getListOfOpenFiles() {
+		return getFileList(LIST_OF_OPEN_FILES_KEY);
 	}
 
-	public void setOpenFiles(List<File> openFiles) {
-		setFileList("open.files", openFiles);
+	public void setListOfOpenFiles(List<File> openFiles) {
+		setFileList(LIST_OF_OPEN_FILES_KEY, openFiles);
 	}
 
-	public Integer getReplacedTabWidth() {
-		return replacedTabWidth;
+	public int getReplacedTabWidth() {
+		return getInteger(REPLACED_TAB_WIDTH_KEY);
 	}
 
-	public void setReplacedTabWidth(Integer replacedTabWidth) {
-		this.replacedTabWidth = replacedTabWidth;
+	public void setReplacedTabWidth(int value) {
+		setInteger(REPLACED_TAB_WIDTH_KEY, value);
 	}
 }
