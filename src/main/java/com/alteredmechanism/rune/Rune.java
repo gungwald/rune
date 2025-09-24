@@ -25,6 +25,7 @@ import java.util.List;
 // TODO - Reload
 // TODO - Recent files
 // TODO - Right-click cut, copy, paste
+// TODO - Search
 
 /**
  * Writbred - A writing tablet Hreodwrit - A reed for writing
@@ -32,7 +33,7 @@ import java.util.List;
  * @author Bill Chatfield
  */
 public class Rune extends JFrame implements ActionListener, MouseListener,
-        ChangeListener, KeyListener, CaretListener {
+        ChangeListener, KeyListener, CaretListener, WindowListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -112,7 +113,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         this.setTitle(USER_FACING_APP_NAME);
 
         int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        // Captured by WindowListener instead
+//        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.getContentPane().setLayout(new BorderLayout());
 
         getContentPane().add(statusBar, BorderLayout.SOUTH);
@@ -296,7 +298,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     public void open(File f) {
         if (bufferTabs.getTabCount() == 0
                 || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED)
-                || !getSelectedBuffer().getText().isEmpty()) {
+                || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
         openIntoSelectedTab(f);
@@ -355,7 +357,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.exitMenuItem) {
-            exit(EXIT_SUCCESS);
+            cleanupAndExit(EXIT_SUCCESS);
         } else if (e.getSource() == this.closeMenuItem) {
             if (getSelectedTabTitle().endsWith(MODIFIED)) {
                 File selectedFile = new File(getSelectedTabToolTip());
@@ -417,6 +419,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 if (result == JFontChooser.OK_OPTION) {
                     Font font = getFontChooser().getSelectedFont();
                     System.out.println("Selected font: " + font);
+                    Configuration.getInstance().setFont(font.getName());
                     setBufferFont(font);
                 }
             } catch (Exception ex) {
@@ -797,7 +800,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 textArea.getColumnAtCaret());
     }
 
-    protected void exit(int exitCode) {
+    protected void cleanupAndExit(int exitCode) {
         try {
             Configuration.getInstance().save();
             this.dispose();
@@ -806,4 +809,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
             getMessenger().showError(e);
         }
     }
+
+    // WindowListener methods
+    public void windowOpened(WindowEvent e) { }
+    public void windowClosing(WindowEvent e) { cleanupAndExit(EXIT_SUCCESS); }
+    public void windowClosed(WindowEvent e) { }
+    public void windowIconified(WindowEvent e) { }
+    public void windowDeiconified(WindowEvent e) { }
+    public void windowActivated(WindowEvent e) { }
+    public void windowDeactivated(WindowEvent e) { }
+    // End WindowListener methods
 }

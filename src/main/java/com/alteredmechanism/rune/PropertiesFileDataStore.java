@@ -2,6 +2,7 @@ package com.alteredmechanism.rune;
 
 import com.alteredmechanism.rune.actions.SaveAction;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -87,6 +88,26 @@ public class PropertiesFileDataStore extends Properties {
             value.setLength(value.length() - 1); // Remove trailing colon
         }
         setProperty(key, value.toString());
+    }
+
+    public Font getFont(String key) {
+        String fontName = getProperty(key);
+        Font font;
+        if (fontName == null) {
+            font = null;
+        } else {
+            String[] parts = fontName.split(":");
+            font = new Font(parts[0], parts[1], parts[2]);
+        }
+        return font;
+    }
+
+    public String getString(String name) {
+        return getProperty(name);
+    }
+
+    public void setString(String name, String value) {
+        setProperty(name, value);
     }
 
     public Integer getInteger(String name) {

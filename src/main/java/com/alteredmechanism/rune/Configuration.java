@@ -11,6 +11,8 @@ public class Configuration extends PropertiesFileDataStore {
     protected static final String DISPLAYED_TAB_WIDTH_KEY = "displayed.tab.width";
     protected static final String REPLACED_TAB_WIDTH_KEY = "replaced.tab.width";
 	protected static final String LIST_OF_OPEN_FILES_KEY = "list.of.open.files";
+    protected static final String FONT_KEY = "font";
+    protected static final String LOOK_AND_FEEL_KEY = "look.and.feel";
 
 	/**
 	 * It is required to provide a default value for each property in the configuration.
@@ -21,6 +23,8 @@ public class Configuration extends PropertiesFileDataStore {
         put(DISPLAYED_TAB_WIDTH_KEY, "4");
         put(REPLACED_TAB_WIDTH_KEY, "4");
 		put(LIST_OF_OPEN_FILES_KEY, "");
+        put(FONT_KEY, "");
+        put(LOOK_AND_FEEL_KEY, "");
     }};
 
 	public static final File home = new File(System.getProperty("user.home"));
@@ -73,4 +77,21 @@ public class Configuration extends PropertiesFileDataStore {
 	public void setReplacedTabWidth(int value) {
 		setInteger(REPLACED_TAB_WIDTH_KEY, value);
 	}
+
+    public String getFont() {
+        return getString(FONT_KEY);
+    }
+
+    public void setFont(String value) {
+        setString(FONT_KEY, value);
+    }
+
+    public String getLookAndFeel() {
+        return getString(LOOK_AND_FEEL_KEY);
+    }
+
+    public void setLookAndFeel(String value) {
+        setString(LOOK_AND_FEEL_KEY, value);
+    }
+
 }
