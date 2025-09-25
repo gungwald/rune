@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Rune" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.alteredmechanism.rune.Rune" />
+    <module name="rune" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

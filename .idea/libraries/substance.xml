@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="substance">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/look-and-feel/substance.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

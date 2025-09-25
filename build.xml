@@ -131,7 +131,7 @@
 <!--             classname="com.izforge.izpack.ant.IzPackTask"/>-->
 
     <taskdef name="izpack"
-             classpath="${user.home}/opt/IzPack-4.3.5/lib/standalone-compiler.jar"
+             classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
 
     <!-- It is better to put the taskdef directly here instead of using the
@@ -653,9 +653,8 @@
                 output="${build.dir}/rune-installer.jar"
                 installerType="standard"
                 inheritAll="true"
-                compression="xz"
-                basedir="${izpack.root}"
                 compression="deflate"
+                basedir="${izpack.root}"
         />
     </target>
 

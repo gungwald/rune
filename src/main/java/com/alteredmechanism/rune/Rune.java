@@ -51,7 +51,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private final JMenuBar menuBar = new JMenuBar();
     private final JMenu file = new JMenu("File");
-    private JMenu editMenu = new JMenu("Edit");
+    private final JMenu editMenu = new JMenu("Edit");
     private JMenu viewMenu = new JMenu("View");
     private JMenu helpMenu = new JMenu("Help");
 
