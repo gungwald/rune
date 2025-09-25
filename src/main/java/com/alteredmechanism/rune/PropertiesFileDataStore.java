@@ -1,6 +1,6 @@
 package com.alteredmechanism.rune;
 
-import com.alteredmechanism.rune.actions.SaveAction;
+import com.alteredmechanism.java.awt.FontStringId;
 
 import java.awt.*;
 import java.io.File;
@@ -91,15 +91,11 @@ public class PropertiesFileDataStore extends Properties {
     }
 
     public Font getFont(String key) {
-        String fontName = getProperty(key);
-        Font font;
-        if (fontName == null) {
-            font = null;
-        } else {
-            String[] parts = fontName.split(":");
-            font = new Font(parts[0], parts[1], parts[2]);
-        }
-        return font;
+        return FontStringId.lookupFontFrom(getProperty(key));
+    }
+
+    public void setFont(String key, Font font) {
+        setProperty(key, FontStringId.buildStringIdFor(font));
     }
 
     public String getString(String name) {
