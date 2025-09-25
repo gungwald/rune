@@ -20,6 +20,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -62,8 +64,10 @@ import javax.swing.text.Position;
  * 
  * <pre>
  **/
+@SuppressWarnings({"Since15", "rawtypes", "unchecked"}) // Compiling 1.5 unparameterized JList with 1.8
 public class JFontChooser extends JComponent {
 	private static final long serialVersionUID = 1L;
+    private static final Logger logger = Logger.getLogger("JFontChooser");
 
 	/**
 	 * Return value from <code>showDialog()</code>.
@@ -97,7 +101,7 @@ public class JFontChooser extends JComponent {
 	private JTextField fontFamilyTextField = null;
 	private JTextField fontStyleTextField = null;
 	private JTextField fontSizeTextField = null;
-	private JList fontNameList = null;
+    private JList fontNameList = null;
 	private JList fontStyleList = null;
 	private JList fontSizeList = null;
 	private JPanel fontNamePanel = null;
@@ -110,10 +114,10 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Constructs a <code>JFontChooser</code> object.
-	 * @param lookAndFeelManager 
+	 * @param messenger For reporting errors with a dialog
 	 * 
-	 * @throws IOException
-	 * @throws FontFormatException
+	 * @throws IOException If something bad happens
+	 * @throws FontFormatException If something bad happens
 	 **/
 	public JFontChooser(Messenger messenger) throws FontFormatException, IOException {
 		this(messenger, DEFAULT_FONT_SIZE_STRINGS);
@@ -124,14 +128,15 @@ public class JFontChooser extends JComponent {
 	 * array.
 	 * 
 	 * @param fontSizeStrings the array of font size string.
-	 * @throws IOException
-	 * @throws FontFormatException
+	 * @throws IOException If something bad happens
+	 * @throws FontFormatException If something bad happens
 	 **/
 	public JFontChooser(Messenger messenger, String[] fontSizeStrings) throws FontFormatException, IOException {
 		if (fontSizeStrings == null) {
-			fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
-		}
-		this.fontSizeStrings = fontSizeStrings;
+			this.fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
+		} else {
+            this.fontSizeStrings = fontSizeStrings;
+        }
 
 		JPanel selectPanel = new JPanel();
 		selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
@@ -244,9 +249,9 @@ public class JFontChooser extends JComponent {
 	 *         <code>Font.BOLD</code>, <code>Font.ITALIC</code>,
 	 *         <code>Font.BOLD|Font.ITALIC</code>
 	 *
-	 * @see java.awt.Font#PLAIN
-	 * @see java.awt.Font#BOLD
-	 * @see java.awt.Font#ITALIC
+	 * @see Font#PLAIN
+	 * @see Font#BOLD
+	 * @see Font#ITALIC
 	 * @see #setSelectedFontStyle
 	 **/
 	public int getSelectedFontStyle() {
@@ -283,11 +288,12 @@ public class JFontChooser extends JComponent {
 	 * @return the selected font
 	 *
 	 * @see #setSelectedFont
-	 * @see java.awt.Font
+	 * @see Font
 	 **/
 	public Font getSelectedFont() {
 		Font familySample = (Font) getFontFamilies().get(getSelectedFontFamily());
-		return familySample.deriveFont(getSelectedFontStyle(), getSelectedFontSize());
+        //noinspection MagicConstant
+        return familySample.deriveFont(getSelectedFontStyle(), getSelectedFontSize());
 	}
 
 	/**
@@ -295,12 +301,12 @@ public class JFontChooser extends JComponent {
 	 * 
 	 * @param name the family name of the selected font.
 	 *
-	 * @see getSelectedFontFamily
+	 * @see #getSelectedFontFamily
 	 **/
 	public void setSelectedFontFamily(String name) {
 		String[] names = getMapKeys(getFontFamilies());
 		for (int i = 0; i < names.length; i++) {
-			if (names[i].toLowerCase().equals(name.toLowerCase())) {
+			if (names[i].equalsIgnoreCase(name)) {
 				getFontFamilyList().setSelectedIndex(i);
 				break;
 			}
@@ -315,9 +321,9 @@ public class JFontChooser extends JComponent {
 	 *              <code>Font.BOLD</code>, <code>Font.ITALIC</code>, or
 	 *              <code>Font.BOLD|Font.ITALIC</code>.
 	 *
-	 * @see java.awt.Font#PLAIN
-	 * @see java.awt.Font#BOLD
-	 * @see java.awt.Font#ITALIC
+	 * @see Font#PLAIN
+	 * @see Font#BOLD
+	 * @see Font#ITALIC
 	 * @see #getSelectedFontStyle
 	 **/
 	public void setSelectedFontStyle(int style) {
@@ -355,7 +361,7 @@ public class JFontChooser extends JComponent {
 	 * @param font the selected font
 	 *
 	 * @see #getSelectedFont
-	 * @see java.awt.Font
+	 * @see Font
 	 **/
 	public void setSelectedFont(Font font) {
 		setSelectedFontFamily(font.getFamily());
@@ -394,14 +400,14 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class ListSelectionHandler implements ListSelectionListener {
-		private JTextComponent textComponent;
+		private final JTextComponent textComponent;
 
 		ListSelectionHandler(JTextComponent textComponent) {
 			this.textComponent = textComponent;
 		}
 
 		public void valueChanged(ListSelectionEvent e) {
-			if (e.getValueIsAdjusting() == false) {
+			if (!e.getValueIsAdjusting()) {
 				JList list = (JList) e.getSource();
 				String selectedValue = (String) list.getSelectedValue();
 
@@ -418,7 +424,7 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class TextFieldFocusHandlerForTextSelection extends FocusAdapter {
-		private JTextComponent textComponent;
+		private final JTextComponent textComponent;
 
 		public TextFieldFocusHandlerForTextSelection(JTextComponent textComponent) {
 			this.textComponent = textComponent;
@@ -434,8 +440,8 @@ public class JFontChooser extends JComponent {
 		}
 	}
 
-	protected class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter {
-		private JList targetList;
+	protected static class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter {
+		private final JList targetList;
 
 		public TextFieldKeyHandlerForListSelectionUpDown(JList list) {
 			this.targetList = list;
@@ -465,7 +471,7 @@ public class JFontChooser extends JComponent {
 		}
 	}
 
-	protected class ListSearchTextFieldDocumentHandler implements DocumentListener {
+	protected static class ListSearchTextFieldDocumentHandler implements DocumentListener {
 		JList targetList;
 
 		public ListSearchTextFieldDocumentHandler(JList targetList) {
@@ -490,7 +496,7 @@ public class JFontChooser extends JComponent {
 				Document doc = event.getDocument();
 				newValue = doc.getText(0, doc.getLength());
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to get text from document", e);
 			}
 
 			if (newValue.length() > 0) {
@@ -510,7 +516,7 @@ public class JFontChooser extends JComponent {
 		}
 
 		public class ListSelector implements Runnable {
-			private int index;
+			private final int index;
 
 			public ListSelector(int index) {
 				this.index = index;
@@ -525,7 +531,7 @@ public class JFontChooser extends JComponent {
 	protected class DialogOKAction extends AbstractAction {
 		private static final long serialVersionUID = 1L;
 		protected static final String ACTION_NAME = "OK";
-		private JDialog dialog;
+		private final JDialog dialog;
 
 		protected DialogOKAction(JDialog dialog) {
 			this.dialog = dialog;
@@ -543,7 +549,7 @@ public class JFontChooser extends JComponent {
 	protected class DialogCancelAction extends AbstractAction {
 		private static final long serialVersionUID = 1L;
 		protected static final String ACTION_NAME = "Cancel";
-		private JDialog dialog;
+		private final JDialog dialog;
 
 		protected DialogCancelAction(JDialog dialog) {
 			this.dialog = dialog;
@@ -738,6 +744,6 @@ public class JFontChooser extends JComponent {
 	}
 	
 	public String[] getMapKeys(Map<String,?> m) {
-		return (String[]) m.keySet().toArray(new String[m.size()]);
+		return (String[]) m.keySet().toArray(new String[0]);
 	}
 }
