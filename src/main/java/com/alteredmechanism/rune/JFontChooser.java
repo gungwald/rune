@@ -1,46 +1,10 @@
 /************************************************************
- * Copyright 2004-2005,2007-2008 Masahiko SAWAI All Rights Reserved.
+ * Copyright 2004-2005,2007-2008 Masahiko Sawai All Rights Reserved.
  ************************************************************/
 
 package com.alteredmechanism.rune;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -50,6 +14,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The <code>JFontChooser</code> class is a swing component for font selection.
@@ -57,12 +26,15 @@ import javax.swing.text.Position;
  * up a font chooser dialog.
  * 
  * <pre>
- * JFontChooser fontChooser = new JFontChooser(); int result =
- * fontChooser.showDialog(parent); if (result == JFontChooser.OK_OPTION) { Font
- * font = fontChooser.getSelectedFont(); System.out.println("Selected Font : " +
- * font); }
- * 
+ * JFontChooser fontChooser = new JFontChooser();
+ * int result = fontChooser.showDialog(parent);
+ * if (result == JFontChooser.OK_OPTION) {
+ *     Font f = fontChooser.getSelectedFont();
+ *     System.out.println("Selected font: " + f);
+ * }
  * <pre>
+ *
+ * @author Masahiko Sawai, Bill Chatfield (fixed warnings)
  **/
 @SuppressWarnings({"Since15", "rawtypes", "unchecked"}) // Compiling 1.5 unparameterized JList with 1.8
 public class JFontChooser extends JComponent {
@@ -97,7 +69,7 @@ public class JFontChooser extends JComponent {
 
 	private String[] fontStyleNames = null;
 	private Map<String,Font> fontFamilies = null;
-	private String[] fontSizeStrings = null;
+	private final String[] fontSizeStrings;
 	private JTextField fontFamilyTextField = null;
 	private JTextField fontStyleTextField = null;
 	private JTextField fontSizeTextField = null;
@@ -110,16 +82,14 @@ public class JFontChooser extends JComponent {
 	private JPanel samplePanel = null;
 	private AntiAliasedJTextArea sampleText = null;
 	private JScrollPane sampleTextScrollPane = null;
-	private Messenger messenger;
+	private final Messenger messenger;
 
 	/**
 	 * Constructs a <code>JFontChooser</code> object.
 	 * @param messenger For reporting errors with a dialog
 	 * 
-	 * @throws IOException If something bad happens
-	 * @throws FontFormatException If something bad happens
 	 **/
-	public JFontChooser(Messenger messenger) throws FontFormatException, IOException {
+	public JFontChooser(Messenger messenger) {
 		this(messenger, DEFAULT_FONT_SIZE_STRINGS);
 	}
 
@@ -128,10 +98,8 @@ public class JFontChooser extends JComponent {
 	 * array.
 	 * 
 	 * @param fontSizeStrings the array of font size string.
-	 * @throws IOException If something bad happens
-	 * @throws FontFormatException If something bad happens
 	 **/
-	public JFontChooser(Messenger messenger, String[] fontSizeStrings) throws FontFormatException, IOException {
+	public JFontChooser(Messenger messenger, String[] fontSizeStrings) {
 		if (fontSizeStrings == null) {
 			this.fontSizeStrings = DEFAULT_FONT_SIZE_STRINGS;
 		} else {
@@ -153,6 +121,7 @@ public class JFontChooser extends JComponent {
 		this.add(contentsPanel);
 		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		this.setSelectedFont(DEFAULT_SELECTED_FONT);
+        this.messenger = messenger;
 	}
 
 	public JTextField getFontFamilyTextField() {
@@ -266,8 +235,9 @@ public class JFontChooser extends JComponent {
 	 *
 	 * @see #setSelectedFontSize
 	 **/
-	public int getSelectedFontSize() {
-		int fontSize = 1;
+	@SuppressWarnings("ReassignedVariable")
+    public int getSelectedFontSize() {
+		int fontSize;
 		String fontSizeString = getFontSizeTextField().getText();
 		while (true) {
 			try {
@@ -278,7 +248,6 @@ public class JFontChooser extends JComponent {
 				getFontSizeTextField().setText(fontSizeString);
 			}
 		}
-
 		return fontSize;
 	}
 
@@ -291,7 +260,7 @@ public class JFontChooser extends JComponent {
 	 * @see Font
 	 **/
 	public Font getSelectedFont() {
-		Font familySample = (Font) getFontFamilies().get(getSelectedFontFamily());
+		Font familySample = getFontFamilies().get(getSelectedFontFamily());
         //noinspection MagicConstant
         return familySample.deriveFont(getSelectedFontStyle(), getSelectedFontSize());
 	}
@@ -369,10 +338,6 @@ public class JFontChooser extends JComponent {
 		setSelectedFontSize(font.getSize());
 	}
 
-	public String getVersionString() {
-		return ("Version");
-	}
-
 	/**
 	 * Show font selection dialog.
 	 * 
@@ -391,11 +356,8 @@ public class JFontChooser extends JComponent {
 				dialogResultValue = CANCEL_OPTION;
 			}
 		});
-
 		dialog.setVisible(true);
 		dialog.dispose();
-		dialog = null;
-
 		return dialogResultValue;
 	}
 
@@ -447,8 +409,9 @@ public class JFontChooser extends JComponent {
 			this.targetList = list;
 		}
 
-		public void keyPressed(KeyEvent e) {
-			int i = targetList.getSelectedIndex();
+		@SuppressWarnings("ReassignedVariable")
+        public void keyPressed(KeyEvent e) {
+			int i;
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 				i = targetList.getSelectedIndex() - 1;
@@ -738,12 +701,12 @@ public class JFontChooser extends JComponent {
 			fontStyleNames[i++] = ("Plain");
 			fontStyleNames[i++] = ("Bold");
 			fontStyleNames[i++] = ("Italic");
-			fontStyleNames[i++] = ("BoldItalic");
+			fontStyleNames[i] = ("BoldItalic");
 		}
 		return fontStyleNames;
 	}
 	
 	public String[] getMapKeys(Map<String,?> m) {
-		return (String[]) m.keySet().toArray(new String[0]);
+		return m.keySet().toArray(new String[0]);
 	}
 }
