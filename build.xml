@@ -502,7 +502,7 @@
     <target name="dmg-on-linux" depends="mac-app" if="linux"
             description="Builds a dmg on a Lignix">
         <touch file="${dmg}"/>
-        <echo message="Zeroing out ${dmg} file"/>
+        <echo message="Using dd to zero out ${dmg} file"/>
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -511,25 +511,32 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <!-- echo message="${env.PATH}"-->
-        <exec dir="${basedir}" executable="which" failonerror="false"
-              searchpath="true"
-              outputproperty="which.mkfs.output">
+        <!-- Using the find command is necessary because mkfs is not always
+             in the PATH. -->
+        <exec executable="find" outputproperty="mkfs" searchpath="true">
+            <arg value="/bin"/>
+            <arg value="/sbin"/>
+            <arg value="/usr/bin"/>
+            <arg value="/usr/sbin"/>
+            <arg value="-name"/>
             <arg value="mkfs"/>
+            <arg value="-print"/>
+            <arg value="-quit"/>
         </exec>
-        <!-- Fail if which mkfs produced no output -->
+        <!-- The below triggers a failure if "find mkfs" produces no
+             output -->
         <fail>
             <condition>
-                <equals arg1="${which.mkfs.output}" arg2=""/>
+                <equals arg1="${mkfs}" arg2=""/>
             </condition>
             Failed to find mkfs.
 
-            Can't build dmg file system because mkfs is missing from 
-            the PATH. To find it, try: whereis mkfs. And then update
-            the PATH with the directory that mkfs is in.
+            Can't build dmg file system because mkfs was not found.
+            To find it, try: whereis mkfs. And then update the
+            paths to search in the find command above.
         </fail>
-        <exec dir="${basedir}" executable="mkfs"
-              searchpath="true"
+        <echo message="mkfs found at ${mkfs}"/>
+        <exec dir="${basedir}" executable="${mkfs}" searchpath="true"
               resultproperty="mkfs.hfsplus.result" failonerror="false">
             <arg value="-t"/>
             <arg value="hfsplus"/>
@@ -559,7 +566,7 @@
                 Debian:
                     
                     # First enable non-free repos in /etc/sources.list.
-                    sudo apt install hfsplus
+                    sudo apt install hfsprogs
 
             This will also fail if it is running inside a snap or flatpak
             Intellij because they are sandboxed and therefore can't access
@@ -662,5 +669,10 @@
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>
+    </target>
+
+    <!-- Target to find files with Ant. There coule be multiple matches
+         because some could be symlinked to others. -->
+    <target name="find-mkfs" description="Finds the mkfs command">
     </target>
 </project>
