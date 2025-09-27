@@ -511,7 +511,9 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <!-- Using the find command is necessary because mkfs is not always
+        <!-- Locate the mkfs command. It is in different directories in
+             different Linux distros: Fedroika versus Debian. Using the
+             find command is necessary because mkfs is not always
              in the PATH. -->
         <exec executable="find" outputproperty="mkfs" searchpath="true">
             <arg value="/bin"/>
@@ -523,8 +525,11 @@
             <arg value="-print"/>
             <arg value="-quit"/>
         </exec>
-        <!-- The below triggers a failure if "find mkfs" produces no
-             output -->
+        <!-- Check if mkfs was found. It was not found if the find
+             command produced no output. Checking the exit code
+             does not work for find because find always returns 0
+             unless there was an error. A failure to find something
+             is not considered an error. -->
         <fail>
             <condition>
                 <equals arg1="${mkfs}" arg2=""/>
@@ -536,14 +541,21 @@
             paths to search in the find command above.
         </fail>
         <echo message="mkfs found at ${mkfs}"/>
+        <dirname file="${mkfs}" property="mkfs.dir"/>
+        <!-- Create the hfs+ file system on the dmg file. -->
+        <echo message="Creating hfs+ file system on ${dmg}"/>
         <exec dir="${basedir}" executable="${mkfs}" searchpath="true"
               resultproperty="mkfs.hfsplus.result" failonerror="false">
+            <!-- mkfs's directory must be in the PATH because the
+                 PATH is used by mkfs to find mks.hfsplus. -->
+            <env key="PATH" value="${env.PATH}:${mkfs.dir}"/>
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
         </exec>
+        <!-- Detect failure of mkfs.hfsplus -->
         <fail>
             <condition>
                 <not>
@@ -573,10 +585,15 @@
             /sbin/mkfs or /usr/bin/mkfs.
         </fail>
         <mkdir dir="target/dmg-mount"/>
-        <echo>Super user privileges will be required to mount/unmount the dmg
-            file
-        </echo>
+        <echo>Mounting ${dmg}. Superuser privileges are required.</echo>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
+            <!-- SUDO_ASKPASS is necessary because Ant is not a terminal
+                 program and therefore sudo can't prompt for a password.
+                 ssh-askpass is a graphical program that can prompt for
+                 a password. It is in /usr/bin on Fedora and Ubuntu. If
+                 it is not installed, then install the openssh-askpass
+                 package. -->
+            <env key="SUDO_ASKPASS" value="/usr/bin/ssh-askpass"/>
             <arg value="mount"/>
             <arg value="--verbose"/>
             <arg value="-o"/>
@@ -597,12 +614,9 @@
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="a+rx" verbose="true">
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
         </chmod>
 
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
@@ -650,11 +664,12 @@
         </copy>
     </target>
 
-    <target name="izpack" depends="izpack-setup">
+    <target name="izpack" depends="izpack-setup"
+            description="Builds an izpack installer jar">
         <!-- Setting compression="deflate" causes
              ClassNotFoundException: java.util.jar.Pack200 
-             with some versions of Java (8, 14, etc) which do not have
-             that class. 
+             with some versions of Java. That class was removed in Java 14.
+             Earlier versions of Java should have it.
              -->
         <izpack input="src/main/izpack/izpack-main-install-setup.xml"
                 output="${build.dir}/rune-installer.jar"
@@ -669,10 +684,5 @@
 
     <target name="test" depends="all">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>
-    </target>
-
-    <!-- Target to find files with Ant. There coule be multiple matches
-         because some could be symlinked to others. -->
-    <target name="find-mkfs" description="Finds the mkfs command">
     </target>
 </project>
