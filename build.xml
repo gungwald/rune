@@ -1,28 +1,177 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- This file is a masterpiece, build over many years. Every part has a
-     carefully thought-out reason for existing with the exact names and
-     parameters, as given. If you try to "fix" it or "simplify" it, you
-     will likely break something. -->
-
-<!-- Ant is used instead of Maven or Gradle because both Maven and Gradle
-     are hideously slow on older machines like a Mac PowerBook G4 or Sun
-     Ultra 5. Ant is more than 2X faster and the Ant code is more than 2X
-     simpler, shorter and easier to understand. The only thing that Maven
-     would offer is dependency management. But there is only one dependency
-     so Maven is just an annoying nuisance for this purpose.
-     
-     Also, Maven can't build a DMG that works on both old and new Macs.
-     Ant is required for that.
-     
-     A Maven directory layout is maintained for consistency with other
-     projects. -->
-
-<!-- This DOCTYPE tag shuts off the warning from Eclipse that there is no DTD
-     associated with this XML file. -->
-
-<!DOCTYPE project>
-
+<!DOCTYPE project [
+        <!ELEMENT project (property|taskdef|fileset|path|condition|target)*>
+        <!ATTLIST project
+                name CDATA #REQUIRED
+                default CDATA #REQUIRED
+                basedir CDATA #REQUIRED>
+        <!ELEMENT property (#PCDATA)>
+        <!ATTLIST property
+                environment CDATA #IMPLIED
+                name CDATA #IMPLIED
+                value CDATA #IMPLIED>
+        <!ELEMENT taskdef (#PCDATA)>
+        <!ATTLIST taskdef
+                classname CDATA #REQUIRED
+                classpath CDATA #REQUIRED
+                name CDATA #REQUIRED
+                onerror CDATA #IMPLIED>
+        <!ELEMENT fileset (include|exclude)*>
+        <!ATTLIST fileset
+                dir CDATA #IMPLIED
+                excludes CDATA #IMPLIED
+                file CDATA #IMPLIED
+                id CDATA #IMPLIED
+                includes CDATA #IMPLIED
+                refid CDATA #IMPLIED>
+        <!ELEMENT include (#PCDATA)>
+        <!ATTLIST include
+                name CDATA #REQUIRED>
+        <!ELEMENT path (fileset)*>
+        <!ATTLIST path
+                id CDATA #REQUIRED>
+        <!ELEMENT condition (os|equals|not)*>
+        <!ATTLIST condition
+                property CDATA #IMPLIED>
+        <!ELEMENT os (#PCDATA)>
+        <!ATTLIST os
+                family CDATA #IMPLIED
+                name CDATA #IMPLIED>
+        <!ELEMENT target (delete|mkdir|buildnumber|manifest|javac|jar|script|pathconvert|manifestclasspath|copy|one-jar|zip|chmod|echo|exec|touch|fail|dirname|izpack|java)*>
+        <!ATTLIST target
+                depends CDATA #IMPLIED
+                description CDATA #REQUIRED
+                if CDATA #IMPLIED
+                name CDATA #REQUIRED
+                unless CDATA #IMPLIED>
+        <!ELEMENT delete (#PCDATA)>
+        <!ATTLIST delete
+                dir CDATA #REQUIRED
+                verbose CDATA #IMPLIED>
+        <!ELEMENT mkdir (#PCDATA)>
+        <!ATTLIST mkdir
+                dir CDATA #REQUIRED>
+        <!ELEMENT buildnumber (#PCDATA)>
+        <!ATTLIST buildnumber
+                file CDATA #REQUIRED>
+        <!ELEMENT manifest (attribute)*>
+        <!ATTLIST manifest
+                file CDATA #IMPLIED
+                mode CDATA #IMPLIED>
+        <!ELEMENT attribute (#PCDATA)>
+        <!ATTLIST attribute
+                name CDATA #REQUIRED
+                value CDATA #REQUIRED>
+        <!ELEMENT javac (compilerarg)*>
+        <!ATTLIST javac
+                classpath CDATA #IMPLIED
+                debug CDATA #REQUIRED
+                destdir CDATA #REQUIRED
+                executable CDATA #IMPLIED
+                fork CDATA #IMPLIED
+                includeantruntime CDATA #REQUIRED
+                source CDATA #IMPLIED
+                srcdir CDATA #IMPLIED
+                target CDATA #IMPLIED>
+        <!ELEMENT compilerarg (#PCDATA)>
+        <!ATTLIST compilerarg
+                value CDATA #REQUIRED>
+        <!ELEMENT jar (fileset|manifest)*>
+        <!ATTLIST jar
+                destfile CDATA #REQUIRED
+                manifest CDATA #IMPLIED>
+        <!ELEMENT script (#PCDATA)>
+        <!ATTLIST script
+                language CDATA #REQUIRED
+                classpathref CDATA #REQUIRED>
+        <!ELEMENT pathconvert (mapper)*>
+        <!ATTLIST pathconvert
+                refid CDATA #REQUIRED
+                property CDATA #REQUIRED>
+        <!ELEMENT mapper (#PCDATA)>
+        <!ATTLIST mapper
+                type CDATA #REQUIRED>
+        <!ELEMENT manifestclasspath (classpath)*>
+        <!ATTLIST manifestclasspath
+                property CDATA #REQUIRED
+                jarfile CDATA #REQUIRED>
+        <!ELEMENT classpath (#PCDATA)>
+        <!ATTLIST classpath
+                path CDATA #REQUIRED>
+        <!ELEMENT copy (fileset)*>
+        <!ATTLIST copy
+                file CDATA #IMPLIED
+                flatten CDATA #IMPLIED
+                preservelastmodified CDATA #IMPLIED
+                todir CDATA #IMPLIED
+                tofile CDATA #IMPLIED
+                verbose CDATA #IMPLIED>
+        <!ELEMENT exclude (#PCDATA)>
+        <!ATTLIST exclude
+                name CDATA #REQUIRED>
+        <!ELEMENT one-jar (main|lib)*>
+        <!ATTLIST one-jar
+                destfile CDATA #REQUIRED
+                manifest CDATA #REQUIRED>
+        <!ELEMENT main (#PCDATA)>
+        <!ATTLIST main
+                jar CDATA #REQUIRED>
+        <!ELEMENT lib (fileset)*>
+        <!ELEMENT zip (fileset)*>
+        <!ATTLIST zip
+                basedir CDATA #IMPLIED
+                destfile CDATA #REQUIRED>
+        <!ELEMENT chmod (fileset)*>
+        <!ATTLIST chmod
+                file CDATA #IMPLIED
+                perm CDATA #REQUIRED
+                verbose CDATA #IMPLIED>
+        <!ELEMENT echo (#PCDATA)>
+        <!ATTLIST echo
+                message CDATA #IMPLIED>
+        <!ELEMENT exec (arg|env)*>
+        <!ATTLIST exec
+                dir CDATA #IMPLIED
+                executable CDATA #REQUIRED
+                failonerror CDATA #IMPLIED
+                inputstring CDATA #IMPLIED
+                outputproperty CDATA #IMPLIED
+                resultproperty CDATA #IMPLIED
+                searchpath CDATA #IMPLIED>
+        <!ELEMENT arg (#PCDATA)>
+        <!ATTLIST arg
+                value CDATA #REQUIRED>
+        <!ELEMENT touch (#PCDATA)>
+        <!ATTLIST touch
+                file CDATA #REQUIRED>
+        <!ELEMENT fail (condition)*>
+        <!ELEMENT equals (#PCDATA)>
+        <!ATTLIST equals
+                arg1 CDATA #REQUIRED
+                arg2 CDATA #REQUIRED>
+        <!ELEMENT dirname (#PCDATA)>
+        <!ATTLIST dirname
+                file CDATA #REQUIRED
+                property CDATA #REQUIRED>
+        <!ELEMENT env (#PCDATA)>
+        <!ATTLIST env
+                key CDATA #REQUIRED
+                value CDATA #REQUIRED>
+        <!ELEMENT not (equals)*>
+        <!ELEMENT izpack (#PCDATA)>
+        <!ATTLIST izpack
+                input CDATA #REQUIRED
+                output CDATA #REQUIRED
+                installerType CDATA #REQUIRED
+                inheritAll CDATA #REQUIRED
+                compression CDATA #REQUIRED
+                basedir CDATA #REQUIRED>
+        <!ELEMENT java (#PCDATA)>
+        <!ATTLIST java
+                jar CDATA #REQUIRED
+                fork CDATA #REQUIRED>
+        ]>
 <project name="rune" default="all" basedir=".">
 
     <property environment="env"/>
@@ -397,8 +546,23 @@
         <mkdir dir="${portable.zip.dir}/lib"/>
         <copy todir="${portable.zip.dir}/bin" flatten="true" 
               preservelastmodified="true" verbose="true">
-            <fileset dir="${periphery.scripts.dir}" includes="**/*"/>
+            <fileset dir="${periphery.scripts.dir}">
+                <include name="rune*"/> <!-- All files starting with rune -->
+                <include name="install-fonts.sh"/>
+                <include name="dtksh-dialog"/>
+            </fileset>
         </copy>
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset
+             after each copy. -->
+        <chmod perm="a+rx" verbose="true">
+            <fileset dir="${portable.zip.dir}/bin">
+                <include name="rune"/>
+                <include name="rune-debug.sh"/>
+                <include name="rune-out-of-mem-err-handler.sh"/>
+                <include name="install-fonts.sh"/>
+                <include name="dtksh-dialog"/>
+            </fileset>
+        </chmod>
         <copy file="${jar}" todir="${portable.zip.dir}/lib" flatten="true"
               preservelastmodified="true" verbose="true"/>
         <copy file="${xdg.desktop.menu.jar}" 
@@ -585,12 +749,17 @@
             /sbin/mkfs or /usr/bin/mkfs.
         </fail>
         <mkdir dir="target/dmg-mount"/>
-
+        <exec executable="xrdb" failonerror="true">
+            <arg value="-merge"/>
+            <arg value="${build.lib.dir}/app-defaults/SshAskpass"/>
+        </exec>
         <echo>Mounting ${dmg}. Superuser privileges are required.</echo>
         <exec dir="${basedir}" executable="sudo" failonerror="false"
-              resultproperty="mount.result">
+              resultproperty="mount.exit.code" >
             <!-- SUDO_ASKPASS is necessary because Ant is not a terminal
-                 program and therefore sudo can't prompt for a password.
+                 program and therefore sudo can't prompt for a password
+                 when run inside Intellij. It is not necessary
+                 when run from a terminal because then sudo can prompt.
                  ssh-askpass is a graphical program that can prompt for
                  a password. It is in /usr/bin on Fedora and Ubuntu. If
                  it is not installed, then install the openssh-askpass
@@ -605,7 +774,7 @@
         </exec>
         <fail>
             <condition>
-                <equals arg1="${mount.result}" arg2="1"/>
+                <equals arg1="${mount.exit.code}" arg2="1"/>
             </condition>
             You may need to install your desktop's sudo-askpass package.
         </fail>
@@ -697,7 +866,7 @@
         />
     </target>
 
-    <target name="all" depends="dmg,portable-zip,izpack"/>
+    <target name="all" depends="dmg,portable-zip,izpack" description="Build all artifacts"/>
 
     <target name="test" depends="all" description="Runs the izpack installer">
         <java jar="${build.dir}/rune-install.jar" fork="true"/>
