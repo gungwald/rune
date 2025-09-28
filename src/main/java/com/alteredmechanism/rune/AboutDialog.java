@@ -38,7 +38,6 @@ public class AboutDialog extends JDialog implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     private static final String SOURCE_URL = "http://github.com/gungwald/rune";
-    private final JPanel contentPanel = new JPanel();
     private JTable table;
     private JButton okButton;
     private JButton sourceLinkButton;
@@ -65,6 +64,7 @@ public class AboutDialog extends JDialog implements ActionListener {
         setTitle("About Rune");
         setSize(550, 500);
         getContentPane().setLayout(new BorderLayout());
+        JPanel contentPanel = new JPanel();
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.SOUTH);
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -135,14 +135,15 @@ public class AboutDialog extends JDialog implements ActionListener {
 
     private String readLicenseFile(JTextArea text) {
         BufferedReader reader = null;
-        InputStream stream = null;
-        StringBuffer s = new StringBuffer();
+        InputStream stream;
+        StringBuilder s = new StringBuilder();
         try {
             stream = ClassLoader.getSystemClassLoader().getResourceAsStream("LICENSE");
+            assert stream != null;
             reader = new BufferedReader(new InputStreamReader(stream));
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
-                s.append(line + "\n");
+                s.append(line).append("\n");
             }
             text.setCaretPosition(0);
         } catch (Exception ex) {
@@ -167,9 +168,8 @@ public class AboutDialog extends JDialog implements ActionListener {
         int propIndex = 0;
         TreeSet<Object> keys = new TreeSet<Object>((Collection<Object>) System.getProperties().keySet());
         String[][] propsArray = new String[keys.size()][2];
-        Iterator keysIterator = keys.iterator();
-        while (keysIterator.hasNext()) {
-            String key = (String) keysIterator.next();
+        for (Object o : keys) {
+            String key = (String) o;
             String value = System.getProperty(key);
             propsArray[propIndex][0] = key;
             propsArray[propIndex][1] = value;
@@ -193,11 +193,11 @@ public class AboutDialog extends JDialog implements ActionListener {
                 Class<?> desktopClass = this.getClass().getClassLoader().loadClass("java.awt.Desktop");
                 Method isDesktopSupportedMethod = desktopClass.getMethod("isDesktopSupported", (Class<?>[]) null);
                 Boolean isDesktopSupportedResult = (Boolean) isDesktopSupportedMethod.invoke(null, (Object[]) null);
-                if (isDesktopSupportedResult.booleanValue()) {
+                if (isDesktopSupportedResult) {
                     Method getDesktopMethod = desktopClass.getMethod("getDesktop", (Class<?>[]) null);
                     Object desktop = getDesktopMethod.invoke(null, (Object[]) null);
-                    Method browseMethod = desktopClass.getMethod("browse", new Class[] {java.net.URI.class});
-                    browseMethod.invoke(desktop, new Object[] {new URI(link)});
+                    Method browseMethod = desktopClass.getMethod("browse", URI.class);
+                    browseMethod.invoke(desktop, new URI(link));
                 }
             } else {
                 // For Java versions older than 1.6.

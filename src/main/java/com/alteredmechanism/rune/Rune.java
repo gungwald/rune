@@ -16,6 +16,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // TODO - Implement vi key bindings
 // TODO - Go to line
@@ -35,9 +37,13 @@ import java.util.List;
 public class Rune extends JFrame implements ActionListener, MouseListener,
         ChangeListener, KeyListener, CaretListener, WindowListener {
 
+    private static final Logger logger = Logger.getLogger(Rune.class.getName());
+
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     public static final String ZOOM_IN_KEY_KEY = "zoomIn";
+    @SuppressWarnings("unused")
     public static final String ZOOM_OUT_KEY_KEY = "zoomOut";
 
     public static final int EXIT_SUCCESS = 0;
@@ -52,35 +58,36 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private final JMenuBar menuBar = new JMenuBar();
     private final JMenu file = new JMenu("File");
     private final JMenu editMenu = new JMenu("Edit");
-    private JMenu viewMenu = new JMenu("View");
-    private JMenu helpMenu = new JMenu("Help");
+    private final JMenu viewMenu = new JMenu("View");
+    private final JMenu helpMenu = new JMenu("Help");
 
-    private JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
+    private final JMenu selectLookAndFeelMenu = new JMenu("Select Look & Feel...");
 
-    private JMenuItem newTabItem = new JMenuItem("New Tab");
-    private JMenuItem openMenuItem = new JMenuItem("Open...");
+    private final JMenuItem newTabItem = new JMenuItem("New Tab");
+    private final JMenuItem openMenuItem = new JMenuItem("Open...");
     public JMenuItem saveMenuItem = new JMenuItem("Save");
-    private JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
-    private JMenuItem closeMenuItem = new JMenuItem("Close Tab");
-    private JMenuItem exitMenuItem = new JMenuItem("Exit");
-    private JMenuItem undoMenuItem = new JMenuItem("Undo");
-    private JMenuItem redoMenuItem = new JMenuItem("Redo");
-    private JMenuItem cutMenuItem = new JMenuItem("Cut");
-    private JMenuItem copyMenuItem = new JMenuItem("Copy");
-    private JMenuItem pasteMenuItem = new JMenuItem("Paste");
-    private JMenuItem copyFileNameMenuItem = new JMenuItem(
+    private final JMenuItem saveAsMenuItem = new JMenuItem("Save As...");
+    private final JMenuItem closeMenuItem = new JMenuItem("Close Tab");
+    private final JMenuItem exitMenuItem = new JMenuItem("Exit");
+    private final JMenuItem undoMenuItem = new JMenuItem("Undo");
+    private final JMenuItem redoMenuItem = new JMenuItem("Redo");
+    private final JMenuItem cutMenuItem = new JMenuItem("Cut");
+    private final JMenuItem copyMenuItem = new JMenuItem("Copy");
+    private final JMenuItem pasteMenuItem = new JMenuItem("Paste");
+    private final JMenuItem copyFileNameMenuItem = new JMenuItem(
             "Copy Full Name of File in Editor");
-    private JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
-    private JMenuItem aboutMenuItem = new JMenuItem("About...");
-    private JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
-    private JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
-    private JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");
+    private final JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
+    private final JMenuItem aboutMenuItem = new JMenuItem("About...");
+    private final JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
+    private final JMenuItem zoomOutMenuItem = new JMenuItem("Zoom Out");
+    private final JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");
 
     private JFontChooser fontChooser = null;
     private FileDialog fileChooser = null;
     private static Messenger messenger = Messenger.getInstance();
     private AboutDialog aboutDialog = null;
-    private LookAndFeelManager lafManager = null;
+    @SuppressWarnings("unused")
+    private final LookAndFeelManager lafManager = null;
     public final JTabbedPane bufferTabs = new JTabbedPane(JTabbedPane.TOP);
     private final StatusBar statusBar = new StatusBar(this);
 
@@ -109,6 +116,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         open(Configuration.getInstance().getListOfOpenFiles());
     }
 
+    @SuppressWarnings("CommentedOutCode")
     private void initUserInterface() throws IOException {
         this.setTitle(USER_FACING_APP_NAME);
 
@@ -290,8 +298,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     public void open(List<File> files) {
-        for (File f : files) {
-            open(f);
+        if (files != null) {
+            for (File f : files) {
+                open(f);
+            }
         }
     }
 
@@ -377,8 +387,6 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
             }
             int tabIndex = bufferTabs.getSelectedIndex();
             bufferTabs.removeTabAt(tabIndex);
-            tabIndex = bufferTabs.getSelectedIndex(); // Might be different
-                                                      // after removal
             getSelectedBuffer().requestFocusInWindow();
         } else if (e.getSource() == this.newTabItem) {
             appendNewTab();
@@ -394,7 +402,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                     open(selectedFile);
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to open file", ex);
                 getMessenger().showError(ex);
             }
         } else if (e.getSource() == this.saveMenuItem) {
@@ -424,7 +432,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 }
             } catch (Exception ex) {
                 getMessenger().showError(ex);
-                ex.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to select font", ex);
             } finally {
                 setCursor(frameCursor);
                 getSelectedBuffer().setCursor(bufferCursor);
@@ -474,11 +482,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
      * Must throw exceptions. Otherwise, we'll end up returning null.
      * 
      * @return The font chooser
-     * @throws IOException If a bad thing happens
-     * @throws FontFormatException If a bad thing happens
      */
-    private JFontChooser getFontChooser() throws FontFormatException,
-            IOException {
+    private JFontChooser getFontChooser() {
         if (fontChooser == null) {
             fontChooser = new JFontChooser(getMessenger());
             LookAndFeelManager.getInstance().addComponentToUpdate(fontChooser);
@@ -580,8 +585,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     /**
-     * This is a thing that happens on older versions of MacOS for programs that
-     * use the Carbon framework. This is true for Java 1.5 on MacOS 10.4.11. A
+     * This is a thing that happens on older versions of macOS for programs that
+     * use the Carbon framework. This is true for Java 1.5 on macOS 10.4.11. A
      * command line argument in the form "-psn_X_XXXXXXX" where each X is a
      * digit is passed to the program.
      * 
@@ -601,7 +606,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         try {
             SystemPropertyConfigurator.autoConfigure(); // System properties should be set first.
             LookAndFeelManager.getInstance().setMessenger(messenger);//.setOptimalLookAndFeel();
-            Rune n = new Rune(args);
+            new Rune(args);
         } catch (Exception e) {
             Messenger.getInstance().showError(e);
             try {
@@ -745,13 +750,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     }
 
     public Font newFont(String family, int face, int size) {
-        Font f = new Font(family, face, size);
+        @SuppressWarnings("MagicConstant") Font f = new Font(family, face, size);
         if (!f.getFamily().equals(family)) {
             f = null;
         }
         return f;
     }
 
+    @SuppressWarnings("unused")
     public Font findExistingFont(String[] fontFamiliesToSearch) {
         Font f = null;
         boolean foundFont = false;
@@ -769,6 +775,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return f;
     }
 
+    @SuppressWarnings("CommentedOutCode")
     public void keyTyped(KeyEvent e) {
         // System.out.println("keyTyped: " + e);
         // if (e.getKeyChar() == '+' && e.getModifiers() > 0) {
@@ -800,7 +807,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 textArea.getColumnAtCaret());
     }
 
-    protected void cleanupAndExit(int exitCode) {
+    protected void cleanupAndExit(@SuppressWarnings("SameParameterValue") int exitCode) {
         try {
             Configuration.getInstance().save();
             this.dispose();

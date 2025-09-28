@@ -66,11 +66,8 @@ public class PropertiesFileDataStore extends Properties {
      */
     public List<File> getFileList(String key) {
         String value = getProperty(key);
-        List<File> files;
-        if (value == null) {
-            files = null;
-        } else {
-            files = new ArrayList<File>();
+        List<File> files = new ArrayList<File>();
+        if (value != null) {
             for (String name : value.split(":")) {
                 files.add(new File(name));
             }

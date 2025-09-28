@@ -29,7 +29,7 @@ public class XdgDesktopMenu {
         out.println("StartupNotify=true");
         out.println("Terminal=false");
         out.println("Comment=A text editor that works like you'd expect");
-        out.println("Path=$HOME");
+        out.println("Path=~");
         out.println("Categories=Utility");
         out.println("Encoding=UTF-8");
         out.printf("Icon=%s%n", icon.getAbsolutePath());
