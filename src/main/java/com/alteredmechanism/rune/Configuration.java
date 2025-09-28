@@ -1,115 +1,97 @@
 package com.alteredmechanism.rune;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-public class Configuration {
+public class Configuration extends PropertiesFileDataStore {
 
-	public static final File HOME = new File(System.getProperty("user.home"));
-	public static final File CONFIG_DIR = new File(HOME, ".rune");
-	public static final File CONFIG_FILE = new File(CONFIG_DIR, "config.properties");
+    protected static final String REPLACE_TABS_WITH_SPACES_KEY = "replace.tabs.with.spaces";
+    protected static final String DISPLAYED_TAB_WIDTH_KEY = "displayed.tab.width";
+    protected static final String REPLACED_TAB_WIDTH_KEY = "replaced.tab.width";
+	protected static final String LIST_OF_OPEN_FILES_KEY = "list.of.open.files";
+    protected static final String FONT_KEY = "font";
+    protected static final String LOOK_AND_FEEL_KEY = "look.and.feel";
 
-	private Properties props = new Properties();
+	/**
+	 * It is required to provide a default value for each property in the configuration.
+	 * This avoids a bunch of code to manage missing properties.
+	 */
+    protected static final Properties defaults = new Properties() {{
+        put(REPLACE_TABS_WITH_SPACES_KEY, "true");
+        put(DISPLAYED_TAB_WIDTH_KEY, "4");
+        put(REPLACED_TAB_WIDTH_KEY, "4");
+		put(LIST_OF_OPEN_FILES_KEY, "");
+        put(FONT_KEY, "");
+        put(LOOK_AND_FEEL_KEY, "");
+    }};
 
-	private Boolean replaceTabsWithSpaces = null;
-	private Integer replacedTabWidth = null;
-	private Integer displayedTabWidth = null;
-	private List openFiles = null;
+	public static final File home = new File(System.getProperty("user.home"));
+	public static final File configDir = new File(home, ".rune");
+	public static final File configFile = new File(configDir, "config.properties");
 
+	// **************************** Singleton setup **********************************
 	private static Configuration singleton = null;
-
-	public static Configuration getInstance() throws IOException {
+	/** The static method to retrieve the one and only instance. */
+	public static Configuration getInstance() throws IOException, FileCreationException {
 		if (singleton == null) {
 			singleton = new Configuration();
 		}
 		return singleton;
 	}
-
-	private Configuration() throws IOException {
-		load();
+	/** A singleton requires a private constructor. */
+	private Configuration() throws IOException, FileCreationException {
+		super(configFile);
 	}
+	// **************************** Singleton setup **********************************
 
-	private void load() throws IOException {
-		if (CONFIG_FILE.exists()) {
-			FileInputStream input = null;
-			try {
-				input = new FileInputStream(CONFIG_FILE);
-				props.load(input);
-			} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
+	public boolean isReplaceTabsWithSpacesSet() {
+		return getBoolean(REPLACE_TABS_WITH_SPACES_KEY);
 	}
 
-	public void save() throws IOException {
-		if (!CONFIG_DIR.exists()) {
-			CONFIG_DIR.mkdir();
-		}
-		FileOutputStream output = null;
-		try {
-			output = new FileOutputStream(CONFIG_FILE);
-			props.store(output, "blah");
-		} finally {
-			if (output != null) {
-				try {
-					output.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+    private void setReplaceTabsWithSpaces(boolean value) {
+        setBoolean(REPLACE_TABS_WITH_SPACES_KEY, value);
+    }
 
-		}
-	}
-    
-	public Boolean getBoolean(String name) {
-		String value = props.getProperty(name);
-		if (value == null) {
-			System.err.println("Missing property: " + name);
-		}
-		else {
-			System.out.println("Loaded property: " + name + "=" + value);
-		}
-		return Boolean.valueOf(value);
-	}
-    
-	public boolean isReplaceTabsWithSpacesEnabled() {
-		if (replaceTabsWithSpaces == null) {
-			replaceTabsWithSpaces = getBoolean("replace.tabs.with.spaces");
-		}
-		return replaceTabsWithSpaces.booleanValue();
+    public int getDisplayedTabWidth() {
+		return getInteger(DISPLAYED_TAB_WIDTH_KEY);
 	}
 
-	public Integer getDisplayedTabWidth() {
-		return displayedTabWidth;
+	public void setDisplayedTabWidth(int value) {
+		setInteger(DISPLAYED_TAB_WIDTH_KEY, value);
 	}
 
-	public void setDisplayedTabWidth(Integer displayedTabWidth) {
-		this.displayedTabWidth = displayedTabWidth;
+	public List<File> getListOfOpenFiles() {
+		return getFileList(LIST_OF_OPEN_FILES_KEY);
 	}
 
-	public List getOpenFiles() {
-		return openFiles;
+	public void setListOfOpenFiles(List<File> openFiles) {
+		setFileList(LIST_OF_OPEN_FILES_KEY, openFiles);
 	}
 
-	public void setOpenFiles(List openFiles) {
-		this.openFiles = openFiles;
+	public int getReplacedTabWidth() {
+		return getInteger(REPLACED_TAB_WIDTH_KEY);
 	}
 
-	public Integer getReplacedTabWidth() {
-		return replacedTabWidth;
+	public void setReplacedTabWidth(int value) {
+		setInteger(REPLACED_TAB_WIDTH_KEY, value);
 	}
 
-	public void setReplacedTabWidth(Integer replacedTabWidth) {
-		this.replacedTabWidth = replacedTabWidth;
-	}
+    public String getFont() {
+        return getString(FONT_KEY);
+    }
+
+    public void setFont(String value) {
+        setString(FONT_KEY, value);
+    }
+
+    public String getLookAndFeel() {
+        return getString(LOOK_AND_FEEL_KEY);
+    }
+
+    public void setLookAndFeel(String value) {
+        setString(LOOK_AND_FEEL_KEY, value);
+    }
+
 }

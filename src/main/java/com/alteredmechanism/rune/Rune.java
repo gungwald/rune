@@ -25,6 +25,7 @@ import java.util.List;
 // TODO - Reload
 // TODO - Recent files
 // TODO - Right-click cut, copy, paste
+// TODO - Search
 
 /**
  * Writbred - A writing tablet Hreodwrit - A reed for writing
@@ -32,7 +33,7 @@ import java.util.List;
  * @author Bill Chatfield
  */
 public class Rune extends JFrame implements ActionListener, MouseListener,
-        ChangeListener, KeyListener, CaretListener {
+        ChangeListener, KeyListener, CaretListener, WindowListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,7 +51,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private final JMenuBar menuBar = new JMenuBar();
     private final JMenu file = new JMenu("File");
-    private JMenu editMenu = new JMenu("Edit");
+    private final JMenu editMenu = new JMenu("Edit");
     private JMenu viewMenu = new JMenu("View");
     private JMenu helpMenu = new JMenu("Help");
 
@@ -93,19 +94,27 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
      * A constructor that does nothing is needed so that the switch from
      * static to object context can be made before configuration starts.
      */
-    public Rune() {
-
+    public Rune(String[] args) throws IOException, FileCreationException {
+        getMessenger().setParent(this);
+        initUserInterface();
+        for (String arg : args) {
+            if (!isMacCarbonProcessSerialNumber(arg)) {
+                try {
+                    open(new File(arg));
+                } catch (Exception e) {
+                    getMessenger().showError( "Failed to open file specified on command line: " + arg, e);
+                }
+            }
+        }
+        open(Configuration.getInstance().getListOfOpenFiles());
     }
-    public void init(File f) throws FontFormatException, IOException {
-        init();
-        open(f);
-    }
 
-    public void init() throws FontFormatException, IOException {
+    private void initUserInterface() throws IOException {
         this.setTitle(USER_FACING_APP_NAME);
 
         int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        // Captured by WindowListener instead
+//        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.getContentPane().setLayout(new BorderLayout());
 
         getContentPane().add(statusBar, BorderLayout.SOUTH);
@@ -280,10 +289,15 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return loader;
     }
 
+    public void open(List<File> files) {
+        for (File f : files) {
+            open(f);
+        }
+    }
+
     public void open(File f) {
         if (bufferTabs.getTabCount() == 0
-                || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex())
-                        .startsWith(UNTITLED)
+                || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED)
                 || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
@@ -343,7 +357,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.exitMenuItem) {
-            this.dispose();
+            cleanupAndExit(EXIT_SUCCESS);
         } else if (e.getSource() == this.closeMenuItem) {
             if (getSelectedTabTitle().endsWith(MODIFIED)) {
                 File selectedFile = new File(getSelectedTabToolTip());
@@ -405,6 +419,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                 if (result == JFontChooser.OK_OPTION) {
                     Font font = getFontChooser().getSelectedFont();
                     System.out.println("Selected font: " + font);
+                    Configuration.getInstance().setFont(font.getName());
                     setBufferFont(font);
                 }
             } catch (Exception ex) {
@@ -586,21 +601,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         try {
             SystemPropertyConfigurator.autoConfigure(); // System properties should be set first.
             LookAndFeelManager.getInstance().setMessenger(messenger);//.setOptimalLookAndFeel();
-
-            Rune n = new Rune();
-            n.getMessenger().setParent(n);
-            n.init();
-            for (String arg : args) {
-                if (!isMacCarbonProcessSerialNumber(arg)) {
-                    try {
-                        n.open(new File(arg));
-                    } catch (Exception e) {
-                        n.getMessenger().showError( "Failed to open file specified on command line: " + arg, e);
-                    }
-                }
-            }
+            Rune n = new Rune(args);
         } catch (Exception e) {
             Messenger.getInstance().showError(e);
+            try {
+                Configuration.getInstance().save();
+            } catch (Exception ex) {
+                Messenger.getInstance().showError(ex);
+            }
             System.exit(EXIT_FAILURE);
         }
     }
@@ -791,4 +799,24 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         statusBar.setCursorPosition(textArea.getLineAtCaret(),
                 textArea.getColumnAtCaret());
     }
+
+    protected void cleanupAndExit(int exitCode) {
+        try {
+            Configuration.getInstance().save();
+            this.dispose();
+            System.exit(exitCode);
+        } catch (Exception e) {
+            getMessenger().showError(e);
+        }
+    }
+
+    // WindowListener methods
+    public void windowOpened(WindowEvent e) { }
+    public void windowClosing(WindowEvent e) { cleanupAndExit(EXIT_SUCCESS); }
+    public void windowClosed(WindowEvent e) { }
+    public void windowIconified(WindowEvent e) { }
+    public void windowDeiconified(WindowEvent e) { }
+    public void windowActivated(WindowEvent e) { }
+    public void windowDeactivated(WindowEvent e) { }
+    // End WindowListener methods
 }

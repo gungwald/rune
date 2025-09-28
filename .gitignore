@@ -43,3 +43,6 @@ lib/META-INF
 
 # NetBeans attributes specific to each user and machine
 .nbattrs
+
+src/main/java/main.iml
+/rune.iml

@@ -1,1 +1,0 @@
-WScript.Echo("Rune: An OutOfMemoryError has occurred. The application must be closed.");

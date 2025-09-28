@@ -9,7 +9,7 @@
 			<author name="Bill Chatfield" email="bill_chatfield@yahoo.com" />
 		</authors>
 		<url>https://github.com/gungwald/rune</url>
-		<javaversion>@{target.java.version}</javaversion>
+		<javaversion>1.5</javaversion>
 		<requiresjdk>no</requiresjdk>
 		<run-privileged condition="izpack.windowsinstall|izpack.macinstall" />
 		<uninstaller write="yes" />
@@ -21,10 +21,12 @@
 		<!-- GTk+ can't be specified because the build will fail on Mac and Windows.
 		     It can't be left unspecified because on platforms like OpenIndiana
 		     we get Motif and the buttons are unreadable. A laf that is included
-		     in IzPack must be specified so that it compiles on all platforms. -->
-		<laf name="substance">
-			<os family="unix" />
-		</laf>
+		     in IzPack must be specified so that it compiles on all platforms.
+		     I think OpenIndiana is probably fixed so commenting this out.
+		     -->
+<!--		<laf name="substance">-->
+<!--			<os family="unix" />-->
+<!--		</laf>-->
 		<!-- The default Windows theme doesn't look that good. -->
 		<laf name="looks"> <!-- JGoodies Looks -->
 			<os family="windows" />

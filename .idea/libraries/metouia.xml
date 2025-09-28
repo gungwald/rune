@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="metouia">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/look-and-feel/metouia.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

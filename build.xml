@@ -44,7 +44,7 @@
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="com.alteredmechanism.rune.Rune"/>
-    <property name="app.lib.dir" value="lib/app"/>
+    <property name="run.lib.dir" value="lib/run"/>
     <property name="build.lib.dir" value="lib/build"/>
     <property name="app" value="${build.dir}/Rune.app"/>
     <property name="dmg" value="${build.dir}/Rune.dmg"/>
@@ -52,6 +52,7 @@
     <property name="dmg.setup.dir" value="${build.dir}/Rune"/>
     <property name="font.install.script"
               value="${dmg.setup.dir}/Install Free Programming Fonts"/>
+    <property name="fonts.dir" value="src/periphery/fonts"/>
     <property name="izpack.root" value="${build.dir}/izpack"/>
     <property name="izpack.app.dir" value="appfiles"/>
     <property name="common.manifest" value="${build.dir}/common-manifest.txt"/>
@@ -61,7 +62,8 @@
          It automatically populates the property build.number -->
     <property name="build.number.file" value="src/build-number.txt"/> 
     <property name="portable.zip" value="${build.dir}/rune-portable.zip"/> 
-    <property name="portable.zip.dir" value="${build.dir}/rune-portable"/> 
+    <property name="portable.zip.dir" value="${build.dir}/rune-portable"/>
+    <property name="periphery.scripts.dir" value="src/periphery/scripts"/>
 
     <!-- Define One-Jar JAR location which is used to load the one-jar tastdef. -->
     <property name="one-jar.jar" value="${build.lib.dir}/one-jar-ant-task-0.97.jar"/>
@@ -124,6 +126,10 @@
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added
          to Ant lib
          -->
+<!--    <taskdef name="izpack"-->
+<!--             classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"-->
+<!--             classname="com.izforge.izpack.ant.IzPackTask"/>-->
+
     <taskdef name="izpack"
              classpath="${build.lib.dir}/izpack-standalone-compiler-4.3.5.jar"
              classname="com.izforge.izpack.ant.IzPackTask"/>
@@ -142,18 +148,29 @@
     <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"
              classpath="${one-jar.jar}" onerror="report"/>
 
-    <fileset id="dependency.jar.set" dir="${app.lib.dir}">
+    <fileset id="dependency.jar.set" dir="${run.lib.dir}">
         <include name="**/*"/>
     </fileset>
 
     <path id="jar.runtime.classpath">
-        <fileset dir="${app.lib.dir}">
+        <fileset dir="${run.lib.dir}">
             <include name="**/*.jar"/>
         </fileset>
     </path>
     
     <path id="dependency.jars">
         <fileset refid="dependency.jar.set"/>
+    </path>
+
+    <path id="beanshell.classpath">
+        <fileset dir="${build.lib.dir}">
+            <!-- The bsf jar provides the javax.script (JSR-223)
+                 implementation for Java less than 6. This app targets
+                 Java 5, so bsf is good to have. -->
+            <include name="bsf-api-3.1.jar"/>
+            <!-- This is the beanshell interpreter. -->
+            <include name="bsh-2.0b6.jar"/>
+        </fileset>
     </path>
 
     <!-- I've abandoned the following technique for the RUNE_COMPILER and
@@ -299,19 +316,9 @@
          figure out how to run a custom script as part of the build. If you
          delete it because it's stored in git, then no one will remember it is
          there and it will become useless, wasted work. -->
-    <target name="run-a-script" description="Demonstrates how to run a script :-)">
+    <target name="run-a-script" description="Demonstrates how to run a script.">
         <!-- The language has to be lower case or it won't be found. -->
-        <script language="beanshell">
-            <classpath>
-                <fileset dir="${build.lib.dir}">
-                    <!-- The bsf jar provides the javax.script (JSR-223) 
-                         implementation for Java less than 6. This app targets
-                         Java 5, so bsf is good to have. -->
-                    <include name="bsf-api-3.1.jar"/>
-                    <!-- This is the beanshell interpreter. -->
-                    <include name="bsh-2.0b6.jar"/>
-                </fileset>
-            </classpath>
+        <script language="beanshell" classpathref="beanshell.classpath">
             // This is the actual script. It's just a demo.
             if (self.getProject().hasReference("jar.runtime.classpath")) {
                 System.out.println("Suga");
@@ -378,22 +385,28 @@
         <one-jar destfile="${jar}" manifest="${uber.manifest}">
             <main jar="${dependent.jar}"/>
             <lib>
-                <fileset dir="${app.lib.dir}"/>
+                <fileset dir="${run.lib.dir}"/>
             </lib>
         </one-jar>
     </target>
 
-    <target name="portable-zip" depends="jar" 
+    <target name="portable-zip" depends="jar,jar-xdg-desktop-menu-setup" 
             description="Builds zip that requires no installation, for all platforms">
         <mkdir dir="${portable.zip.dir}"/>
         <mkdir dir="${portable.zip.dir}/bin"/>
         <mkdir dir="${portable.zip.dir}/lib"/>
         <copy todir="${portable.zip.dir}/bin" flatten="true" 
               preservelastmodified="true" verbose="true">
-            <fileset dir="src/main/scripts" includes="**/*"/>
+            <fileset dir="${periphery.scripts.dir}" includes="**/*"/>
         </copy>
         <copy file="${jar}" todir="${portable.zip.dir}/lib" flatten="true"
               preservelastmodified="true" verbose="true"/>
+        <copy file="${xdg.desktop.menu.jar}" 
+              todir="${portable.zip.dir}/lib"
+              preservelastmodified="true" verbose="true"/>
+        <copy todir="${portable.zip.dir}/fonts" preservelastmodified="true" verbose="true">
+            <fileset dir="${fonts.dir}" includes="**/*"/>
+        </copy>
         <zip basedir="${portable.zip.dir}" destfile="${portable.zip}"/>
     </target>
 
@@ -404,10 +417,10 @@
         <mkdir dir="${app}/Contents/Resources/Java"/>
         <copy todir="${app}/Contents/MacOS" preservelastmodified="true"
               verbose="true">
-            <fileset file="src/main/scripts/rune"/>
-            <fileset file="src/main/scripts/rune-debug.sh"/>
-            <fileset file="src/main/scripts/rune-common-functions.sh"/>
-            <fileset file="src/main/scripts/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune"/>
+            <fileset file="${periphery.scripts.dir}/rune-debug.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune-common-functions.sh"/>
+            <fileset file="${periphery.scripts.dir}/rune-out-of-mem-err-handler.sh"/>
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset
              after each copy. -->
@@ -448,7 +461,8 @@
             <fileset dir="${build.dir}" includes="Rune.app/**"/>
             <!-- <fileset file="src/main/resources/mac/Applications"/> -->
         </copy>
-        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
+        <!-- Ant's 'copy' command drops permissions so, they need to be reset after each 
+             copy. -->
         <chmod perm="a+rx" verbose="true">
             <fileset file="${dmg.setup.dir}/Rune.app/Contents/MacOS/rune"/>
             <fileset
@@ -458,12 +472,12 @@
             <fileset
                     file="${dmg.setup.dir}/Rune.app/Contents/MacOS/install-fonts.sh"/>
         </chmod>
-        <copy file="src/main/scripts/install-fonts.sh"
+        <copy file="${periphery.scripts.dir}/install-fonts.sh"
               tofile="${font.install.script}"/>
         <chmod file="${font.install.script}" perm="a+rx"/>
         <mkdir dir="${dmg.setup.dir}/Fonts"/>
         <copy todir="${dmg.setup.dir}/Fonts">
-            <fileset dir="${basedir}/src/main/resources/fonts" includes="**"/>
+            <fileset dir="${fonts.dir}" includes="**"/>
         </copy>
     </target>
 
@@ -488,7 +502,7 @@
     <target name="dmg-on-linux" depends="mac-app" if="linux"
             description="Builds a dmg on a Lignix">
         <touch file="${dmg}"/>
-        <echo message="Zeroing out ${dmg} file"/>
+        <echo message="Using dd to zero out ${dmg} file"/>
         <exec dir="${basedir}" executable="dd" failonerror="true">
             <arg value="if=/dev/zero"/>
             <arg value="of=${dmg}"/>
@@ -497,15 +511,51 @@
             <!-- Number of megabytes -->
             <arg value="status=progress"/>
         </exec>
-        <!-- echo message="${env.PATH}"-->
-        <exec dir="${basedir}" executable="mkfs"
-              resultproperty="mkfs.hfsplus.result">
+        <!-- Locate the mkfs command. It is in different directories in
+             different Linux distros: Fedroika versus Debian. Using the
+             find command is necessary because mkfs is not always
+             in the PATH. -->
+        <exec executable="find" outputproperty="mkfs" searchpath="true">
+            <arg value="/bin"/>
+            <arg value="/sbin"/>
+            <arg value="/usr/bin"/>
+            <arg value="/usr/sbin"/>
+            <arg value="-name"/>
+            <arg value="mkfs"/>
+            <arg value="-print"/>
+            <arg value="-quit"/>
+        </exec>
+        <!-- Check if mkfs was found. It was not found if the find
+             command produced no output. Checking the exit code
+             does not work for find because find always returns 0
+             unless there was an error. A failure to find something
+             is not considered an error. -->
+        <fail>
+            <condition>
+                <equals arg1="${mkfs}" arg2=""/>
+            </condition>
+            Failed to find mkfs.
+
+            Can't build dmg file system because mkfs was not found.
+            To find it, try: whereis mkfs. And then update the
+            paths to search in the find command above.
+        </fail>
+        <echo message="mkfs found at ${mkfs}"/>
+        <dirname file="${mkfs}" property="mkfs.dir"/>
+        <!-- Create the hfs+ file system on the dmg file. -->
+        <echo message="Creating hfs+ file system on ${dmg}"/>
+        <exec dir="${basedir}" executable="${mkfs}" searchpath="true"
+              resultproperty="mkfs.hfsplus.result" failonerror="false">
+            <!-- mkfs's directory must be in the PATH because the
+                 PATH is used by mkfs to find mks.hfsplus. -->
+            <env key="PATH" value="${env.PATH}:${mkfs.dir}"/>
             <arg value="-t"/>
             <arg value="hfsplus"/>
             <arg value="-v"/>
             <arg value="Rune"/>
             <arg value="${dmg}"/>
         </exec>
+        <!-- Detect failure of mkfs.hfsplus -->
         <fail>
             <condition>
                 <not>
@@ -514,19 +564,36 @@
             </condition>
             Failed to create hfs+ file system for dmg.
 
-            You may need to install the appropriate hfs+ file system package:
-            Fedora: sudo dnf install hfsplus-tools
-            Ubuntu: sudo apt install hfsprogs
+            You may need to install the appropriate hfs+ file system 
+            package:
+            
+                Fedora:
+
+                    sudo dnf install hfsplus-tools
+
+                Ubuntu:
+
+                    sudo apt install hfsprogs
+
+                Debian:
+                    
+                    # First enable non-free repos in /etc/sources.list.
+                    sudo apt install hfsprogs
 
             This will also fail if it is running inside a snap or flatpak
-            Intellij
-            because they are sandboxed and therefore can't access /usr/bin/mkfs.
+            Intellij because they are sandboxed and therefore can't access
+            /sbin/mkfs or /usr/bin/mkfs.
         </fail>
         <mkdir dir="target/dmg-mount"/>
-        <echo>Super user privileges will be required to mount/unmount the dmg
-            file
-        </echo>
+        <echo>Mounting ${dmg}. Superuser privileges are required.</echo>
         <exec dir="${basedir}" executable="sudo" failonerror="true">
+            <!-- SUDO_ASKPASS is necessary because Ant is not a terminal
+                 program and therefore sudo can't prompt for a password.
+                 ssh-askpass is a graphical program that can prompt for
+                 a password. It is in /usr/bin on Fedora and Ubuntu. If
+                 it is not installed, then install the openssh-askpass
+                 package. -->
+            <env key="SUDO_ASKPASS" value="/usr/bin/ssh-askpass"/>
             <arg value="mount"/>
             <arg value="--verbose"/>
             <arg value="-o"/>
@@ -547,12 +614,9 @@
         </copy>
         <!-- Ant's 'copy' command drops permissions so, they need to be reset after each copy. -->
         <chmod perm="a+rx" verbose="true">
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
-            <fileset
-                    file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-debug.sh"/>
+            <fileset file="${build.dir}/dmg-mount/Rune.app/Contents/MacOS/rune-out-of-mem-err-handler.sh"/>
         </chmod>
 
         <exec dir="${build.dir}" executable="sudo" failonerror="true">
@@ -574,7 +638,7 @@
         <!-- Copy scripts into izpack deployment directory. -->
         <mkdir dir="${izpack.root}/${izpack.app.dir}/bin"/>
         <copy todir="${izpack.root}/${izpack.app.dir}/bin">
-            <fileset dir="src/main/scripts">
+            <fileset dir="${periphery.scripts.dir}">
                 <include name="rune*"/> <!-- All files starting with rune -->
                 <include name="rune-common-functions.sh"/>
                 <include name="dtksh-dialog"/>
@@ -600,14 +664,18 @@
         </copy>
     </target>
 
-    <target name="izpack" depends="izpack-setup">
+    <target name="izpack" depends="izpack-setup"
+            description="Builds an izpack installer jar">
         <!-- Setting compression="deflate" causes
-        ClassNotFoundException: java.util.jar.Pack200 with some versions
-        of Java (8, 14, etc) which do not have that class. -->
+             ClassNotFoundException: java.util.jar.Pack200 
+             with some versions of Java. That class was removed in Java 14.
+             Earlier versions of Java should have it.
+             -->
         <izpack input="src/main/izpack/izpack-main-install-setup.xml"
                 output="${build.dir}/rune-installer.jar"
                 installerType="standard"
                 inheritAll="true"
+                compression="deflate"
                 basedir="${izpack.root}"
         />
     </target>

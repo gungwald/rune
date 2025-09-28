@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Dev install under OS/2
+# Maybe this should be done with the Maven Ant plugin?
+
+# Steps:
+# 1. Build, if necessary
+# 2. Unzip dist zip to install dir
+# 3. Update PATH, if necessary
+# 4. Create StartMenu/Desktop icon
+# 5. Install bundled fonts
+
+getAbsolutePath()
+{
+	if [ -d "$1" ]
+	then
+		(cd "$1" ; pwd)
+	else
+		(cd `dirname "$1"` ; echo `pwd`/`basename "$1"`)
+	fi
+}
+
+INSTALL_DIR=/usr/local
+OS=`uname -s`
+OS_VERSION=`uname -r`
+SELF=`getAbsolutePath "$0"`
+SELF_DIR=`dirname "$SELF"`
+TOP_DIR=`dirname "$SELF_DIR"`
+LIB_DIR="$TOP_DIR"/lib
+
+if [ "$OS" = "SunOS" ] && [ "$OS_VERSION" = "5.11" ]
+then
+  # More recent versions of Solaris (SunOS) have an install command that is different.
+  sudo install -d "$INSTALL_DIR"
+  sudo install -d "$INSTALL_DIR"/bin
+  sudo install -d "$INSTALL_DIR"/lib
+  sudo install -f "$INSTALL_DIR"/bin "$SELF_DIR"/rune
+  sudo install -f "$INSTALL_DIR"/lib "$LIB_DIR"/rune-1.0.jar
+  sudo install -f "$INSTALL_DIR"/lib "$LIB_DIR"/jlfgr-1_0.jar
+else
+  sudo install "$SELF_DIR"/rune "$INSTALL_DIR"/bin
+  sudo install "$LIB_DIR"/rune-1.0.jar "$INSTALL_DIR"/lib
+  sudo install "$LIB_DIR"/jlfgr-1_0.jar "$INSTALL_DIR"/lib
+fi
+
+sudo "$SELF_DIR"/install-gnome-icon "$INSTALL_DIR"/bin/rune
+

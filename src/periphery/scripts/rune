@@ -1,0 +1,94 @@
+#!/bin/sh
+
+# Backtick syntax is preferred over $(...) because it works on old systems.
+# So disable the warning. This must come before any command to disable warnings
+# in the whole file.
+# shellcheck disable=SC2006
+
+# The application jar file should work without this file. But this file adds
+# some features:
+# 1. Icon on Mac
+# 2. Out-of-memory handler
+# 3. Graphical display of stderr
+# TODO - Add the rest here...
+
+# Avoid long options, like --tmpdir for mktemp because they are not supported
+# on UNIX and BSD.
+
+# Locate relevant directories.
+APP_NAME=Rune
+THIS_SCRIPT=`basename "$0" .sh`
+SCRIPT_DIR=`dirname "$0"` && [ "$SCRIPT_DIR" = "." ] && SCRIPT_DIR=`pwd`
+PARENT_DIR=`dirname "$SCRIPT_DIR"`
+OS=`uname -s`
+ON_OUT_OF_MEM_ERR="$SCRIPT_DIR"/rune-out-of-mem-err-handler.sh
+
+. "$SCRIPT_DIR"/rune-common-functions.sh
+
+# Check if running from Mac Rune.app.
+if endsWith "$SCRIPT_DIR" Contents/MacOS; then
+  LIB_DIR="$PARENT_DIR"/Resources/Java
+  ICON="$PARENT_DIR"/Resources/vegvisir.icns
+else
+  LIB_DIR="$PARENT_DIR"/lib
+fi
+
+APP_JAR="$LIB_DIR"/"$THIS_SCRIPT".jar
+
+# Setup fifo so that we can use 'tee' to send stderr to both the console
+# and a file. The file will be used to display a window on the desktop
+# with the errors it contains after the program exits. This will allow
+# a user without visibility to the stderr output in a terminal to see
+# any errors.
+# @global STDERR_OUTPUT_FILE
+# @global STDERR_FIFO
+duplicateStdErr() {
+  STDERR_OUTPUT_FILE=`makeTempFile stderr` || exit
+  STDERR_FIFO=`makeTempFile fifo` || exit
+  rm "$STDERR_FIFO" || exit
+  mkfifo "$STDERR_FIFO" || exit
+  # Setup a function to run when this script exits that deletes the temporary
+  # files.
+  trap 'removeFiles "$STDERR_FIFO" "$STDERR_OUTPUT_FILE"' EXIT
+  tee -a "$STDERR_OUTPUT_FILE" <"$STDERR_FIFO" >&2 &
+}
+
+JAVA=`findJava`
+
+
+# Java versions less than 1.6 don't have the OnOutOfMemoryError switch.
+if isJavaLessThan_1_6 "$JAVA"; then
+  unset ON_OUT_OF_MEM_ERR_SWITCH
+else
+  ON_OUT_OF_MEM_ERR_SWITCH=-XX:OnOutOfMemoryError="$ON_OUT_OF_MEM_ERR"
+fi
+
+if [ "$OS" = 'Darwin' ]; then
+  MAC_OPTS="-Xdock:name=$APP_NAME -Xdock:icon=$ICON"
+else
+  unset MAC_OPTS
+fi
+
+# Run
+duplicateStdErr
+# -Xshare:on is critical but usually on by default...
+# MAC_OPTS must be split up on spaces, so disable the warning.
+# shellcheck disable=SC2086
+"$JAVA" $MAC_OPTS $ON_OUT_OF_MEM_ERR_SWITCH -jar "$APP_JAR" "$@" 2>"$STDERR_FIFO"
+JAVA_EXIT_CODE=$?
+
+if [ -z "$STDERR_OUTPUT_FILE" ]; then
+  echo STDERR_OUTPUT_FILE variable is empty
+elif [ -s "$STDERR_OUTPUT_FILE" ]; then
+  displayErrorFile "$0" "$STDERR_OUTPUT_FILE"
+elif [ $JAVA_EXIT_CODE -ne 0 ]; then
+  cat >"$STDERR_OUTPUT_FILE" <<-EOF
+The program returned an exit code of $JAVA_EXIT_CODE, which is a failure code.
+But it did not produce an error message on the standard error stream.
+It is possible that it wrote an error message to the standard output stream,
+but that has not been captured. Try running the program from the command line
+to get the error message. This is the command to run:
+$0 "$@"
+EOF
+  displayErrorFile "$0" "$STDERR_OUTPUT_FILE"
+fi
