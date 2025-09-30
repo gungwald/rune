@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# TODO - Keep the fonts in their original zip archive and extract them on demand
+# TODO - Add support for Windows
+# TODO - Keep the font cache updated (fc-cache -f -v)
+# TODO - Keep the font cache updated on Mac (atsutil databases -removeUser)
+# TODO - Keep the font cache updated on Haiku (makefont cache)
+
 # shellcheck disable=SC2006
 # shellcheck disable=SC2030
 # shellcheck disable=SC2031

@@ -76,13 +76,31 @@ public class AboutDialog extends JDialog implements ActionListener {
                 tabbedPane.addTab("Info", null, infoPanel, null);
                 infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
                 {
-                    JLabel lblNotepadVersion = new JLabel("Rune - Version 1.0");
-                    infoPanel.add(lblNotepadVersion);
-                    lblNotepadVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    lblNotepadVersion.setHorizontalAlignment(SwingConstants.CENTER);
+                    JLabel appName = new JLabel("Rune");
+                    infoPanel.add(appName);
+                    appName.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    appName.setHorizontalAlignment(SwingConstants.CENTER);
                 }
                 {
-                    JLabel lblByBillChatfield = new JLabel("Created by Bill Chatfield");
+                    JLabel releaseVersion = new JLabel("Release Version: " + Version.RELEASE_VERSION);
+                    infoPanel.add(releaseVersion);
+                    releaseVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    releaseVersion.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+                {
+                    JLabel buildNumber = new JLabel("Build Number: " + Version.BUILD_NUMBER);
+                    infoPanel.add(buildNumber);
+                    buildNumber.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    buildNumber.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+                {
+                    JLabel buildNumber = new JLabel("Build Date: " + Version.BUILD_DATE);
+                    infoPanel.add(buildNumber);
+                    buildNumber.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    buildNumber.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+                {
+                    JLabel lblByBillChatfield = new JLabel("Created by: Bill Chatfield");
                     infoPanel.add(lblByBillChatfield);
                     lblByBillChatfield.setAlignmentX(Component.CENTER_ALIGNMENT);
                 }

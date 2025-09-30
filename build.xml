@@ -174,6 +174,8 @@
         ]>
 <project name="rune" default="all" basedir=".">
 
+    <!-- TODO - Sync all version numbers -->
+
     <property environment="env"/>
 
     <!--
@@ -181,6 +183,7 @@
     *                                                                        *
     *               Increment release.version before releasing               *
     *        Match it will the github version in the github release          *
+    *        This value sets all the other references to a version.          *
     *                                                                        *
     **************************************************************************
     -->
@@ -190,6 +193,7 @@
     <property name="app.technical.name" value="${ant.project.name}"/>
     <property name="vendor" value="Altered Mechanism"/>
     <property name="src.dir" value="src/main/java"/>
+    <property name="version.java" value="${src.dir}/com/alteredmechanism/rune/Version.java"/>
     <property name="build.dir" value="target"/>
     <property name="cls.dir" value="${build.dir}/classes"/>
     <property name="main.class" value="com.alteredmechanism.rune.Rune"/>
@@ -363,7 +367,13 @@
         <delete dir="${build.dir}" verbose="true"/>
     </target>
 
-    <target name="compile-setup" description="Sets up for compile">
+    <target name="get-date" description="Gets the current date">
+        <tstamp>
+            <format property="current.date" pattern="yyyy-MM-dd" />
+        </tstamp>
+    </target>
+
+    <target name="compile-setup" depends="get-date" description="Sets up for compile">
         <mkdir dir="${cls.dir}"/>
         <buildnumber file="${build.number.file}"/>
         <!-- Build the basic manifest only once so that there are no duplicate
@@ -375,7 +385,22 @@
             <attribute name="Implementation-Title" value="${app.technical.name}"/>
             <attribute name="Implementation-Version" value="build.${build.number}"/>
             <attribute name="Implementation-Vendor" value="${vendor}"/>
+            <attribute name="Release-Version" value="${release.version}"/>
+            <attribute name="Build-Number" value="${build.number}"/>
+            <attribute name="Build-Date" value="${current.date}"/>
         </manifest>
+        <replaceregexp file="${version.java}"
+                       match="public static final String RELEASE_VERSION = &quot;(.*)&quot;;"
+                       replace="public static final String RELEASE_VERSION = &quot;${release.version}&quot;;"
+                       byline="true"/>
+        <replaceregexp file="${version.java}"
+                       match="public static final String BUILD_NUMBER = &quot;(.*)&quot;;"
+                       replace="public static final String BUILD_NUMBER = &quot;${build.number}&quot;;"
+                       byline="true"/>
+        <replaceregexp file="${version.java}"
+                       match="public static final String BUILD_DATE = &quot;(.*)&quot;;"
+                       replace="public static final String BUILD_DATE = &quot;${current.date}&quot;;"
+                       byline="true"/>
     </target>
 
     <!-- Hard-coded location of my Java 5 compiler. No longer tested, but could
@@ -510,6 +535,12 @@
         <!-- Add attributes for dependent jar -->
         <manifest file="${dependent.manifest}" mode="update">
             <attribute name="Main-Class" value="${main.class}"/>
+            <!-- Intellij claims that the manifest.classpath property is not
+                 defined. But it is defined by the manifestclasspath task above.
+                 So, it is a false warning. The next comment is a command to
+                 Intellij to ignore the warning.
+                 -->
+            <!--suppress AntResolveInspection -->
             <attribute name="Class-Path" value="${manifest.classpath}"/>
         </manifest>
 
