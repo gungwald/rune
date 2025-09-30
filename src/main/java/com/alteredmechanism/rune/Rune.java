@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO - Put run instructions into Readme.txt, silly to repeat for each release
 // TODO - Implement vi key bindings
 // TODO - Go to line
 // TODO - Syntax highlighting
