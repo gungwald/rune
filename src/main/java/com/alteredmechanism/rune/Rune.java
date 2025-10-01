@@ -6,15 +6,46 @@ import com.alteredmechanism.rune.actions.SaveAction;
 import com.alteredmechanism.rune.actions.ZoomInAction;
 import com.alteredmechanism.rune.actions.ZoomOutAction;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +69,8 @@ import java.util.logging.Logger;
 public class Rune extends JFrame implements ActionListener, MouseListener,
         ChangeListener, KeyListener, CaretListener, WindowListener {
 
-    private static final Logger logger = Logger.getLogger(Rune.class.getName());
+    private static final String CLASS_NAME = Rune.class.getName();
+    private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
     private static final long serialVersionUID = 1L;
 
@@ -101,6 +133,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     /**
      * A constructor that does nothing is needed so that the switch from
      * static to object context can be made before configuration starts.
+     * ??? Why did I write this?
      */
     public Rune(String[] args) throws IOException, FileCreationException {
         getMessenger().setParent(this);
@@ -120,6 +153,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     @SuppressWarnings("CommentedOutCode")
     private void initUserInterface() throws IOException {
         this.setTitle(USER_FACING_APP_NAME);
+        this.addWindowListener(this); // Necessary to catch windowClosing event
 
         int shortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         // Captured by WindowListener instead
@@ -811,6 +845,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     protected void cleanupAndExit(@SuppressWarnings("SameParameterValue") int exitCode) {
         try {
             Configuration.getInstance().save();
+            if (fileChooser != null) {
+                fileChooser.dispose();
+            }
+            if (aboutDialog != null) {
+                aboutDialog.dispose();
+            }
             this.dispose();
             System.exit(exitCode);
         } catch (Exception e) {
@@ -820,8 +860,15 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     // WindowListener methods
     public void windowOpened(WindowEvent e) { }
-    public void windowClosing(WindowEvent e) { cleanupAndExit(EXIT_SUCCESS); }
-    public void windowClosed(WindowEvent e) { }
+    public void windowClosing(WindowEvent e) {
+        logger.entering(CLASS_NAME, "windowClosing", e);
+        cleanupAndExit(EXIT_SUCCESS);
+        logger.exiting(CLASS_NAME, "windowClosing");
+    }
+    public void windowClosed(WindowEvent e) {
+        logger.entering(CLASS_NAME, "windowClosed", e);
+        logger.exiting(CLASS_NAME, "windowClosed");
+    }
     public void windowIconified(WindowEvent e) { }
     public void windowDeiconified(WindowEvent e) { }
     public void windowActivated(WindowEvent e) { }
