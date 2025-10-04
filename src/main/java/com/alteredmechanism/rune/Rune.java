@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// TODO - Put run instructions into Readme.txt, silly to repeat for each release
 // TODO - Implement vi key bindings
 // TODO - Go to line
 // TODO - Syntax highlighting
@@ -332,7 +331,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return loader;
     }
 
-    public void open(List<File> files) {
+    public void open(List<File> files) throws FileCreationException, IOException {
         if (files != null) {
             for (File f : files) {
                 open(f);
@@ -340,12 +339,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         }
     }
 
-    public void open(File f) {
+    public void open(File f) throws FileCreationException, IOException {
         if (bufferTabs.getTabCount() == 0
                 || !bufferTabs.getTitleAt(bufferTabs.getSelectedIndex()).startsWith(UNTITLED)
                 || getSelectedBuffer().getText().length() > 0) {
             appendNewTab();
         }
+        Configuration.getInstance().getListOfOpenFiles().add(f);
         openIntoSelectedTab(f);
     }
 
@@ -418,6 +418,12 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
                     break;
                 case JOptionPane.CANCEL_OPTION:
                     return;
+                }
+                try {
+                    Configuration.getInstance().getListOfOpenFiles().remove(selectedFile);
+                } catch (Exception ex) {
+                    logger.log(Level.WARNING, "Failed to remove file from configuration", ex);
+                    getMessenger().showError(ex);
                 }
             }
             int tabIndex = bufferTabs.getSelectedIndex();

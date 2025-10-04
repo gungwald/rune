@@ -160,6 +160,7 @@ findJava() ( # Parentheses make variables local to function.
 
   if [ -n "$JAVA_HOME" ]; then # JAVA_HOME is defined.
     JAVA_TEST="$JAVA_HOME"/bin/java
+    echo Using JAVA_HOME: "$JAVA_HOME"
     if [ -e "$JAVA_TEST" ]; then
       if [ -x "$JAVA_TEST" ]; then
         JAVA="$JAVA_TEST"

@@ -88,6 +88,9 @@ function findJava(fs, env)
             var testJava = fs.BuildPath(javaBinDir, javaProgramToFind);
             if (fs.FileExists(testJava)) {
                 java = testJava;
+                if (isRunningWithCScript)
+                    WScript.Echo("Using " + javaHomeEnvVars[i] + "=" + javaHome);
+                }
                 break;
             }
         }
