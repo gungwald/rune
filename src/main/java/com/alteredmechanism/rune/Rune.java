@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
@@ -646,7 +647,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         System.setProperty("sun.java2d.uiScale", "2");
         try {
             SystemPropertyConfigurator.autoConfigure(); // System properties should be set first.
-            LookAndFeelManager.getInstance().setMessenger(messenger);//.setOptimalLookAndFeel();
+            LookAndFeelManager.getInstance().setMessenger(messenger); //.setOptimalLookAndFeel();
+            UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
             new Rune(args);
         } catch (Exception e) {
             Messenger.getInstance().showError(e);

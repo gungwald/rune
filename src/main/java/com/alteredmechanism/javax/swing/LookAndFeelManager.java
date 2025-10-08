@@ -81,7 +81,6 @@ public class LookAndFeelManager implements ActionListener {
 
     private LookAndFeelManager() {
         super();
-        lafIndex.add(UIManager.getInstalledLookAndFeels());
     }
 
     public LookAndFeelManager setOptimalLookAndFeel() {
