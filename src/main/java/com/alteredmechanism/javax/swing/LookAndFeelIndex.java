@@ -19,6 +19,10 @@ class LookAndFeelIndex {
     private static final String CLASS_NAME = LookAndFeelIndex.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
+    // Material LAF takes too long to load and doesn't look as good as
+    // FlatLaf, so don't add it back.
+    //      "mdlaf.MaterialLookAndFeel"
+
     public static final String[] EXTERNAL_PLAFS = {
             "com.incors.plaf.kunststoff.KunststoffLookAndFeel",
             "com.birosoft.liquid.LiquidLookAndFeel",
@@ -29,11 +33,9 @@ class LookAndFeelIndex {
             "net.sourceforge.mlf.metouia.MetouiaLookAndFeel",
             "org.jvnet.substance.SubstanceLookAndFeel",
             "net.sourceforge.openlook_plaf.OpenLookLookAndFeel",
-            "com.formdev.flatlaf.FlatLightLaf"
+            "com.formdev.flatlaf.FlatLightLaf",
+            "com.formdev.flatlaf.FlatDarkLaf"
     };
-
-    // This LAF takes too long to load
-//            "mdlaf.MaterialLookAndFeel",
 
     private final Map<String, LookAndFeelInfo> nameLookup = new HashMap<String, LookAndFeelInfo>();
     private final Map<String, LookAndFeelInfo> classNameLookup = new HashMap<String, LookAndFeelInfo>();
@@ -75,8 +77,9 @@ class LookAndFeelIndex {
         for (LookAndFeelInfo lafi : defaultInstalledLafs) {
             add(lafi);
         }
-        // Add external LAFs to the index, if they can be found, and if they
-        // aren't already installed.
+        // Add external LAFs to the index and install them into the
+        // UIManager. Only add LAFs that are not already in the index,
+        // which means they aren't already installed.
         for (String lafClassName : EXTERNAL_PLAFS) {
             if (!classNameLookup.containsKey(lafClassName)) {
                 try {

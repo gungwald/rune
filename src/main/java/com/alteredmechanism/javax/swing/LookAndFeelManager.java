@@ -49,12 +49,13 @@ public class LookAndFeelManager implements ActionListener {
     public static final String MOTIF_THEME_NAME = "CDE/Motif";
     public static final String GTK_LAF_CLASS_NAME = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
-    private ButtonGroup buttonGroup = new ButtonGroup();
+    private final ButtonGroup buttonGroup = new ButtonGroup();
     private Messenger messenger;
-    private List<Component> componentsToUpdate = new ArrayList<Component>();
-    private LookAndFeelInfo metalPlaf = null;
+    private final List<Component> componentsToUpdate = new ArrayList<Component>();
+    @SuppressWarnings("unused")
+    private final LookAndFeelInfo metalPlaf = null;
     private Class<?> oceanThemeClass;
-    private LookAndFeelIndex lafIndex = LookAndFeelIndex.getInstance();
+    private final LookAndFeelIndex lafIndex = LookAndFeelIndex.getInstance();
 
     /**
      * It needs to be volatile to prevent cache incoherence issues.
@@ -131,12 +132,13 @@ public class LookAndFeelManager implements ActionListener {
     }
 
     protected boolean isOceanThemeAvailable() {
-        boolean isAvailable = false;
+        boolean isAvailable;
         try {
             oceanThemeClass = Class.forName(OCEAN_THEME_CLASS_NAME);
             isAvailable = true;
         } catch (ClassNotFoundException e) {
             logger.log(Level.WARNING, "Ocean theme for Metal look-and-feel was not found");
+            isAvailable = false;
         }
         return isAvailable;
     }

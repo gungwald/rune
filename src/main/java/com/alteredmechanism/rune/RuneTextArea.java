@@ -58,8 +58,8 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         setFont(bufferFont);
         setBorder(textBorder);
         setLineWrap(creator.getLineWrap());
-        Color notepadPlusPlusBackground = new Color(242, 244, 255);
-        this.setBackground(notepadPlusPlusBackground);
+//        Color notepadPlusPlusBackground = new Color(242, 244, 255);
+//        this.setBackground(notepadPlusPlusBackground);
         scroller = new JScrollPane(this,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -68,7 +68,8 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         this.addCaretListener(creator);
 
         // Set up line numbers. Yea!
-        lineNumberingTextArea = new LineNumberingTextArea(creator, this, notepadPlusPlusBackground.darker());
+//        lineNumberingTextArea = new LineNumberingTextArea(creator, this, notepadPlusPlusBackground.darker());
+        lineNumberingTextArea = new LineNumberingTextArea(creator, this);
         lineNumberingTextArea.setBorder(textBorder);
         lineNumberingTextArea.setFont(bufferFont);
         scroller.setRowHeaderView(lineNumberingTextArea);
@@ -145,7 +146,7 @@ public class RuneTextArea extends AntiAliasedJTextArea {
 
     /**
      *  Return the column number at the Caret position.
-     *
+     * <p>
      *  The column returned will only make sense when using a
      *  Monospaced font.
      */
@@ -228,9 +229,9 @@ public class RuneTextArea extends AntiAliasedJTextArea {
         return preferredHeight / lineHeight;
     }
 
-    /**
-     *  Return the number of lines of text, including wrapped lines.
-     */
+//    /**
+//     *  Return the number of lines of text, including wrapped lines.
+//     */
 //	public int getWrappedLines(/* JTextComponent */)
 //	{
 //		int lines = 0;
