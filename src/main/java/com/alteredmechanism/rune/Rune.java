@@ -2,6 +2,7 @@ package com.alteredmechanism.rune;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 import com.alteredmechanism.javax.swing.LookAndFeelManager;
+import com.alteredmechanism.rune.actions.OpenFileWithJavaFileChooserAction;
 import com.alteredmechanism.rune.actions.SaveAction;
 import com.alteredmechanism.rune.actions.ZoomInAction;
 import com.alteredmechanism.rune.actions.ZoomOutAction;
@@ -10,6 +11,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,6 +37,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -118,7 +121,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private final JCheckBoxMenuItem lineWrapMenuItem = new JCheckBoxMenuItem("Wrap Lines");
 
     private JFontChooser fontChooser = null;
-    private FileDialog fileChooser = null;
+    private FileDialog fileDialog = null;
     private static Messenger messenger = Messenger.getInstance();
     private AboutDialog aboutDialog = null;
     @SuppressWarnings("unused")
@@ -192,7 +195,9 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         openMenuItem.setMnemonic(KeyEvent.VK_O);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKeyMask));
         file.add(openMenuItem);
-//        bindShiftControlKey(KeyEvent.VK_O, openFileWithJavaFileChooser);
+
+        Action openFileWithJavaFileChooserAction = new OpenFileWithJavaFileChooserAction(this);
+        bindShiftControlKey(KeyEvent.VK_O, openFileWithJavaFileChooserAction);
 
 //        ComponentInputMap inputMap = new KeyBindings(bufferTabs).getInputMap();
 //        bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
@@ -328,14 +333,14 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         bufferTabs.getActionMap().put(actionMapKeyKey, action);
     }
 
-//    public void bindShiftControlKey(int key, Action action) {
-//        String actionMapKeyKey = (String) action.getValue(Action.NAME);
-//        KeyStroke keySequence = KeyStroke.getKeyStroke(key, SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
-//        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(keySequence, actionMapKeyKey);
-//        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keySequence, actionMapKeyKey);
-//        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keySequence, actionMapKeyKey);
-//        bufferTabs.getActionMap().put(actionMapKeyKey, action);
-//    }
+    public void bindShiftControlKey(int key, Action action) {
+        String actionMapKeyKey = (String) action.getValue(Action.NAME);
+        KeyStroke keySequence = KeyStroke.getKeyStroke(key, InputEvent.ALT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
+        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(keySequence, actionMapKeyKey);
+        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keySequence, actionMapKeyKey);
+        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keySequence, actionMapKeyKey);
+        bufferTabs.getActionMap().put(actionMapKeyKey, action);
+    }
 
     public ImageIconLoader getLoader() {
         if (loader == null) {
@@ -502,15 +507,36 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
 
     private void openFileWithNativeFileChooser(ActionEvent e) {
         try {
-            getFileChooser().setTitle("Open File");
-            getFileChooser().setMode(FileDialog.LOAD);
-            getFileChooser().setLocationRelativeTo(this);
-            getFileChooser().setAlwaysOnTop(true);
-            getFileChooser().setModal(true);
-            getFileChooser().toFront();
-            getFileChooser().setVisible(true);
-            String fileName = getFileChooser().getFile();
-            String dir = getFileChooser().getDirectory();
+            getFileDialog().setTitle("Open File");
+            getFileDialog().setMode(FileDialog.LOAD);
+            getFileDialog().setLocationRelativeTo(this);
+            getFileDialog().setAlwaysOnTop(true);
+            getFileDialog().setModal(true);
+            getFileDialog().toFront();
+            getFileDialog().setVisible(true);
+            String fileName = getFileDialog().getFile();
+            String dir = getFileDialog().getDirectory();
+            if (fileName != null && dir != null) {
+                File selectedFile = new File(dir, fileName);
+                open(selectedFile);
+            }
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Failed to open file", ex);
+            getMessenger().showError(ex);
+        }
+    }
+
+    private void openFileWithJavaFileChooser(ActionEvent e) {
+        try {
+            getFileDialog().setTitle("Open File");
+            getFileDialog().setMode(FileDialog.LOAD);
+            getFileDialog().setLocationRelativeTo(this);
+            getFileDialog().setAlwaysOnTop(true);
+            getFileDialog().setModal(true);
+            getFileDialog().toFront();
+            getFileDialog().setVisible(true);
+            String fileName = getFileDialog().getFile();
+            String dir = getFileDialog().getDirectory();
             if (fileName != null && dir != null) {
                 File selectedFile = new File(dir, fileName);
                 open(selectedFile);
@@ -553,13 +579,13 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         return fontChooser;
     }
 
-    private FileDialog getFileChooser() {
-        if (fileChooser == null) {
-            fileChooser = new FileDialog(this);
+    private FileDialog getFileDialog() {
+        if (fileDialog == null) {
+            fileDialog = new FileDialog(this);
             // fileChooser.setMultiSelectionEnabled(true);
-            LookAndFeelManager.getInstance().addComponentToUpdate(fileChooser);
+            LookAndFeelManager.getInstance().addComponentToUpdate(fileDialog);
         }
-        return fileChooser;
+        return fileDialog;
     }
 
     public Messenger getMessenger() {
@@ -582,11 +608,11 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         boolean operationCancelled = false;
         File fileToSave = null;
         while (!fileConfirmed && !operationCancelled) {
-            getFileChooser().setTitle("Save File");
-            getFileChooser().setMode(FileDialog.SAVE);
-            getFileChooser().setVisible(true);
-            String fileName = getFileChooser().getFile();
-            String dir = getFileChooser().getDirectory();
+            getFileDialog().setTitle("Save File");
+            getFileDialog().setMode(FileDialog.SAVE);
+            getFileDialog().setVisible(true);
+            String fileName = getFileDialog().getFile();
+            String dir = getFileDialog().getDirectory();
             if (fileName != null && dir != null) {
                 fileToSave = new File(dir, fileName);
                 if (fileToSave.exists()) {
@@ -873,8 +899,8 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     protected void cleanupAndExit(@SuppressWarnings("SameParameterValue") int exitCode) {
         try {
             Configuration.getInstance().save();
-            if (fileChooser != null) {
-                fileChooser.dispose();
+            if (fileDialog != null) {
+                fileDialog.dispose();
             }
             if (aboutDialog != null) {
                 aboutDialog.dispose();

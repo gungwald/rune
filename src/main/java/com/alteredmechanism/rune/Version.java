@@ -7,6 +7,6 @@ package com.alteredmechanism.rune;
  */
 public class Version {
     public static final String RELEASE_VERSION = "2.0.0";
-    public static final String BUILD_NUMBER = "143";
-    public static final String BUILD_DATE = "2025-10-10";
+    public static final String BUILD_NUMBER = "146";
+    public static final String BUILD_DATE = "2025-10-11";
 }
