@@ -56,6 +56,7 @@ import java.util.logging.Logger;
 
 import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
 
+// TODO - Scale only for large screen sizes
 // TODO - Implement vi key bindings
 // TODO - Go to line
 // TODO - Syntax highlighting
