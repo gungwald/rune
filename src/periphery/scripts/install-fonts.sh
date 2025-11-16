@@ -2,7 +2,6 @@
 
 # TODO - Keep the fonts in their original zip archive and extract them on demand
 # TODO - Add support for Windows
-# TODO - Keep the font cache updated (fc-cache -f -v)
 # TODO - Keep the font cache updated on Mac (atsutil databases -removeUser)
 # TODO - Keep the font cache updated on Haiku (makefont cache)
 
@@ -117,6 +116,14 @@ installFont()
     done
 )
 
+updateFontCache()
+(
+    # TODO - What if it's not in the PATH?
+    if type fc-cache > /dev/null
+        fc-cache -f -v
+    fi
+)
+
 installFonts()
 (
     # Parentheses above make all variables local to this function.
@@ -127,6 +134,7 @@ installFonts()
     fi
     # Find TrueType or OpenType font files.
     find "$FONT_SRC_DIR" -name '*.[ot]tf' -print | installFont "$FONT_DEST_DIR"
+    updateFontCache
 )
 
 OS=`uname -s`
