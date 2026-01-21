@@ -13,9 +13,17 @@
 # copies them to the system/user font directory. Java 6 partially
 # supports OpenType and Java 7 has full support.
 
-# Written for: Mac, Linux, all BSDs, Haiku, Solaris, Illumos/OpenInd
+# So this should not be rewritten in a non-POSIX shell like fish.
+# That would break compatibility with supported systems. And fish
+# is stupid.
+# It should not be written in a way that breaks compatibility with
+# Java versions 6 or greater.
 
-# Designed to be POSIX compliant so that it works in bash, ash, dash
+# Written for: Mac, Linux, all BSDs, Haiku, Solaris, Illumos/OpenInd
+# If you're using Windows, then run with Git Bash or WSL.
+
+# Designed to be POSIX compliant so that it works in bash, ash, dash,
+# ksh, zsh, and other POSIX-compliant shells, not just bash.
 
 # Immediately exit the script if a command fails.
 set -e
@@ -28,7 +36,7 @@ fail()
 
 getSystemFontDir()
 (
-    # Parentheses above make all variables local to this function.
+    # The parenthesis above makes all variables local to this function.
     if [ "$OS" = 'darwin' ]
     then
         SYSTEM_FONT_DIR='/Library/Fonts'
@@ -45,14 +53,14 @@ getSystemFontDir()
     then
         SYSTEM_FONT_DIR="$HOME/config/non-packaged/data/fonts"
     else
-        fail Unknown operating system: "$OS". Cannot determine font directory. 1>&2
+        fail Unknown operating system: "$OS". Cannot determine font directory.
     fi
     echo "$SYSTEM_FONT_DIR"
 )
 
 getAbsolutePath()
 (
-    # Parentheses above make all variables local to this function.
+    # The parenthesis above makes all variables local to this function.
     SHORT_NAME="$1"
     if [ -d "$SHORT_NAME" ]
     then
@@ -66,7 +74,7 @@ getAbsolutePath()
 
 isFontInstalled()
 (
-    # Parentheses above make all variables local to this function.
+    # The parenthesis above makes all variables local to this function.
     FONT="$1"
     FONT_DEST_DIR="$2"
     if [ "$OS" = 'darwin' ]
@@ -102,7 +110,7 @@ APPLE_SCRIPT
 
 installFont()
 (
-    # Parentheses above make all variables local to this function.
+    # The parenthesis above makes all variables local to this function.
     TARGET_FONT_DIR="$1"
     while read -r FONT
     do
@@ -118,15 +126,52 @@ installFont()
 
 updateFontCache()
 (
-    # TODO - What if it's not in the PATH?
-    if type fc-cache > /dev/null
-        fc-cache -f -v
+    # The parenthesis above makes all variables local to this function.
+    if [ "$OS" = 'darwin' ]
+    then
+      # NOT TESTED - Please report if this works.
+      atsutil databases -removeUser
+    elif [ "$OS" = 'SunOS' ]
+    then
+      # Should include 5.8 and previous versions without CDE as well.
+      if [ "$OS_VER" = '5.8' ]
+      then
+        # On Solaris 8 with CDE, update the font cache.
+        # NOT TESTED - Please report if this works.
+        /usr/dt/bin/sdtfontadm
+      else
+        # On Solaris 9 and later, the font cache is updated automatically.
+        # Manually installed fonts should be available immediately.
+        :
+      fi
+    elif [ "$OS" = 'Haiku' ]
+    then
+        # On Haiku, the font cache is updated automatically.
+        # Manually installed fonts should be available immediately but
+        # maybe a restart is needed in some cases. Hence,
+        # we try to force a cache update here.
+        # NOT TESTED - Please report if this works.
+        /system/bin/makefont cache
+    elif [ "$OS" = 'Linux' ] || [ "$OS" = 'OpenBSD' ] || [ "$OS" = 'NetBSD' ] || [ "$OS" = 'FreeBSD' ]
+    then
+      # TODO - What if it's not in the PATH?
+      if type fc-cache > /dev/null
+      then
+          fc-cache -f -v
+      fi
+    elif [ "$OS" = 'SunOS' ]
+    then
+        # On Solaris 9 and later, the font cache is updated automatically.
+        # Manually installed fonts should be available immediately.
+        :
+    else
+        fail Unknown operating system: "$OS". Cannot update font cache.
     fi
 )
 
 installFonts()
 (
-    # Parentheses above make all variables local to this function.
+    # The parenthesis above makes all variables local to this function.
     FONT_SRC_DIR="$1"
     FONT_DEST_DIR="$2"
     if [ ! -d "$FONT_DEST_DIR" ]; then
