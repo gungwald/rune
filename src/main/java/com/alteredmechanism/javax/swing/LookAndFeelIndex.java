@@ -19,6 +19,10 @@ class LookAndFeelIndex {
     private static final String CLASS_NAME = LookAndFeelIndex.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
+    // Material LAF takes too long to load and doesn't look as good as
+    // FlatLaf, so don't add it back.
+    //      "mdlaf.MaterialLookAndFeel"
+
     public static final String[] EXTERNAL_PLAFS = {
             "com.incors.plaf.kunststoff.KunststoffLookAndFeel",
             "com.birosoft.liquid.LiquidLookAndFeel",
@@ -28,7 +32,9 @@ class LookAndFeelIndex {
             "com.jgoodies.looks.windows.WindowsLookAndFeel",
             "net.sourceforge.mlf.metouia.MetouiaLookAndFeel",
             "org.jvnet.substance.SubstanceLookAndFeel",
-            "net.sourceforge.openlook_plaf.OpenLookLookAndFeel"
+            "net.sourceforge.openlook_plaf.OpenLookLookAndFeel",
+            "com.formdev.flatlaf.FlatLightLaf",
+            "com.formdev.flatlaf.FlatDarkLaf"
     };
 
     private final Map<String, LookAndFeelInfo> nameLookup = new HashMap<String, LookAndFeelInfo>();
@@ -38,7 +44,6 @@ class LookAndFeelIndex {
     // ***********************************************************************
     //                             Singleton
     // ***********************************************************************
-
     /**
      * The only instance of this class.
      * It needs to be volatile to prevent cache incoherence issues.
@@ -67,10 +72,31 @@ class LookAndFeelIndex {
      */
     private LookAndFeelIndex() {
         super();
-        installExternalLafs();
+        // Add the default installed LAFs to the index
+        LookAndFeelInfo[] defaultInstalledLafs = UIManager.getInstalledLookAndFeels();
+        for (LookAndFeelInfo lafi : defaultInstalledLafs) {
+            add(lafi);
+        }
+        // Add external LAFs to the index and install them into the
+        // UIManager. Only add LAFs that are not already in the index,
+        // which means they aren't already installed.
+        for (String lafClassName : EXTERNAL_PLAFS) {
+            if (!classNameLookup.containsKey(lafClassName)) {
+                try {
+                    LookAndFeel laf = lookupLafFromClassName(lafClassName);
+                    LookAndFeelInfo info = new LookAndFeelInfo(laf.getName(), lafClassName);
+                    UIManager.installLookAndFeel(info);
+                    add(info);
+                } catch (ClassNotFoundException e) {
+                    logger.log(Level.WARNING, "Failed to install look & feel. Check if class version is greater than Java 5.0: " + e);
+                } catch (Throwable t) {
+                    logger.log(Level.WARNING, "Failed to install look & feel: " + t);
+                }
+            }
+        }
     }
     // ***********************************************************************
-    //                     End of Singleton making code
+    //                     end of singleton making code
     // ***********************************************************************
 
     protected void add(LookAndFeelInfo[] lafis) {
@@ -102,6 +128,17 @@ class LookAndFeelIndex {
     protected LookAndFeelInfo lookupByClassName(String className) {
         return classNameLookup.get(className);
     }
+
+    /**
+     * Looks up a look and feel by class name, and returns an instance of it.
+     * @param lafClassName The class name of the look and feel
+     * @return An instance of the look and feel. Will not return null.
+     * @throws ClassNotFoundException If the class cannot be found
+     * @throws NoSuchMethodException If the constructor cannot be found
+     * @throws InvocationTargetException If the constructor throws an exception
+     * @throws InstantiationException If the class cannot be instantiated
+     * @throws IllegalAccessException If the constructor is not accessible
+     */
     public LookAndFeel lookupLafFromClassName(String lafClassName) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         // The target runtime is Java 5, so don't try to "fix" this.
         final Class<?> lafClazz = Class.forName(lafClassName);
@@ -109,39 +146,4 @@ class LookAndFeelIndex {
         return (LookAndFeel) cons.newInstance();
         // The target runtime is Java 5, so don't try to "fix" this.
     }
-    /**
-     * Installs additional look and feels, if it can be found in the
-     * class path. Otherwise, it does nothing.
-     */
-    public void installExternalLafs() {
-        for (String lafClassName : EXTERNAL_PLAFS) {
-            try {
-                LookAndFeel laf = lookupLafFromClassName(lafClassName);
-                installIfNotDuplicate(laf);
-            } catch (ClassNotFoundException e) {
-                logger.log(Level.WARNING, "Failed to install look & feel. Check if class version is greater than Java 5.0: " + e);
-            } catch (Throwable t) {
-                logger.log(Level.WARNING, "Failed to install look & feel: " + t);
-            }
-        }
-    }
-
-    private void installIfNotDuplicate(LookAndFeel laf) {
-        String lafName = laf.getName();
-        String lafClassName = laf.getClass().getName();
-        String finalLafName;
-        if (this.lookupByClassName(lafClassName) == null) {
-            logger.log(Level.WARNING, "Blocking install of already existing look and feel class {0} {1}", new String[]{lafName, lafClassName});
-        } else {
-            if (this.lookupByName(lafName) == null) {
-                finalLafName = lafName + " " + new Random(new Date().getTime());
-                logger.log(Level.WARNING, "Found duplicate LAF name with different class names: {0}", lafName);
-            } else {
-                finalLafName = lafName;
-            }
-            logger.log(Level.FINE, "Trying {0} PLAF with class {1}", new String[]{finalLafName, lafClassName});
-            UIManager.installLookAndFeel(finalLafName, lafClassName);
-        }
-    }
-
 }
