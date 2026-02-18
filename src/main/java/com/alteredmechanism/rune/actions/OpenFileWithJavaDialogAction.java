@@ -1,11 +1,11 @@
 package com.alteredmechanism.rune.actions;
 
 import com.alteredmechanism.rune.Rune;
-import org.apache.tools.ant.input.InputHandler;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileView;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -13,28 +13,21 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-public class OpenFileWithJavaFileChooserAction extends AbstractAction {
-    private static final String CLASS_NAME = OpenFileWithJavaFileChooserAction.class.getName();
+public class OpenFileWithJavaDialogAction extends AbstractAction {
+
+    private static final String CLASS_NAME = OpenFileWithJavaDialogAction.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
     private final Rune rune;
     private final JFileChooser fileChooser = new JFileChooser();
 
-    public OpenFileWithJavaFileChooserAction(Rune rune) {
+    public OpenFileWithJavaDialogAction(Rune rune) {
         super();
         logger.entering(CLASS_NAME, "OpenFileWithJavaFileChooserAction");
         this.rune = rune;
-        this.putValue(NAME, "OpenFileWithJavaFileChooserAction");
-        this.putValue(SHORT_DESCRIPTION, "Use the Java file chooser to open a file");
-        this.putValue(LONG_DESCRIPTION, "Use the Java file chooser to open a file");
-        this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.ALT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        //noinspection UnnecessaryBoxing
-        this.putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_O)); // Conversion to Integer required for retrotranslator
-
         logger.exiting(CLASS_NAME, "OpenFileWithJavaFileChooserAction");
     }
 

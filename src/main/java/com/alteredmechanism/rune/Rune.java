@@ -2,7 +2,7 @@ package com.alteredmechanism.rune;
 
 import com.alteredmechanism.javax.swing.ImageIconLoader;
 import com.alteredmechanism.javax.swing.LookAndFeelManager;
-import com.alteredmechanism.rune.actions.OpenFileWithJavaFileChooserAction;
+import com.alteredmechanism.rune.actions.OpenFileWithJavaDialogAction;
 import com.alteredmechanism.rune.actions.SaveAction;
 import com.alteredmechanism.rune.actions.ZoomInAction;
 import com.alteredmechanism.rune.actions.ZoomOutAction;
@@ -11,7 +11,6 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -53,8 +52,6 @@ import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
 
 // TODO - Scale only for large screen sizes
 // TODO - Implement vi key bindings
@@ -113,8 +110,7 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
     private final JMenuItem cutMenuItem = new JMenuItem("Cut");
     private final JMenuItem copyMenuItem = new JMenuItem("Copy");
     private final JMenuItem pasteMenuItem = new JMenuItem("Paste");
-    private final JMenuItem copyFileNameMenuItem = new JMenuItem(
-            "Copy Full Name of File in Editor");
+    private final JMenuItem copyFileNameMenuItem = new JMenuItem("Copy Full Name of File in Editor");
     private final JMenuItem selectFontMenuItem = new JMenuItem("Select Font...");
     private final JMenuItem aboutMenuItem = new JMenuItem("About...");
     private final JMenuItem zoomInMenuItem = new JMenuItem("Zoom In");
@@ -197,8 +193,10 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKeyMask));
         file.add(openMenuItem);
 
-        Action openFileWithJavaFileChooserAction = new OpenFileWithJavaFileChooserAction(this);
-        bindShiftControlKey(KeyEvent.VK_O, openFileWithJavaFileChooserAction);
+        Action openFileWithJavaDialogAction = new OpenFileWithJavaDialogAction(this);
+        bindAltKey(KeyEvent.VK_O, openFileWithJavaDialogAction);
+        bindAltKey(KeyEvent.VK_N, openFileWithJavaDialogAction);
+        bindAltKey(KeyEvent.VK_0, openFileWithJavaDialogAction);
 
 //        ComponentInputMap inputMap = new KeyBindings(bufferTabs).getInputMap();
 //        bufferTabs.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
@@ -313,6 +311,16 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         setLocationRelativeTo(null);
         setVisible(true);
         getSelectedBuffer().requestFocusInWindow();
+
+        // Add key binding for F1 to show a help dialog
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK), "showHelp");
+        getRootPane().getActionMap().put("showHelp", new javax.swing.AbstractAction() {
+
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(Rune.this, "Help dialog triggered by F1 key.", "Help", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
     @Override
     public Dimension getPreferredSize() {
@@ -334,13 +342,19 @@ public class Rune extends JFrame implements ActionListener, MouseListener,
         bufferTabs.getActionMap().put(actionMapKeyKey, action);
     }
 
-    public void bindShiftControlKey(int key, Action action) {
-        String actionMapKeyKey = (String) action.getValue(Action.NAME);
-        KeyStroke keySequence = KeyStroke.getKeyStroke(key, InputEvent.ALT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
-        bufferTabs.getInputMap(JComponent.WHEN_FOCUSED).put(keySequence, actionMapKeyKey);
-        bufferTabs.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keySequence, actionMapKeyKey);
-        bufferTabs.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keySequence, actionMapKeyKey);
-        bufferTabs.getActionMap().put(actionMapKeyKey, action);
+    public void bindAltKey(int key, Action action) {
+//        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+//                .put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "showHelp");
+//        getRootPane().getActionMap().put("showHelp", new javax.swing.AbstractAction() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                JOptionPane.showMessageDialog(Rune.this, "Help dialog triggered by F1 key.", "Help", JOptionPane.INFORMATION_MESSAGE);
+//            }
+//        });
+        String actionMapKeyKey = "OpenFileWithJavaDialogAction";
+        KeyStroke keySequence = KeyStroke.getKeyStroke(key, InputEvent.ALT_DOWN_MASK);
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keySequence, actionMapKeyKey);
+        getRootPane().getActionMap().put(actionMapKeyKey, action);
     }
 
     public ImageIconLoader getLoader() {

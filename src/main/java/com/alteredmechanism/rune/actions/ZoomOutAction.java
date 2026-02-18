@@ -16,7 +16,7 @@ public class ZoomOutAction extends ZoomAction implements Action {
 
     public ZoomOutAction(Rune app) {
         super(app);
-        logger.warning("ZoomOutAction constructor");
+        logger.entering(CLASS_NAME, "ZoomOutAction");
         this.putValue(NAME, "Zoom Out");
         this.putValue(SHORT_DESCRIPTION, "Make the font smaller");
         this.putValue(LONG_DESCRIPTION, "Make the font smaller");

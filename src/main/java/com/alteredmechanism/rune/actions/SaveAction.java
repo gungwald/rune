@@ -19,7 +19,7 @@ public class SaveAction extends AbstractAction implements Action {
     private final Rune rune;
 
     public SaveAction(Rune app) {
-        logger.warning("SaveAction constructor");
+        logger.entering(CLASS_NAME, "SaveAction");
         this.rune = app;
         this.putValue(NAME, "Save");
         this.putValue(SHORT_DESCRIPTION, "Save the current file");

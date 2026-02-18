@@ -31,7 +31,7 @@ class LookAndFeelIndex {
             "com.jgoodies.looks.plastic.PlasticXPLookAndFeel",
             "com.jgoodies.looks.windows.WindowsLookAndFeel",
             "net.sourceforge.mlf.metouia.MetouiaLookAndFeel",
-            "org.jvnet.substance.SubstanceLookAndFeel",
+            "org.jvnet.substance.skin.SubstanceSaharaLookAndFeel",
             "net.sourceforge.openlook_plaf.OpenLookLookAndFeel",
             "com.formdev.flatlaf.FlatLightLaf",
             "com.formdev.flatlaf.FlatDarkLaf"
