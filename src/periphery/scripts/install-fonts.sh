@@ -2,8 +2,6 @@
 
 # TODO - Keep the fonts in their original zip archive and extract them on demand
 # TODO - Add support for Windows
-# TODO - Keep the font cache updated on Mac (atsutil databases -removeUser)
-# TODO - Keep the font cache updated on Haiku (makefont cache)
 
 # shellcheck disable=SC2006
 # shellcheck disable=SC2030
@@ -127,6 +125,7 @@ installFont()
 updateFontCache()
 (
     # The parenthesis above makes all variables local to this function.
+    FONT_DIR="$1"
     if [ "$OS" = 'darwin' ]
     then
       # NOT TESTED - Please report if this works.
@@ -157,7 +156,7 @@ updateFontCache()
       # TODO - What if it's not in the PATH?
       if type fc-cache > /dev/null
       then
-          fc-cache -f -v
+          fc-cache --error-on-no-fonts --force --verbose "$FONT_DIR"
       fi
     elif [ "$OS" = 'SunOS' ]
     then
@@ -179,7 +178,7 @@ installFonts()
     fi
     # Find TrueType or OpenType font files.
     find "$FONT_SRC_DIR" -name '*.[ot]tf' -print | installFont "$FONT_DEST_DIR"
-    updateFontCache
+    updateFontCache "$FONT_DEST_DIR"
 )
 
 OS=`uname -s`
@@ -189,4 +188,11 @@ MY_DIR=`dirname "$SELF"`
 FONT_SRC_DIR=`dirname "$MY_DIR"`/fonts
 FONT_DEST_DIR=`getSystemFontDir`
 
-installFonts "$FONT_SRC_DIR" "$FONT_DEST_DIR"
+# For Windows, call out to a different script.
+if isRunningOnWindows
+then
+    echo Starting Windows PowerShell script to install fonts: install-fonts.ps1
+    powershell install-fonts.ps1 "$FONT_SRC_DIR"
+else
+    installFonts "$FONT_SRC_DIR" "$FONT_DEST_DIR"
+fi
